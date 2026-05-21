@@ -7,6 +7,7 @@
 | 路径 | 说明 |
 | --- | --- |
 | `SKILL.md` | 对外入口 |
+| `usage-guide.md` | 用户使用指南：三种安装路径 / 输入 / 产物 / 边界 |
 | `workflow.md` | 完整执行流程 |
 | `input-guide.md` | 交互式输入顺序 |
 | `installation-or-consumption.md` | 第一阶段使用和安装边界 |
@@ -16,6 +17,7 @@
 | `prompts/` | 阶段 prompt |
 | `quality-gate.md` | Skill 侧质量门禁适配 |
 | `examples/` | golden sample、thin dogfood、一致性检查 |
+| `evals/` | 触发、边界、失败模式和期望行为回归用例 |
 
 ## 核心原则
 

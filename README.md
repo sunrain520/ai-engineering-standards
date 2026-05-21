@@ -10,6 +10,7 @@
 | `engineering-standards/00-global/` | 全局规则生命周期、模板和质量门禁 |
 | `engineering-standards/01-app-client/` | APP 客户端规范 |
 | `skills/project-standard-extractor/` | 从代码萃取团队规范的 Skill 源包 |
+| `skills/project-standard-extractor/usage-guide.md` | Skill 用户使用指南（首次使用读这里） |
 | `engineering-standards/prompts/` | 可复制给 AI 的标准 Prompt |
 | `docs/01-版本路线/` | 背景、目标、产品定位和同类产品调研 |
 | `docs/02-技术方案/` | 第一阶段技术方案和 Skill 建设方案 |

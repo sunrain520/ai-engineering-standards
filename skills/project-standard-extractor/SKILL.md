@@ -5,22 +5,24 @@ description: 从一个或多个真实项目代码路径中萃取团队级研发�
 
 # Project Standard Extractor
 
+## Purpose / 目的
+
 本 Skill 是单一对外入口，内部按阶段角色完成规范萃取。最终产物是团队级规范文档，不是某个项目或微服务的代码说明书。
 
-## 何时使用
+## When To Use / 何时使用
 
 - 需要从真实代码中沉淀 APP、PC、前端、后端或行业规范。
 - 需要生成 AI Coding Rules、Review Checklist、正反例和 evidence。
 - 需要把多项目实践整理为团队级标准。
 
-## 何时不要使用
+## When Not To Use / 何时不要使用
 
 - 只想解释某个项目代码。
 - 只想生成行业通用最佳实践，且没有团队代码或负责人确认。
 - 需要自动扫描、CLI、CI 或向量索引，本阶段不提供。
 - 需要修改业务代码。
 
-## 输入
+## Inputs / 输入
 
 最小输入是一个或多个 `project_paths`。其余信息按 `input-guide.md` 交互补齐：
 
@@ -36,7 +38,7 @@ description: 从一个或多个真实项目代码路径中萃取团队级研发�
 10. 输出目标。
 11. 确认声明。
 
-## 工作流
+## Workflow / 工作流
 
 1. Intake and Scope：确认输入、边界和敏感文件处理策略。
 2. Facts and Classification：先输出代码事实，再分类为推荐、禁止、历史兼容、待确认。
@@ -55,7 +57,7 @@ description: 从一个或多个真实项目代码路径中萃取团队级研发�
 5. 敏感配置、密钥、token、生产凭据只记录脱敏存在事实。
 6. `active` 只能由领域负责人确认，Skill 不自动发布。
 
-## 输出
+## Outputs / 输出
 
 根据 `config/output-targets.md` 写入：
 
@@ -70,6 +72,16 @@ description: 从一个或多个真实项目代码路径中萃取团队级研发�
 - `evidence/positive-examples.md`
 - `evidence/forbidden-examples.md`
 - `evidence/legacy-compatible.md`
+
+## Failure Modes / 失败模式
+
+| 失败模式 | 触发条件 | 处理方式 |
+| --- | --- | --- |
+| `NO_VALID_PROJECT_PATHS` | `project_paths` 为空、不可读或都不在允许范围内 | 停止萃取，请用户重新提供路径 |
+| `INSUFFICIENT_EVIDENCE` | 只有单点事实、行业共性或模板建议，无法支撑团队级规则 | 写入 `pending-confirmation.md`，不得进入 AI 默认执行路径 |
+| `SENSITIVE_FILE_BLOCKED` | 命中敏感配置、凭据文件或生产环境敏感字段 | 只记录脱敏存在事实，不读取、不复制原值 |
+| `TARGET_CONFLICT` | 新候选规则与已有 `active` / `draft` 或多项目事实冲突 | 写入 `conflicts.md` 或 `merge-suggestions.md`，不得覆盖旧内容 |
+| `OWNER_CONFIRMATION_MISSING` | 高风险规则、行业规则或 `active` 升级缺少负责人确认 | 保持 `draft` 或 `pending-confirmation`，只输出确认项 |
 
 ## 最小验收
 
