@@ -16,6 +16,7 @@ project_paths:
 dev_domain: APP
 industry_domain: none
 output_scope: full package
+extraction_mode: focused-module
 sub_domains:
   - KMP
   - Android
@@ -24,13 +25,23 @@ sub_domains:
 run_id: 20260521-180500-app-client
 ```
 
-## 2. Code Facts
+## 2. Context Boundary
+
+该输入已经是低风险 focused module，因此可使用 `focused-module`，但仍记录上下文预算：
+
+- 不读取完整仓库。
+- 只读取 `engineering-standards/01-app-client/` 内相关规范文档。
+- 不把该 dogfood 结果当成真实业务源码 evidence。
+- 若改为完整业务 APP 仓库，则必须先进入 `profile-first` 并生成 batch plan。
+
+## 3. Code Facts
 
 写入 `01-app-client/common/evidence/code-facts.md`(因为是跨 sub_domain 共性事实):
 
 ```markdown
 ## EV-APP-001: APP 规范要求 UI 薄、共享逻辑下沉 KMP
 
+- batch_id: app-client-common-docs
 - 来源路径：engineering-standards/01-app-client/00-app-client-overview.md
 - 子领域：common
 - 观察事实：文档定义"共享逻辑放 KMP，平台逻辑放 ViewModel 或 Reactor，页面只负责渲染，数据访问统一走数据中台"。
@@ -45,7 +56,7 @@ run_id: 20260521-180500-app-client
 
 注意:此条 evidence 来源是 owner 已确认的规范文档,因此 evidence 元数据 `source_kind` 在规则侧记为 `owner-confirmed`,但 `evidence_tier` 记为 `cross-project`(规范文档跨多个 APP 项目落地)而非 `none`。
 
-## 3. Rule
+## 4. Rule
 
 写入 `01-app-client/common/standard.md`:
 
@@ -83,7 +94,7 @@ AI 处理 APP 需求时，必须先判断逻辑是否可跨端复用；可复用
 - code-facts: `evidence/code-facts.md「EV-APP-001」`
 ```
 
-## 4. AI Rules Entry
+## 5. AI Rules Entry
 
 `01-app-client/common/ai-rules.md` §2 列出:
 
@@ -98,14 +109,18 @@ AI 处理 APP 需求时，必须先判断逻辑是否可跨端复用；可复用
 - `evidence_tier: cross-project`
 - 需要 APP 负责人补真实代码 evidence 后,由负责人手工改 `status: active`
 
-## 5. Review Checklist Entry
+## 6. Review Checklist Entry
 
 `01-app-client/common/review-checklist.md` §1 / §2 由 generation 派生:
 
 - [ ] `01-app-client/common/standard.md「P1 可跨端复用逻辑优先下沉 KMP」`
   - 检查点: 需求归属是否已判断 KMP / Android / iOS;跨端复用逻辑是否没有重复写在双端;数据访问是否仍通过 Repository / HSDataCenterKit
 
-## 6. Negative Cases
+## 7. Candidate Fast Index
+
+生成候选 `rules-index`、`llms` 和 `ai-context-pack`，用于验证 title-based references。候选产物不得覆盖正式根文件。
+
+## 8. Negative Cases
 
 ### 无证据规则
 
@@ -134,7 +149,7 @@ AI 处理 APP 需求时，必须先判断逻辑是否可跨端复用；可复用
 - 只记录"发现敏感配置文件路径"。
 - 不读取和不复制任何值。
 
-## 7. Merge Result
+## 9. Merge Result
 
 本 dogfood 证明以下产物可以被生成：
 
@@ -144,3 +159,4 @@ AI 处理 APP 需求时，必须先判断逻辑是否可跨端复用；可复用
 - `review-checklist` entry
 - review report
 - merge suggestion / pending / conflict 处理策略
+- fast-index candidate artifacts

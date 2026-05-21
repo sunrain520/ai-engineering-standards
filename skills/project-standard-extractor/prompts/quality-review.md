@@ -13,6 +13,7 @@
 7. 人工确认门禁。
 8. 冲突门禁。
 9. 行业风险门禁。
+10. 上下文治理门禁：是否遵守 `profile-first`、选定 batch、artifact handoff 和候选索引边界。
 
 ## 规则定位
 
@@ -27,6 +28,7 @@ target_state:           # draft / active / pending-confirmation / conflict / leg
 recommended_action:     # keep-draft / promote-to-active / move-to-pending / mark-conflict / mark-legacy / reject / defer
 blocking_findings: []
 warnings: []
+context_governance_result:
 required_human_confirmation: []
 ```
 

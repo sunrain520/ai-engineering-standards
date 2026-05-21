@@ -1,0 +1,24 @@
+# engineering-standards llms candidate
+
+candidate: true
+generated_from: {run_id}
+
+## Entry Points
+
+- Overview: engineering-standards/{domain}/overview.md
+- Standard: engineering-standards/{source_doc}
+- AI Rules: engineering-standards/{ai_rules_doc}
+- Review Checklist: engineering-standards/{review_checklist_doc}
+- Rules Index Candidate: engineering-standards/{domain}/{run_id}-rules-index-candidate.json
+
+## Loading Policy
+
+1. Identify domain, sub_domain and task_type.
+2. Filter rules-index candidate by domain, sub_domain, level and tags.
+3. Load P0 and FORBIDDEN rules first.
+4. Load related standard.md and ai-rules.md.
+5. Self-check by citing source_doc + section_title.
+
+## Candidate Boundary
+
+This file is a merge suggestion. Do not overwrite root llms.txt unless the user explicitly asks to publish it.

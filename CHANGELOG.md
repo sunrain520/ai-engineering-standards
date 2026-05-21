@@ -35,3 +35,6 @@
 - v0.1.0 2026-05-21 17:47:00 leokuang: 将 project-standard-extractor 模板与契约对齐 AI 快速索引最终方案，去除 Rule ID 与 HTML anchor，规则统一以 (source_doc, section_title) 二元组定位，并在 frontmatter-format 集中字段枚举、按 P0/P1/P2/FORBIDDEN 标题前缀生成 (user-visible)
 - v0.1.0 2026-05-21 17:53:15 leokuang: 全面审查后修复 project-standard-extractor 模板对齐问题：补 examples/evidence README 模板、补 review-report/rule-state-decision 的 doc_id 与 run_id/slug 规则、workflow §4.3 字段集补 risk_tag/recommended_action、ai-rules/review-checklist 声明 standard.md 为 single source、generation 增补示例注释剥离规则、SKILL 强制边界明确二元组定位与 evidence 颗粒度 (user-visible)
 - v0.1.0 2026-05-21 18:16:18 leokuang: 二轮深扫修复 project-standard-extractor 历史口径：prompts/* 与 quality-gate.md 去 Rule ID 改二元组并对齐新枚举；examples/golden-sample-run、thin-dogfood-run、consistency-checklist 改写为新规则格式；evals/failure-cases 冲突示例改用 source_doc+section_title；evals/expected-behavior 修正 recommended_action 取值范围 (user-visible)
+- v0.1.0 2026-05-21 18:48:00 leokuang: 更新根 README，补齐 engineering-standards 全部子目录、skills、docs、治理文件入口，新增 V1 关键约定与 workflow 入口段 (user-visible)
+- v0.1.0 2026-05-21 18:50:17 leokuang: 根据文档审查修复轻量快速索引计划的新鲜度、artifact 契约和 P2 标题等级遗漏 (user-visible)
+- v0.1.0 2026-05-21 22:40:57 leokuang: 将 project-standard-extractor 升级为上下文治理型萃取流程，新增 profile-first、batch plan、候选 rules-index/llms/AI Context Pack 模板与回归用例，并标记实施计划完成 (user-visible)

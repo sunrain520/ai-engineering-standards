@@ -10,7 +10,7 @@
 
 1. 读取全局 `quality-gate.md`。
 2. 对每条规则收集 evidence、AI Rules、Review Checklist。
-3. 运行六个分面 reviewer。
+3. 运行七个分面 reviewer。
 4. 汇总为一个 `quality_gate_decision`。
 5. 交给 Merge Coordinator 写入目标文件。
 
@@ -27,6 +27,7 @@
 | 历史包袱只允许保留 | `legacy-compatible` | `mark-legacy` |
 | 不可执行、不可检查或包含敏感信息 | `rejected` | `reject` |
 | 评审材料不足,需要下一轮萃取 | 维持原状 | `defer` |
+| 生成过程越过 batch 边界或候选索引被误标正式产物 | `pending-confirmation` | `defer` |
 
 ## 输出格式
 
@@ -43,5 +44,6 @@ quality_gate_decision:
   example_result:
   conflict_result:
   industry_risk_result:
+  context_governance_result:
   required_human_confirmation: []
 ```

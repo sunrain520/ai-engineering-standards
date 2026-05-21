@@ -1,0 +1,21 @@
+{
+  "index_format": "engineering-standards-rules-index-v1",
+  "generated_from": "{run_id}",
+  "candidate": true,
+  "rules": [
+    {
+      "title": "{规则标题}",
+      "domain": "{domain}",
+      "sub_domain": "{sub_domain}",
+      "level": "P0",
+      "source_doc": "{source_doc}",
+      "section_title": "P0 {规则标题}",
+      "evidence_doc": "{evidence_doc}",
+      "tags": [
+        "{domain}",
+        "{sub_domain}",
+        "{task_type}"
+      ]
+    }
+  ]
+}

@@ -25,7 +25,15 @@
 - [ ] P0 / FORBIDDEN 规则有 evidence 和 Review 检查项。
 - [ ] evidence_tier 取值在 `direct-code` / `cross-project` / `single-project` / `inferred` / `none` 范围内,**不**使用 `owner-confirmed` 等冗义值(`owner-confirmed` 是 `source_kind`)。
 
-## 4. 输出落点
+## 4. 上下文治理
+
+- [ ] 完整项目 / 完整仓库 / 多服务输入先进入 `profile-first`。
+- [ ] profile-first 只输出 `project-profile` / `extraction-map` / `batch-plan`，不生成正式规则。
+- [ ] 正式萃取只选择一个 batch。
+- [ ] batch 包含 `domain`、`sub_domain`、`module` 或 `task_type`、`candidate_files`、`excluded_paths`、`evidence_limit`、`rule_limit` 和 `stop_conditions`。
+- [ ] 后续阶段读取 handoff artifacts 和候选路径，不携带完整源码上下文。
+
+## 5. 输出落点
 
 - [ ] `pending-confirmation.md` 存在。
 - [ ] `merge-suggestions.md` 存在。
@@ -36,19 +44,24 @@
 - [ ] `evidence/forbidden-examples.md` 存在。
 - [ ] `evidence/legacy-compatible.md` 存在。
 - [ ] `examples/README.md` 存在。
+- [ ] 需要时输出 `{run_id}-rules-index-candidate.json`。
+- [ ] 需要时输出 `{run_id}-llms-candidate.txt`。
+- [ ] 需要时输出 `{run_id}-ai-context-pack.md`。
+- [ ] 候选索引产物不默认覆盖正式根文件。
 
-## 5. 安全
+## 6. 安全
 
 - [ ] evidence 没有 secret、token、private key。
 - [ ] evidence 没有生产凭据或敏感配置值。
 - [ ] 敏感文件只记录脱敏存在事实。
 
-## 6. 建议搜索
+## 7. 建议搜索
 
 ```bash
 rg -n 'STD-[A-Z]{2,}-' engineering-standards skills/project-standard-extractor
 rg -n '<a id=' engineering-standards skills/project-standard-extractor
 rg -n 'consider promotion|rule_id|RuleID' engineering-standards skills/project-standard-extractor
+rg -n 'read full project|读取完整项目|全量读取' skills/project-standard-extractor
 rg -n 'secret|token|private key|password' engineering-standards/*/evidence skills/project-standard-extractor/examples
 ```
 

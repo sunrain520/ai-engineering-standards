@@ -19,7 +19,7 @@
 ```text
 读取 skills/project-standard-extractor/SKILL.md
 按 input-guide.md 补齐输入
-按 workflow.md 顺序执行
+按 workflow.md 顺序执行 profile-first / batch-extraction
 使用 templates/ 写入目标目录
 使用 quality-gate.md 做状态建议
 ```
@@ -39,4 +39,4 @@
 - `examples/thin-dogfood-run.md`
 - `examples/consistency-checklist.md`
 
-这三类文档证明 Skill 能从入口跑到输出，并且不会绕过 evidence、覆盖已有规则或泄露敏感信息。
+这三类文档证明 Skill 能从入口跑到 profile-first、batch plan、selected-batch evidence、输出和候选索引，并且不会绕过 evidence、覆盖已有规则或泄露敏感信息。

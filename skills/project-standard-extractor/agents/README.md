@@ -7,8 +7,8 @@
 | 文件 | 阶段 |
 | --- | --- |
 | `intake-and-scope.md` | 输入引导、范围确认、敏感文件策略 |
-| `facts-and-classification.md` | 代码事实萃取、正反例、历史兼容、分类 |
-| `generation.md` | 规范、AI Rules、Review Checklist、evidence 生成 |
+| `facts-and-classification.md` | 选定 batch 的代码事实萃取、正反例、历史兼容、分类 |
+| `generation.md` | 规范、AI Rules、Review Checklist、evidence 和候选索引生成 |
 | `review-and-quality-gate.md` | 分面评审和质量门禁 |
 | `merge-coordinator.md` | append-only 合并和冲突处理 |
 
@@ -19,6 +19,8 @@
 3. 无证据内容不得进入 AI 可执行 `draft`。
 4. 所有高风险规则必须输出 warning。
 5. 所有阶段必须保留不确定点。
+6. 完整项目 / 完整仓库 / 多服务输入必须先进入 `profile-first`。
+7. 正式萃取必须限定到一个选定 batch。
 
 ## R13 角色 → 阶段合约映射
 
@@ -27,8 +29,8 @@
 | brainstorm 角色 | 阶段合约 | 在合约中的职责段 |
 | --- | --- | --- |
 | Intake | `intake-and-scope.md` | 输入收集、确认声明 |
-| Project Profiler | `intake-and-scope.md` | 推断研发域、子领域和行业 |
-| Evidence Collector | `facts-and-classification.md` | 代码路径与文档证据采集 |
+| Project Profiler | `intake-and-scope.md` | 推断研发域、子领域、行业和 `extraction_mode` |
+| Evidence Collector | `facts-and-classification.md` | 选定 batch 的代码路径与文档证据采集 |
 | Code Facts | `facts-and-classification.md` | `code_facts` 输出 |
 | Pattern Classifier | `facts-and-classification.md` | `classification` 桶 |
 | APP Standard | `generation.md` | 端 `standard.md` 生成（domain=APP） |
@@ -38,12 +40,14 @@
 | AI Rules | `generation.md` | `ai-rules.md` 生成 |
 | Review Checklist | `generation.md` | `review-checklist.md` 生成 |
 | Evidence Writer | `generation.md` | `evidence/*` 写入 |
+| Context Pack Writer | `generation.md` | `rules-index`、`llms`、`ai-context-pack` 候选产物 |
 | Evidence Auditor | `review-and-quality-gate.md` | Review persona：证据 |
 | Team Standard Reviewer | `review-and-quality-gate.md` | Review persona：团队级抽象 |
 | AI Executability Reviewer | `review-and-quality-gate.md` | Review persona：AI 可执行性 |
 | Review Checklist Reviewer | `review-and-quality-gate.md` | Review persona：Review 可检查性 |
 | Conflict Reviewer | `review-and-quality-gate.md` | Review persona：冲突 |
 | Industry Risk Reviewer | `review-and-quality-gate.md` | Review persona：行业风险 |
+| Context Governance Reviewer | `review-and-quality-gate.md` | Review persona：profile-first / batch 边界 |
 | Quality Gate | `review-and-quality-gate.md` | 汇总 `quality_gate_decision` |
 | Merge Coordinator | `merge-coordinator.md` | append-only 写入与冲突落点 |
 

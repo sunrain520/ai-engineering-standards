@@ -75,3 +75,31 @@ candidate_rule:
 
 - 触发 `OWNER_CONFIRMATION_MISSING`。
 - 保持 `pending-confirmation` 或 `draft`，输出确认项，不发布 `active`。
+
+## FC-006 正式萃取缺少 batch
+
+```yaml
+request: 进入正式萃取并生成规则
+extraction_mode: batch-extraction
+selected_batch: null
+```
+
+期望：
+
+- 触发 `BATCH_NOT_SELECTED`。
+- 停止生成规则，要求选择一个 batch 或补充 focused module。
+
+## FC-007 batch 没有代表性 evidence
+
+```yaml
+selected_batch:
+  batch_id: backend-java-api-order
+  candidate_files: []
+  status: pending-confirmation
+```
+
+期望：
+
+- 触发 `NO_REPRESENTATIVE_EVIDENCE`。
+- 保持 `pending-confirmation` / `skipped`。
+- 不生成 AI 可执行规则。

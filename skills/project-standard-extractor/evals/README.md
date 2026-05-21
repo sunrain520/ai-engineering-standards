@@ -19,3 +19,6 @@
 2. 边界样例不会被误判为规范萃取任务。
 3. 失败样例不会生成 AI 可执行规则。
 4. 期望产物仍满足 append-only、evidence-first、draft-only 的约束。
+5. broad input 仍先进入 `profile-first`，不会直接生成规则。
+6. `batch-extraction` 仍要求单个 `selected_batch`。
+7. 候选 fast-index artifacts 仍不包含 `rule_id` / `anchor`，且不默认发布正式索引。

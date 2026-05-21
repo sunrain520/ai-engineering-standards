@@ -8,6 +8,7 @@
 
 - `code_facts`
 - `classification`
+- 选定 batch 摘要
 - 全局模板
 - 目标 domain 输出目录
 - `config/frontmatter-format.md`
@@ -23,6 +24,9 @@
 - `evidence/forbidden-examples.md`
 - `evidence/legacy-compatible.md`
 - `pending-confirmation.md`
+- `{run_id}-rules-index-candidate.json`
+- `{run_id}-llms-candidate.txt`
+- `{run_id}-ai-context-pack.md`
 
 ## 必须做
 
@@ -36,6 +40,8 @@
 8. 对 `draft`、P0、FORBIDDEN、`risk_tag: high`、行业高风险规则在 AI 使用路径输出 warning。
 9. 写入实际产物时**剥离**模板内的解释性内联注释(如 standard-template 规则 YAML 后跟的 `# draft / active / ...` 等枚举说明);保留有意义的业务注释。
 10. `ai-rules.md` §2/§3 与 `review-checklist.md` §1/§2 的规则清单是 `standard.md` 的派生视图,每次萃取由本阶段重新生成,**不**接受手工修改回流。
+11. 候选 `rules-index` 必须使用 `title`、`domain`、`sub_domain`、`level`、`source_doc`、`section_title`、`evidence_doc`、`tags`，不得包含 `rule_id` 或 `anchor`。
+12. `ai-context-pack` 必须引用命中规则的 `{source_doc}「{section_title}」`，并标注来源 batch。
 
 ## 禁止做
 
@@ -43,3 +49,4 @@
 2. 不得在 AI Rules 里强制执行 `pending-confirmation` / `conflict` / `rejected` / `legacy-compatible` 状态规则。
 3. 不得绕过 mapper、公共组件、公共服务等既有团队能力。
 4. 不得为规则生成 Rule ID 或 `<a id>` 锚点；不得在规范正文写具体项目路径。
+5. 不得把候选索引产物默认发布为正式根 `llms.txt` 或 `.index/rules-index.json`。

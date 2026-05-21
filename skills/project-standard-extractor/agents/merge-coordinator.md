@@ -10,6 +10,7 @@
 - 现有 domain 目录。
 - output targets。
 - Front Matter 索引字段。
+- 候选 `rules-index` / `llms` / `ai-context-pack` 产物。
 
 ## 输出
 
@@ -17,6 +18,7 @@
 - 新增规则定位列表（`(source_doc, section_title)` 二元组）。
 - 新增 Evidence 条目编号列表（`EV-/POS-/NEG-/LEG-{DOMAIN}-{NUMBER}`）。
 - merge / conflict / pending 列表。
+- candidate index artifact 列表。
 
 > 规则不使用 Rule ID，不写 HTML anchor；引用规则统一为 `{source_doc}「{section_title}」`。
 
@@ -29,6 +31,7 @@
 | similar existing rule | `merge-suggestions.md` |
 | conflicting rule | `conflicts.md` |
 | legacy pattern | `evidence/legacy-compatible.md` |
+| fast-index candidate | `{run_id}-rules-index-candidate.json`、`{run_id}-llms-candidate.txt`、`{run_id}-ai-context-pack.md` |
 | rejected | 不进入执行路径，可记录在 review report |
 
 ## 幂等合并协议
@@ -64,6 +67,7 @@ existing_index:
 6. 如果缺少 evidence、负责人确认或适用范围，写入 `pending-confirmation.md`，不得写入 `ai-rules.md`。
 7. 如果目标文件缺少 Front Matter，先追加到 `merge-suggestions.md`，不得直接改写历史文档头部。
 8. 新建文件必须按 `config/frontmatter-format.md` 写入 Front Matter，规则 H2 必须以 `P0|P1|P2|FORBIDDEN` 前缀开头。
+9. 候选索引产物必须保留 candidate 标记，不得默认覆盖正式 `.index/rules-index.json` 或根 `llms.txt`。
 
 ## 必须做
 
@@ -72,6 +76,7 @@ existing_index:
 3. 记录每次运行的输出摘要。
 4. 保留所有待人工确认项。
 5. 保证新建 Markdown 文件顶部可被快速索引。
+6. 对 `rules-index` 候选检查字段为 `title/domain/sub_domain/level/source_doc/section_title/evidence_doc/tags`。
 
 ## 禁止做
 
@@ -79,3 +84,4 @@ existing_index:
 2. 不得覆盖已有 `draft`。
 3. 不得删除历史 evidence。
 4. 不得把 `pending-confirmation` 写入 AI 默认执行路径。
+5. 不得默认发布候选索引产物。

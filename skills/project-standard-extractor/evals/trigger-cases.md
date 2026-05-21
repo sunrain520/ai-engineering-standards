@@ -17,7 +17,9 @@ output_scope: full package
 
 - 进入 Intake and Scope。
 - 推断或确认 Backend / Java / API 子领域。
-- 先输出 `code_facts`，再生成规范候选。
+- 因为是多服务输入，先进入 `profile-first`。
+- 输出 `project-profile`、`extraction-map` 和 `batch-plan`。
+- 选择单个 batch 后才输出 `code_facts` 并生成规范候选。
 
 ## TC-002 APP KMP 规范萃取
 
@@ -33,6 +35,7 @@ dev_domain: APP
 期望：
 
 - 识别 KMP、Android、iOS、DataCenter 等子领域候选。
+- 先生成 APP batch plan，不直接跨端生成规则。
 - 双端共性必须先进入 facts，不直接写强制规则。
 - 平台路径只能进入 evidence，不进入规则正文。
 
@@ -51,3 +54,19 @@ output_scope: full package
 
 - 生成 `engineering-standards/09-industry/` 候选输出。
 - 行业共性如果没有团队 evidence 或负责人确认，只能进入 `pending-confirmation.md`。
+
+## TC-004 已选 batch 的后端 API 萃取
+
+```yaml
+request: 基于已生成的 batch plan 萃取订单 API 规范
+extraction_mode: batch-extraction
+selected_batch:
+  batch_id: backend-java-api-order
+  source_batch_plan: engineering-standards/04-backend/20260521-180000-backend-batch-plan.md
+```
+
+期望：
+
+- 只读取 `backend-java-api-order` 的 candidate files。
+- 输出 code facts、classification、规则候选和候选 fast-index artifacts。
+- 不读取其它 batch 的数据库、MQ 或 job 文件。

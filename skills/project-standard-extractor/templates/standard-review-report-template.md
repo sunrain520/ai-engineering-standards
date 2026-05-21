@@ -30,6 +30,9 @@ tags:
 新建 / 追加文件：
 
 - [ ] `standard.md`
+- [ ] `{run_id}-project-profile.md`
+- [ ] `{run_id}-extraction-map.md`
+- [ ] `{run_id}-batch-plan.md`
 - [ ] `ai-rules.md`
 - [ ] `review-checklist.md`
 - [ ] `overview.md`
@@ -40,6 +43,9 @@ tags:
 - [ ] `pending-confirmation.md`
 - [ ] `merge-suggestions.md`
 - [ ] `conflicts.md`
+- [ ] `{run_id}-rules-index-candidate.json`
+- [ ] `{run_id}-llms-candidate.txt`
+- [ ] `{run_id}-ai-context-pack.md`
 
 ## 3. 规则评审
 
@@ -84,6 +90,12 @@ tags:
 - suggestions:
 
 ### 4.6 Industry Risk Reviewer
+
+- verdict:
+- findings:
+- suggestions:
+
+### 4.7 Context Governance Reviewer
 
 - verdict:
 - findings:

@@ -54,3 +54,33 @@ dev_domain: Backend
 
 - 单项目事实可进入 `draft` 或 `pending-confirmation`，但不得自动升级为 P0 / FORBIDDEN。
 - 必须标注推导边界和负责人确认项。
+
+## BC-005 完整仓库请求直接出规则
+
+```yaml
+request: 读取这个完整仓库，直接生成所有后端规范
+project_paths:
+  - /repo/backend-monorepo
+dev_domain: unknown
+```
+
+期望：
+
+- 强制进入 `profile-first`。
+- 只输出 `project-profile`、`extraction-map`、`batch-plan` 和代表性文件候选。
+- 不生成 `standard.md`、`ai-rules.md` 或正式 rules-index。
+
+## BC-006 同时选择多个 batch
+
+```yaml
+request: 把这三个 batch 一次性都萃取完
+selected_batch:
+  - backend-java-api-order
+  - backend-java-database-order
+```
+
+期望：
+
+- 要求用户一次只选择一个 batch。
+- 不跨 batch 合并读取源码。
+- 如需处理多个 batch，分多次运行。

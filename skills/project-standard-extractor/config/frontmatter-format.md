@@ -54,9 +54,15 @@ evidence-legacy
 pending-confirmation
 merge-suggestions
 conflicts
+project-profile
+extraction-map
+batch-plan
+ai-context-pack
 review-report
 rule-state-decision
 ```
+
+`project-profile`、`extraction-map`、`batch-plan` 和 `ai-context-pack` 是运行级 handoff / candidate artifacts，默认 `indexable: false`，避免项目路径和临时候选进入 AI 默认规则加载路径。它们仍必须带 Front Matter，以便按 `doc_id`、`run_id`、`domain` 和 `doc_type` 定位。
 
 ## 4. 字段枚举
 
@@ -170,3 +176,7 @@ none
 | `conflicts.md` | `CONFLICT-{DOMAIN}-{NUMBER}` |
 
 `{NUMBER}` 在所属文件内单调递增，不复用，不重排。
+
+## 7. 非 Markdown 候选产物
+
+`rules-index-template.json` 和 `llms-template.txt` 不是 Markdown，不使用 YAML Front Matter。它们的输出位置、候选状态和人工合并边界由 `config/output-targets.md` 约束。

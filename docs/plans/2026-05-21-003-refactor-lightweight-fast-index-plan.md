@@ -1,7 +1,7 @@
 ---
 title: "refactor: Add context-governed extraction and lightweight fast indexing"
 type: refactor
-status: active
+status: completed
 date: 2026-05-21
 spec_id: 2026-05-21-003-lightweight-fast-index
 origin: docs/02-技术方案/AI快速索引最终方案.md
@@ -21,7 +21,7 @@ origin: docs/02-技术方案/AI快速索引最终方案.md
 
 用户进一步确认：完整 APP 仓库只是典型案例，完整后端仓库、前端 Admin、PC 客户端、多微服务目录或行业规范萃取也会遇到相同上下文风险。因此 Skill 的第一性原理应从“读取代码生成规范”升级为“大输入 -> 小批次 -> 代表性证据 -> 团队级规则 -> 可索引文档”。
 
-当前 `skills/project-standard-extractor/` 的部分 source assets 仍残留 Rule ID / anchor 口径，例如 `STD-{DOMAIN}-{SUBDOMAIN}-{LEVEL}-{NUMBER}`、`rule_id`、`#RuleID` 和“新增 Rule ID 列表”。这些残留会让 Skill 产物与最终方案冲突，也会把人工审核复杂度重新引入 V1。
+本计划最初还覆盖 `skills/project-standard-extractor/` 中的 Rule ID / anchor 残留清理，例如 `STD-{DOMAIN}-{SUBDOMAIN}-{LEVEL}-{NUMBER}`、`rule_id`、`#RuleID` 和“新增 Rule ID 列表”。截至 `825c465`，这些当前 source assets 已基本迁移到 `source_doc + section_title` 二元组；剩余执行重点是核验无回归，并补上上下文治理流水线与候选索引产物契约。
 
 ---
 
@@ -32,7 +32,7 @@ origin: docs/02-技术方案/AI快速索引最终方案.md
 - R3. 所有正式萃取必须限定到一个 batch，batch 至少包含 domain、sub_domain、module 或 task_type、读取文件候选、排除范围、候选规则数量上限和 evidence 数量上限。
 - R4. 阶段之间必须通过 artifact handoff 传递摘要和路径，不传递完整源码；后续阶段优先读取 `project-profile`、`extraction-map`、`batch-plan`、`code-facts` 摘要。
 - R5. Skill 输出的 Markdown 文档必须保留统一 Front Matter，用于文件级索引。
-- R6. 规则正文不使用 Rule ID，不要求稳定 HTML anchor；规则标题统一使用 `## P0 / FORBIDDEN / P1 + 规则标题`。
+- R6. 规则正文不使用 Rule ID，不要求稳定 HTML anchor；规则标题统一使用 `## (P0|P1|P2|FORBIDDEN) {规则标题}`。
 - R7. 规则引用统一使用 `source_doc + section_title`，例如 `04-backend/02-java/java-standard.md「P0 Controller 不得写业务逻辑」`。
 - R8. `rules-index.json` 契约必须使用 `title`、`domain`、`sub_domain`、`level`、`source_doc`、`section_title`、`evidence_doc` 和 `tags` 支持过滤，不使用 `rule_id` 或 `anchor`。
 - R9. `project-standard-extractor` 的 workflow、agent contracts、prompts、templates、examples 和 evals 必须同时符合上下文治理和无 Rule ID 方案。
@@ -68,15 +68,15 @@ origin: docs/02-技术方案/AI快速索引最终方案.md
 
 - target_repo: `.`
 - status: unavailable
-- source_revision: unavailable
-- current_revision: `c2a3f56`
-- stale: unknown
+- source_revision: `825c465` (bounded direct-read snapshot)
+- current_revision: `825c465`
+- stale: false for bounded direct-read evidence; graph freshness remains unavailable
 - primary_providers: none
 - degraded_providers: none
 - fallback_capabilities: bounded direct repo reads
 - runtime_mcp_evidence: not used
 - confidence: medium
-- limitations: `.spec-first/graph/` readiness artifacts are absent; this is a docs / skill-contract refactor, so direct repository reads are sufficient and graph impact evidence is not required.
+- limitations: `.spec-first/graph/` readiness artifacts are absent; this is a docs / skill-contract refactor, so direct repository reads from `825c465` are sufficient and graph impact evidence is not required.
 
 ---
 
@@ -85,16 +85,13 @@ origin: docs/02-技术方案/AI快速索引最终方案.md
 ### Relevant Code and Patterns
 
 - `docs/02-技术方案/AI快速索引最终方案.md` is the source decision: V1 uses Front Matter + `rules-index.json` + rule title references, not Rule ID.
-- `skills/project-standard-extractor/SKILL.md` defines the external Skill contract and currently already requires Front Matter.
+- `skills/project-standard-extractor/SKILL.md` defines the external Skill contract and currently already requires Front Matter and `source_doc + section_title` rule references.
+- `skills/project-standard-extractor/workflow.md`, `config/frontmatter-format.md`, `config/output-targets.md`, templates, agents, prompts, examples and evals have already been aligned to the no Rule ID / no HTML anchor model in `825c465`.
 - `skills/project-standard-extractor/input-guide.md` defines current interactive inputs but does not yet expose `extraction_mode: profile-first` or batch-scoped execution as a first-class contract.
 - `skills/project-standard-extractor/prompts/project-profile.md` exists as a project profile prompt, but the workflow does not yet make profile-first the universal entry for large inputs.
-- `skills/project-standard-extractor/workflow.md` still requires stable HTML anchor before each rule title.
-- `skills/project-standard-extractor/config/frontmatter-format.md` currently includes a “规则锚点” section with `STD-*` anchors.
-- `skills/project-standard-extractor/config/output-targets.md` still says to append evidence by Rule ID and requires stable HTML anchors.
-- `skills/project-standard-extractor/templates/standard-template.md` currently emits `STD-{DOMAIN}-{SUBDOMAIN}-{LEVEL}-{NUMBER}` headings.
-- `skills/project-standard-extractor/agents/generation.md`, `agents/merge-coordinator.md`, `agents/review-and-quality-gate.md`, `quality-gate.md` and several prompts still use `rule_id` / Rule ID as primary identifier.
-- `skills/project-standard-extractor/examples/golden-sample-run.md` and `examples/thin-dogfood-run.md` still demonstrate `STD-*` rules.
-- `skills/project-standard-extractor/evals/expected-behavior.md` still expects “新增 Rule ID 列表” and `#RuleID` indexing.
+- `skills/project-standard-extractor/workflow.md` still uses `intake-and-scope -> facts-and-classification -> generation -> review-and-quality-gate -> merge-coordinator`; it does not yet require `project-profile -> extraction-map -> batch-plan -> selected-batch facts` artifact handoff.
+- `skills/project-standard-extractor/config/frontmatter-format.md` and `config/output-targets.md` do not yet enumerate the new `project-profile`、`extraction-map`、`batch-plan`、`ai-context-pack` candidate artifacts or their `doc_type` / `doc_id` / `indexable` rules.
+- `skills/project-standard-extractor/config/task-tags.md`, `config/context-governance.md`, `config/extraction-batch-policy.md`, `config/domain-sampling-adapters.md`, `templates/project-profile-template.md`, `templates/extraction-map-template.md`, `templates/batch-plan-template.md`, `templates/rules-index-template.json`, `templates/llms-template.txt`, `templates/ai-context-pack-template.md`, `prompts/batch-plan-generation.md` and `prompts/context-pack-generation.md` do not yet exist.
 
 ### Institutional Learnings
 
@@ -191,6 +188,10 @@ flowchart TD
 
 ## Implementation Units
 
+### Current Baseline Note
+
+`825c465` 已经完成大部分 Rule ID / HTML anchor 口径迁移：当前 `SKILL.md`、workflow、Front Matter、output targets、templates、agents、prompts、examples 和 evals 已经使用 `source_doc + section_title` 二元组。下面的 U1 / U2 / U3 / U5 因此是核验与补缺单元；真正新增的剩余范围集中在 U0 的上下文治理流水线和 U4 的候选索引产物。
+
 ### U0. Add context-governed extraction pipeline
 
 **Goal:** 把 `project-standard-extractor` 的默认执行模型升级为通用上下文治理流水线，支持完整项目路径输入但强制先画像、分批、聚焦采样。
@@ -205,6 +206,8 @@ flowchart TD
 - Modify: `skills/project-standard-extractor/input-guide.md`
 - Modify: `skills/project-standard-extractor/agents/intake-and-scope.md`
 - Modify: `skills/project-standard-extractor/agents/facts-and-classification.md`
+- Modify: `skills/project-standard-extractor/config/frontmatter-format.md`
+- Modify: `skills/project-standard-extractor/config/output-targets.md`
 - Modify: `skills/project-standard-extractor/prompts/project-profile.md`
 - Create: `skills/project-standard-extractor/config/context-governance.md`
 - Create: `skills/project-standard-extractor/config/extraction-batch-policy.md`
@@ -223,6 +226,7 @@ flowchart TD
 - Define `extraction-batch-policy.md` with the generic batch fields: domain, sub_domain, module, task_type, candidate files, excluded paths, evidence target, rule limit, stop conditions.
 - Define `domain-sampling-adapters.md` with per-domain sampling sections for APP, backend, frontend, PC and industry; adapters only select representative files and do not fork the workflow.
 - Add `project-profile`, `extraction-map` and `batch-plan` templates as intermediate evidence artifacts.
+- Extend `frontmatter-format.md` and `output-targets.md` with `project-profile`、`extraction-map` and `batch-plan` `doc_type` / `doc_id` / `indexable` rules so these handoff artifacts can be indexed and referenced consistently.
 - Update workflow to become `intake -> project-profile -> extraction-map -> batch-plan -> selected-batch facts -> classification -> generation -> review -> merge -> index-candidate`.
 
 **Patterns to follow:**
@@ -240,13 +244,14 @@ flowchart TD
 **Verification:**
 - Workflow docs describe profile-first and batch-extraction as universal, not APP-specific.
 - New templates make project profile, extraction map and batch plan concrete enough for downstream `$spec-work`.
+- `frontmatter-format.md` and `output-targets.md` explicitly list the new intermediate artifact types and output paths.
 - Search confirms no guidance says to read a full project or full Skill directory in ordinary extraction.
 
 ---
 
-### U1. Normalize fast-index contracts
+### U1. Verify and finish fast-index contracts
 
-**Goal:** 把 Skill 顶层契约、workflow 和 config 从 Rule ID / anchor 口径调整为 Front Matter + 规则标题引用口径。
+**Goal:** 核验当前 Skill 顶层契约、workflow 和 config 已经使用 Front Matter + 规则标题引用口径，并补齐 U0 / U4 引入的新 artifact 契约。
 
 **Requirements:** R5, R6, R7, R8, R11
 
@@ -263,11 +268,12 @@ flowchart TD
 - Test: none -- docs and template contract change; validation is by document checks and search-based regressions.
 
 **Approach:**
-- Remove “规则锚点”“稳定 HTML anchor”“新增 Rule ID 列表”等要求。
-- Define rule heading format as `## P0 / FORBIDDEN / P1 + title`.
+- Search for active “规则锚点”“稳定 HTML anchor”“新增 Rule ID 列表”等要求；只修复当前 source assets 的残留，不改历史计划记录。
+- Define rule heading format as `## (P0|P1|P2|FORBIDDEN) {title}`.
 - Define rule reference format as `source_doc + section_title`.
 - Update output summaries to list “新增规则标题 / section_title 列表” and evidence references.
 - Keep Front Matter required and clarify it is document-level metadata, not rule identity.
+- Ensure new candidate and handoff artifacts from U0 / U4 have explicit output-target and Front Matter rules where applicable.
 
 **Patterns to follow:**
 - `docs/02-技术方案/AI快速索引最终方案.md` section “Markdown Front Matter” and “rules-index.json”.
@@ -284,9 +290,9 @@ flowchart TD
 
 ---
 
-### U2. Update output templates to rule-title references
+### U2. Verify output templates use rule-title references
 
-**Goal:** 让所有 generated Markdown templates 输出无 Rule ID 的规范结构。
+**Goal:** 核验所有 generated Markdown templates 已输出无 Rule ID 的规范结构，并修复任何遗漏模板。
 
 **Requirements:** R5, R6, R7, R8, R9
 
@@ -305,8 +311,8 @@ flowchart TD
 - Test: none -- Markdown template change; validation is by Front Matter parsing and template content checks.
 
 **Approach:**
-- Replace `## STD-...` headings with `## {level} {规则标题}`.
-- Replace `Rule ID` fields with `规则引用` or `rule_ref` containing `source_doc` and `section_title`.
+- Verify no template still emits `## STD-...`; any residual heading must be replaced with `## {level} {规则标题}`.
+- Verify no template still treats `Rule ID` as required field; any residual field must become `规则引用` or `rule_ref` containing `source_doc` and `section_title`.
 - Keep `status`、`level`、`source_kind`、`evidence_tier` and owner fields; these are still useful and not tied to Rule ID.
 - Ensure review reports group by `source_doc` / `section_title` / `状态建议` / `evidence` / `主要问题`.
 
@@ -325,9 +331,9 @@ flowchart TD
 
 ---
 
-### U3. Align agents, prompts and quality gate with section-title identity
+### U3. Verify agents, prompts and quality gate use section-title identity
 
-**Goal:** 让生成、评审、质量门禁和合并协调阶段都以规则标题和来源文档作为识别依据。
+**Goal:** 核验生成、评审、质量门禁和合并协调阶段都以规则标题和来源文档作为识别依据，并修复任何残留 `rule_id` 口径。
 
 **Requirements:** R7, R8, R9, R11
 
@@ -345,8 +351,8 @@ flowchart TD
 - Test: none -- prompt and workflow contract change; validation is by drift search and sample-run checks.
 
 **Approach:**
-- Replace `rule_id` with `rule_ref` or explicit `source_doc` + `section_title`.
-- Update merge coordinator index model from `rule_ids` to `rule_refs` / `title_fingerprints`.
+- Search active agents/prompts/quality gate for residual `rule_id` / `Rule ID`; any active identifier must become `rule_ref` or explicit `source_doc` + `section_title`.
+- Verify merge coordinator index model uses `rule_refs` / `title_fingerprints`, not `rule_ids`.
 - Define duplicate detection by normalized title, level, domain, sub_domain, scope and evidence, not by numeric ID.
 - Keep conflict handling append-only and evidence-first.
 
@@ -380,6 +386,7 @@ flowchart TD
 - Create: `skills/project-standard-extractor/templates/llms-template.txt`
 - Create: `skills/project-standard-extractor/templates/ai-context-pack-template.md`
 - Create: `skills/project-standard-extractor/prompts/context-pack-generation.md`
+- Modify: `skills/project-standard-extractor/config/frontmatter-format.md`
 - Modify: `skills/project-standard-extractor/config/output-targets.md`
 - Modify: `skills/project-standard-extractor/workflow.md`
 - Modify: `skills/project-standard-extractor/README.md`
@@ -391,6 +398,7 @@ flowchart TD
 - Add `rules-index-template.json` with `index_format: engineering-standards-rules-index-v1` and no `rule_id` or `anchor`.
 - Add `llms-template.txt` as an entry-map template, not a generated official root file.
 - Add `ai-context-pack-template.md` showing task recognition, matched rules, required docs, code paths and self-check requirements.
+- Extend `frontmatter-format.md` and `output-targets.md` with `ai-context-pack` as a Markdown candidate artifact; document that `rules-index-template.json` and `llms-template.txt` are candidate non-source publishing aids and do not use Markdown Front Matter.
 - Mark these as candidate / merge-suggestion artifacts unless the user explicitly asks to publish root-level `llms.txt` or `.index/rules-index.json`.
 
 **Patterns to follow:**
@@ -405,13 +413,13 @@ flowchart TD
 
 **Verification:**
 - JSON template shape is syntactically valid after placeholder replacement in a sample.
-- Markdown templates have valid Front Matter where applicable.
+- Markdown candidate templates have valid Front Matter where applicable; JSON / txt candidate templates are covered by output-targets rather than Markdown Front Matter.
 
 ---
 
-### U5. Refresh examples, evals and documentation checks
+### U5. Verify examples, evals and documentation checks
 
-**Goal:** 让示例、回归用例和用户指南覆盖新的 V1 轻量索引口径，避免后续改动把 Rule ID 重新带回来。
+**Goal:** 核验示例、回归用例和用户指南已覆盖新的 V1 轻量索引口径，并补齐上下文治理与候选索引产物相关用例。
 
 **Requirements:** R9, R12
 
@@ -430,9 +438,10 @@ flowchart TD
 - Test: none -- eval fixture and example text change; validation is by expected-behavior review and skill audit.
 
 **Approach:**
-- Rewrite sample generated rules with `## P1 Controller 只负责请求接入和响应返回` style headings.
-- Change “新增 Rule ID 列表” to “新增规则引用列表”.
+- Verify sample generated rules use `## P1 Controller 只负责请求接入和响应返回` style headings; repair any remaining `STD-*` examples.
+- Verify “新增 Rule ID 列表” has become “新增规则引用列表” in active examples/evals.
 - Add eval expectations that `rules-index` uses `section_title` and rejects `rule_id` / `anchor` in V1.
+- Add eval expectations for `profile-first`、batch-scoped extraction、artifact handoff and candidate index artifacts.
 - Keep evidence and state-gate assertions unchanged.
 - Run the existing skill audit after edits if available, but treat it as validation, not implementation logic.
 

@@ -8,6 +8,7 @@
 
 - 生成规则。
 - evidence。
+- 选定 batch 摘要和候选索引产物。
 - 已有 `active` / `draft` 规则。
 
 ## Review Personas
@@ -20,6 +21,7 @@
 | Review Checklist Reviewer | Reviewer 是否能判断通过 / 不通过 |
 | Conflict Reviewer | 是否和已有规则或多项目事实冲突 |
 | Industry Risk Reviewer | 是否存在行业、合规、安全高风险过度声明 |
+| Context Governance Reviewer | 是否遵守 profile-first、batch 边界和 artifact handoff |
 
 ## 输出
 
@@ -43,9 +45,11 @@ quality_gate_decision:
 3. 对 no-evidence 规则建议进入 `pending-confirmation`。
 4. 对相似规则建议进入 `merge-suggestions.md`。
 5. 对冲突规则建议进入 `conflicts.md`。
+6. 确认规则生成没有越过选定 batch，候选索引产物标记为 candidate。
 
 ## 禁止做
 
 1. 不得发布 `active`。
 2. 不得创造新的持久化规则状态。
 3. 不得把负责人确认缺失的高风险规则升级为强制规则。
+4. 不得忽略 batch 边界或把 project-profile 推断当成 evidence。
