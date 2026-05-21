@@ -14,15 +14,20 @@
 8. 冲突门禁。
 9. 行业风险门禁。
 
-输出：
+## 规则定位
+
+- **不使用 Rule ID**;输出与所有内部表格使用 `(source_doc, section_title)` 二元组。
+
+## 输出
 
 ```yaml
-rule_id:
-target_state:
-recommended_action:
-blocking_findings:
-warnings:
-required_human_confirmation:
+source_doc:
+section_title:
+target_state:           # draft / active / pending-confirmation / conflict / legacy-compatible / rejected
+recommended_action:     # keep-draft / promote-to-active / move-to-pending / mark-conflict / mark-legacy / reject / defer
+blocking_findings: []
+warnings: []
+required_human_confirmation: []
 ```
 
-不得发布 `active`。
+不得发布 `active`(那是负责人手工动作,不在本阶段)。

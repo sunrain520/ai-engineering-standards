@@ -25,13 +25,16 @@
 
 ```yaml
 quality_gate_decision:
-  rule_id:
+  source_doc:
+  section_title:
   passed: false
   target_state: pending-confirmation
-  recommended_action:
+  recommended_action: keep-draft   # keep-draft / promote-to-active / move-to-pending / mark-conflict / mark-legacy / reject / defer
   findings: []
   required_human_confirmation: []
 ```
+
+> 规则不使用 Rule ID。本阶段输出与所有评审表格使用 `(source_doc, section_title)` 二元组定位规则。
 
 ## 必须做
 

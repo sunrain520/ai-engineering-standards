@@ -56,6 +56,9 @@ description: 从一个或多个真实项目代码路径中萃取团队级研发�
 4. P0 / FORBIDDEN 必须有 evidence 和 Review 检查项。
 5. 敏感配置、密钥、token、生产凭据只记录脱敏存在事实。
 6. `active` 只能由领域负责人确认，Skill 不自动发布。
+7. 所有输出 Markdown 顶部必须包含 `config/frontmatter-format.md` 定义的 YAML Front Matter。
+8. 规则不使用 Rule ID 或 HTML anchor;规则 H2 必须以 `P0 / P1 / P2 / FORBIDDEN ` 前缀开头,跨文档引用统一为 `{source_doc}「{section_title}」` 二元组。
+9. evidence 默认按 `sub_domain` 拆分,每个 sub_domain 各有一组 4 文件;跨 sub_domain 共性事实使用 `sub_domain: "common"` 的 evidence 文件,需在评审报告中显式记录。
 
 ## Outputs / 输出
 
@@ -68,10 +71,14 @@ description: 从一个或多个真实项目代码路径中萃取团队级研发�
 - `pending-confirmation.md`
 - `merge-suggestions.md`
 - `conflicts.md`
+- `examples/README.md`
+- `evidence/README.md`
 - `evidence/code-facts.md`
 - `evidence/positive-examples.md`
 - `evidence/forbidden-examples.md`
 - `evidence/legacy-compatible.md`
+
+所有输出文档必须使用 `index_format: engineering-standards-md-v1`，并按 `doc_id`、`domain`、`sub_domain`、`doc_type`、`tags` 支持快速索引。
 
 ## Failure Modes / 失败模式
 

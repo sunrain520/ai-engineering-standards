@@ -11,7 +11,7 @@
 | `workflow.md` | 完整执行流程 |
 | `input-guide.md` | 交互式输入顺序 |
 | `installation-or-consumption.md` | 第一阶段使用和安装边界 |
-| `config/` | 研发域、子领域和输出目录映射 |
+| `config/` | 研发域、子领域、Front Matter formatter 和输出目录映射 |
 | `agents/` | 阶段 agent / role contracts |
 | `templates/` | 输出文件模板 |
 | `prompts/` | 阶段 prompt |
@@ -26,6 +26,7 @@
 3. evidence 独立存放真实路径、正反例和历史兼容事实。
 4. 无证据内容不得进入 AI 默认执行路径。
 5. 每次运行只追加，不覆盖已有 `active` 或 `draft`。
+6. 输出文档顶部必须带 YAML Front Matter，支持 AI 快速索引。
 
 ## 第一阶段交付边界
 

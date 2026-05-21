@@ -80,14 +80,17 @@ project_paths
 - `standard.md`
 - `ai-rules.md`
 - `review-checklist.md`
+- 带 YAML Front Matter 的 Markdown 文档
 - `evidence/*`
 
 要求：
 
-1. 规则正文不写具体路径。
-2. 规则必须带 `status`、`level`、`source_kind`、`evidence_tier`。
-3. AI Rules 必须说明 draft / high-risk / pending 的使用边界。
-4. Review Checklist 必须能被 reviewer 判断。
+1. 每个输出 Markdown 顶部必须符合 `config/frontmatter-format.md`。
+2. 规则正文不写具体路径。
+3. 规则必须带 `status`、`level`、`source_kind`、`evidence_tier`、`risk_tag`、`recommended_action`(可选: `conflicts_with`、`superseded_by`),取值符合 `config/frontmatter-format.md §4` 枚举。
+4. AI Rules 必须说明 draft / high-risk / pending 的使用边界。
+5. Review Checklist 必须能被 reviewer 判断。
+6. 规则 H2 标题必须满足 `^(P0|P1|P2|FORBIDDEN) ` 前缀，且与 `rules-index.json.section_title` 字面一致；**不使用 Rule ID，不使用 HTML anchor**。规则跨文档引用统一为 `{source_doc}「{section_title}」` 二元组。
 
 ## 5. 阶段 4：Review and Quality Gate
 

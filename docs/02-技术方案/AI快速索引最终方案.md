@@ -14,6 +14,8 @@ llms.txt
 + 当前模块 module-standard.md
 ```
 
+其中 Markdown 规范文档顶部需要带统一 Front Matter，用于文件级索引；规则本身不使用 Rule ID。
+
 ---
 
 # 一、AI 快速索引的核心流程
@@ -37,7 +39,7 @@ AI 每次处理需求时，按下面流程走。
   ↓
 生成代码
   ↓
-自检时引用 Rule ID
+自检时引用规范文件路径和规则标题
 ```
 
 一句话：
@@ -72,7 +74,7 @@ AI 每次把整个 engineering-standards 仓库全部读一遍
 
 ---
 
-# 三、AI 快速索引依赖的两个关键文件
+# 三、AI 快速索引依赖的关键文件和格式契约
 
 ## 1. llms.txt：AI 入口地图
 
@@ -134,7 +136,57 @@ llms.txt = AI 规范仓库导航页
 
 ---
 
-## 2. rules-index.json：规则索引表
+## 2. Markdown Front Matter：文档顶部 formatter
+
+规范文档顶部必须带统一 Front Matter，用于告诉 AI 和索引生成器：
+
+```text
+这个文档属于哪个研发域
+属于哪个技术栈或子领域
+是什么文档类型
+是否进入快速索引
+有哪些检索标签
+```
+
+示例：
+
+```yaml
+---
+doc_id: "app-client-android-standard"
+title: "Android 客户端团队规范"
+domain: "app-client"
+sub_domain: "android"
+doc_type: "standard"
+version: "v0.1.0"
+status: "draft"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+tags:
+  - "app-client"
+  - "android"
+  - "standard"
+  - "ai-coding"
+---
+```
+
+作用：
+
+```text
+Front Matter = 文件级索引元数据
+```
+
+说明：
+
+```text
+1. Front Matter 只解决文档级识别和过滤。
+2. 规则级过滤由 rules-index.json 负责。
+3. 人工审核只关注规范内容、规则级别、证据和状态，不需要维护编号、Rule ID 或 anchor。
+```
+
+---
+
+## 3. rules-index.json：规则索引表
 
 `rules-index.json` 是 AI 快速检索规则的核心。
 
@@ -144,15 +196,16 @@ llms.txt = AI 规范仓库导航页
 {
   "version": "v1.0.0",
   "generated_at": "2026-05-21T00:00:00+08:00",
+  "index_format": "engineering-standards-rules-index-v1",
   "rules": [
     {
-      "rule_id": "STD-BE-JAVA-P0-001",
       "title": "Controller 不得写业务逻辑",
       "domain": "backend",
       "sub_domain": "java",
       "level": "P0",
       "source_doc": "04-backend/02-java/java-standard.md",
-      "anchor": "#STD-BE-JAVA-P0-001",
+      "section_title": "P0 Controller 不得写业务逻辑",
+      "evidence_doc": "04-backend/02-java/evidence/controller-layer.md",
       "tags": [
         "backend",
         "java",
@@ -161,13 +214,13 @@ llms.txt = AI 规范仓库导航页
       ]
     },
     {
-      "rule_id": "STD-APP-ANDROID-P0-001",
       "title": "Activity 和 Fragment 不得直接发起网络请求",
       "domain": "app-client",
       "sub_domain": "android",
       "level": "P0",
       "source_doc": "01-app-client/02-android/android-standard.md",
-      "anchor": "#STD-APP-ANDROID-P0-001",
+      "section_title": "P0 Activity 和 Fragment 不得直接发起网络请求",
+      "evidence_doc": "01-app-client/02-android/evidence/network-access.md",
       "tags": [
         "app",
         "android",
@@ -184,6 +237,30 @@ llms.txt = AI 规范仓库导航页
 ```text
 rules-index.json = AI 规则检索表
 ```
+
+V1 不使用 Rule ID。规则引用方式统一为：
+
+```text
+source_doc + section_title
+```
+
+例如：
+
+```text
+04-backend/02-java/java-standard.md「P0 Controller 不得写业务逻辑」
+```
+
+规范正文中的规则标题建议统一为：
+
+```markdown
+## P0 Controller 不得写业务逻辑
+
+## FORBIDDEN UI 层不得直接使用后端 DTO
+
+## P1 Service 应保持单一业务语义
+```
+
+`rules-index.json` 中的 `section_title` 必须与规范正文标题保持一致，避免 AI 引用时出现同义改写。
 
 ---
 
@@ -331,7 +408,7 @@ Step 6：构造 AI Context Pack
 - 自检要求
 
 Step 7：生成代码并自检
-- 自检必须引用 Rule ID
+- 自检必须引用 source_doc + section_title
 ```
 
 ---
@@ -358,11 +435,11 @@ AI 判断：
 AI 从 `rules-index.json` 命中：
 
 ```text
-STD-BE-JAVA-P0-001：Controller 不得写业务逻辑
-STD-BE-JAVA-P0-002：Controller 不得直接访问 Mapper
-STD-BE-JAVA-P0-003：不得直接返回 Entity
-STD-BE-API-P0-001：接口必须定义 Request / Response
-STD-BE-JAVA-P0-004：异常必须转换为统一错误码
+04-backend/02-java/java-standard.md「P0 Controller 不得写业务逻辑」
+04-backend/02-java/java-standard.md「P0 Controller 不得直接访问 Mapper」
+04-backend/02-java/java-standard.md「P0 不得直接返回 Entity」
+04-backend/04-api-design/api-design-standard.md「P0 接口必须定义 Request / Response」
+04-backend/02-java/java-standard.md「P0 异常必须转换为统一错误码」
 ```
 
 AI 加载：
@@ -388,10 +465,10 @@ AI 生成代码前先输出：
 
 ## 命中规则
 
-- STD-BE-JAVA-P0-001：Controller 不得写业务逻辑
-- STD-BE-JAVA-P0-002：Controller 不得直接访问 Mapper
-- STD-BE-JAVA-P0-003：不得直接返回 Entity
-- STD-BE-API-P0-001：接口必须定义 Request / Response
+- 04-backend/02-java/java-standard.md「P0 Controller 不得写业务逻辑」
+- 04-backend/02-java/java-standard.md「P0 Controller 不得直接访问 Mapper」
+- 04-backend/02-java/java-standard.md「P0 不得直接返回 Entity」
+- 04-backend/04-api-design/api-design-standard.md「P0 接口必须定义 Request / Response」
 ```
 
 ---
@@ -418,11 +495,11 @@ AI 判断：
 AI 命中规则：
 
 ```text
-STD-APP-ANDROID-P0-001：Activity 和 Fragment 不得直接发起网络请求
-STD-APP-ANDROID-P0-002：页面状态必须通过 ViewModel 收敛
-STD-APP-ANDROID-P0-003：新增页面必须处理 Loading / Error / Empty / Success
-STD-APP-KMP-P0-001：可跨端复用逻辑优先下沉 KMP
-STD-APP-DATA-P0-001：数据访问必须通过 Repository / HSDataCenterKit
+01-app-client/02-android/android-standard.md「P0 Activity 和 Fragment 不得直接发起网络请求」
+01-app-client/02-android/android-standard.md「P0 页面状态必须通过 ViewModel 收敛」
+01-app-client/02-android/android-standard.md「P0 新增页面必须处理 Loading / Error / Empty / Success」
+01-app-client/01-kmp/kmp-standard.md「P0 可跨端复用逻辑优先下沉 KMP」
+01-app-client/04-data-center/data-center-standard.md「P0 数据访问必须通过 Repository / HSDataCenterKit」
 ```
 
 AI 加载：
@@ -469,10 +546,10 @@ AI 快速索引完成后，最终应该形成一个上下文包。
 
 ## 3. 必须遵守的规则
 
-- STD-BE-JAVA-P0-001：Controller 不得写业务逻辑
-- STD-BE-JAVA-P0-002：Controller 不得直接访问 Mapper
-- STD-BE-JAVA-P0-003：不得直接返回 Entity
-- STD-BE-API-P0-001：接口必须定义 Request / Response
+- 04-backend/02-java/java-standard.md「P0 Controller 不得写业务逻辑」
+- 04-backend/02-java/java-standard.md「P0 Controller 不得直接访问 Mapper」
+- 04-backend/02-java/java-standard.md「P0 不得直接返回 Entity」
+- 04-backend/04-api-design/api-design-standard.md「P0 接口必须定义 Request / Response」
 
 ## 4. 必须加载的规范
 
@@ -494,7 +571,7 @@ AI 快速索引完成后，最终应该形成一个上下文包。
 
 ## 7. 自检要求
 
-生成代码后必须引用 Rule ID 完成自检。
+生成代码后必须引用 source_doc + section_title 完成自检。
 ```
 
 ---
@@ -517,7 +594,7 @@ AI 生成代码前必须：
 3. 查询 engineering-standards/.index/rules-index.json
 4. 加载 P0 和 FORBIDDEN 规则
 5. 加载当前技术栈 standard.md 和 ai-rules.md
-6. 生成代码后引用 Rule ID 输出自检结果
+6. 生成代码后引用规范文件路径和规则标题输出自检结果
 
 禁止：
 
@@ -542,12 +619,15 @@ llms.txt
 AGENTS.md
 ```
 
+同时，所有被索引的规范 Markdown 顶部必须带 Front Matter。
+
 其中：
 
 ```text
 llms.txt：规范仓库入口
 rules-index.json：规则索引
 AGENTS.md：业务仓库接入说明
+Front Matter：规范 Markdown 的文件级索引元数据
 ```
 
 ---
@@ -589,7 +669,7 @@ AI 可以直接加载相关文档。
 Code Review 或 AI 自检可以引用：
 
 ```text
-违反 STD-BE-JAVA-P0-001：Controller 不得写业务逻辑
+违反 04-backend/02-java/java-standard.md「P0 Controller 不得写业务逻辑」
 ```
 
 ---
@@ -603,13 +683,13 @@ AI 可以根据命中的 P0 规则生成自检项。
 ```markdown
 ## 自检结果
 
-- STD-BE-JAVA-P0-001：Controller 不得写业务逻辑
+- 04-backend/02-java/java-standard.md「P0 Controller 不得写业务逻辑」
   结果：已遵守，Controller 仅负责参数接收和返回。
 
-- STD-BE-JAVA-P0-002：Controller 不得直接访问 Mapper
+- 04-backend/02-java/java-standard.md「P0 Controller 不得直接访问 Mapper」
   结果：已遵守，数据访问通过 Service / Repository 完成。
 
-- STD-BE-JAVA-P0-003：不得直接返回 Entity
+- 04-backend/02-java/java-standard.md「P0 不得直接返回 Entity」
   结果：已遵守，接口返回 Response DTO。
 ```
 
@@ -654,7 +734,7 @@ V2 / V3 再考虑。
 最终可以定义为：
 
 ```text
-AI 快速索引 = llms.txt 入口导航 + rules-index.json 精准过滤 + standard.md / ai-rules.md 最小加载 + Rule ID 自检引用
+AI 快速索引 = llms.txt 入口导航 + Front Matter 文件级索引 + rules-index.json 精准过滤 + standard.md / ai-rules.md 最小加载 + 规则标题自检引用
 ```
 
 完整链路：
@@ -676,9 +756,9 @@ AI 快速索引 = llms.txt 入口导航 + rules-index.json 精准过滤 + standa
   ↓
 生成代码
   ↓
-引用 Rule ID 自检
+引用规范文件路径和规则标题自检
 ```
 
 一句话总结：
 
-> **AI 快速索引不是靠全文阅读，而是靠“任务识别 + 规则索引 + 最小规范加载 + Rule ID 自检”形成高效闭环。**
+> **AI 快速索引不是靠全文阅读，而是靠“任务识别 + 文件级索引 + 规则索引 + 最小规范加载 + 规则标题自检”形成高效闭环。**

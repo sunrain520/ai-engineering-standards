@@ -109,6 +109,7 @@ cp -r skills/project-standard-extractor ~/.codex/skills/
 | 输入项含义和顺序 | `input-guide.md` |
 | 完整阶段执行流程 | `workflow.md` |
 | 各阶段角色合约（含 R13 角色映射） | `agents/README.md` |
+| 文档顶部索引格式 | `config/frontmatter-format.md` |
 | 输出文件模板 | `templates/` |
 | 阶段 prompt | `prompts/` |
 | Skill 侧质量门禁适配 | `quality-gate.md` |

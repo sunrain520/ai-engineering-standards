@@ -47,11 +47,14 @@ sensitive_candidates:
 
 ```yaml
 existing_rule:
-  id: STD-BE-API-P1-001
+  source_doc: 04-backend/java/standard.md
+  section_title: "P1 Controller 只负责请求接入和响应返回"
   status: active
 candidate_rule:
-  id: STD-BE-API-P1-009
-  contradicts: STD-BE-API-P1-001
+  source_doc: 04-backend/java/standard.md
+  section_title: "P1 Controller 必须自行处理事务边界"
+  conflicts_with:
+    - "04-backend/java/standard.md「P1 Controller 只负责请求接入和响应返回」"
 ```
 
 期望：
