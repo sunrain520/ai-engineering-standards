@@ -1,0 +1,94 @@
+# APP Code Review Checklist
+
+## 1. 架构合规
+
+- 是否遵循 KMP + Clean Architecture。
+- 可跨端复用逻辑是否下沉 KMP。
+- Android 和 iOS 是否存在重复业务规则。
+- UI 层是否保持轻量。
+- 是否绕过了 HSDataCenterKit。
+- 是否绕过现有网络、缓存、日志、配置、多语言、主题体系。
+
+## 2. KMP 合规
+
+- commonMain 是否没有平台 UI 依赖。
+- Repository 接口和实现是否分层清晰。
+- DTO 是否完成 mapper 转换。
+- Domain Model 是否稳定。
+- 核心逻辑是否有 commonTest。
+- 平台差异是否通过 expect/actual、adapter 或 DI 解决。
+
+## 3. Android 合规
+
+- Activity / Fragment 是否只做 UI 渲染。
+- ViewModel 是否统一管理状态。
+- 是否完整处理 loading、error、empty、success。
+- 是否复用 BaseVM 和 HSLoadData。
+- 是否避免直接网络调用。
+- 是否避免在页面层拼装复杂业务参数。
+
+## 4. iOS 合规
+
+- 是否遵守 ReactorKit Action、Mutation、State。
+- ViewController 是否只做绑定。
+- State 是否完整表达页面状态。
+- 是否避免直接网络调用。
+- 是否避免循环引用。
+- 是否避免把复杂业务规则写入 ViewController。
+
+## 5. 数据访问合规
+
+- 是否通过 Repository 或 HSDataCenterKit 访问数据。
+- 缓存策略是否明确。
+- 错误是否统一转换。
+- DTO 是否没有直接进入 UI。
+- 高频数据是否有刷新、订阅、取消和降频策略。
+- 配置类数据是否有本地兜底和版本检查。
+
+## 6. 多展业地合规
+
+- 差异是否配置化。
+- 是否存在硬编码展业地判断。
+- 是否支持语言、主题、域名、功能开关配置。
+- 是否影响已有展业地。
+- 接口差异是否通过 DTO Mapper 隔离。
+- 业务差异是否通过策略或 DI 隔离。
+- UI 风格差异是否通过主题或组件契约隔离。
+
+## 7. UI 组件合规
+
+- UI 是否只负责渲染和交互转发。
+- 是否完整处理 loading、error、empty、success。
+- 是否存在硬编码文案。
+- 是否存在硬编码主题、颜色或资源。
+- 是否重复创建已有组件。
+- 组件是否直接依赖具体业务模块。
+
+## 8. 测试合规
+
+- 核心逻辑是否有 commonTest。
+- DTO Mapper 是否覆盖异常字段。
+- ViewModel 或 Reactor 是否覆盖状态流。
+- 数据中台策略是否有测试。
+- 多展业地差异是否有测试。
+- 交易、账户、订单是否覆盖失败和重试。
+
+## 9. 性能与稳定性
+
+- 是否增加启动耗时。
+- 页面首屏策略是否明确。
+- 是否存在 UI 层大数据转换。
+- 是否存在重复请求。
+- 高频刷新是否有节流和取消。
+- 数据库读写是否避开主线程。
+- 高风险模块是否有日志和异常兜底。
+
+## 10. AI 生成代码专项检查
+
+- AI 是否先输出需求归属判断。
+- AI 是否判断 KMP 下沉边界。
+- AI 是否复用已有模块、Repository、UseCase、组件。
+- AI 是否新增重复代码。
+- AI 是否输出测试方案。
+- AI 是否输出自检清单。
+- AI 是否违反禁止生成项。
