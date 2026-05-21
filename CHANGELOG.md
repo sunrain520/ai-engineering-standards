@@ -40,3 +40,4 @@
 - v0.1.0 2026-05-21 22:40:57 leokuang: 将 project-standard-extractor 升级为上下文治理型萃取流程，新增 profile-first、batch plan、候选 rules-index/llms/AI Context Pack 模板与回归用例，并标记实施计划完成 (user-visible)
 - v0.1.0 2026-05-21 23:01:41 leokuang: 修复 project-standard-extractor 代码审查问题并提交本地剩余改动，补齐 profile-first extraction map 输出、修正 AI Context Pack 全局文档引用、统一规则标题前缀契约、完善 intake/profile/batch/facts 分类合约并更新 README 入口说明 (user-visible)
 - v0.1.0 2026-05-21 23:12:13 leokuang: 完善 project-standard-extractor generation 合约，明确 evidence、standard、派生规则和候选索引产物的严格生成顺序 (user-visible)
+- v0.1.0 2026-05-21 23:17:00 leokuang: 深度增强 project-standard-extractor agents 目录：架构从 5 个扩展为 6 个 phase contract；新增 profile-and-batch-planner 覆盖 workflow §4-§5 空白；补全所有 agent 执行步骤、决策算法、分类阈值、handoff schema、self-check 清单、失败模式映射；review agent 引入 7 persona 明细检查项与 Proposer-Challenger-Arbiter 冲突仲裁；merge agent 增加 dry-run 预检、冲突严重度分级和 run summary；整合 Aider repo-map、Multi-Agent Debate、PROClaim 等业界最新实践 (user-visible)
