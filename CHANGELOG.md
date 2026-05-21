@@ -38,3 +38,4 @@
 - v0.1.0 2026-05-21 18:48:00 leokuang: 更新根 README，补齐 engineering-standards 全部子目录、skills、docs、治理文件入口，新增 V1 关键约定与 workflow 入口段 (user-visible)
 - v0.1.0 2026-05-21 18:50:17 leokuang: 根据文档审查修复轻量快速索引计划的新鲜度、artifact 契约和 P2 标题等级遗漏 (user-visible)
 - v0.1.0 2026-05-21 22:40:57 leokuang: 将 project-standard-extractor 升级为上下文治理型萃取流程，新增 profile-first、batch plan、候选 rules-index/llms/AI Context Pack 模板与回归用例，并标记实施计划完成 (user-visible)
+- v0.1.0 2026-05-21 23:01:41 leokuang: 修复 project-standard-extractor 代码审查问题并提交本地剩余改动，补齐 profile-first extraction map 输出、修正 AI Context Pack 全局文档引用、统一规则标题前缀契约、完善 intake/profile/batch/facts 分类合约并更新 README 入口说明 (user-visible)

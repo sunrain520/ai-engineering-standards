@@ -61,7 +61,7 @@ description: 从一个或多个真实项目代码路径中萃取团队级研发�
 5. 敏感配置、密钥、token、生产凭据只记录脱敏存在事实。
 6. `active` 只能由领域负责人确认，Skill 不自动发布。
 7. 所有输出 Markdown 顶部必须包含 `config/frontmatter-format.md` 定义的 YAML Front Matter。
-8. 规则不使用 Rule ID 或 HTML anchor;规则 H2 必须以 `P0 / P1 / P2 / FORBIDDEN ` 前缀开头,跨文档引用统一为 `{source_doc}「{section_title}」` 二元组。
+8. 规则不使用 Rule ID 或 HTML anchor；规则 H2 必须匹配 `^(P0|P1|P2|FORBIDDEN) `，例如 `## P0 {规则标题}`，跨文档引用统一为 `{source_doc}「{section_title}」` 二元组。
 9. evidence 默认按 `sub_domain` 拆分,每个 sub_domain 各有一组 4 文件;跨 sub_domain 共性事实使用 `sub_domain: "common"` 的 evidence 文件,需在评审报告中显式记录。
 10. 完整项目、完整仓库、多服务、未知域或广范围输入默认只能进入 `profile-first`，不得一次性读取完整代码或直接生成 `standard.md`。
 11. 正式萃取必须限定到一个 batch；后续阶段优先读取 `project-profile`、`extraction-map`、`batch-plan` 和 `code-facts` 摘要，不跨阶段携带完整源码。

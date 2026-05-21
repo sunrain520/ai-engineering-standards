@@ -45,7 +45,8 @@ tags:
 
 ## 4. 必须加载的规范
 
-- `00-global/01-ai-coding-contract.md`
+- `00-global/rule-lifecycle.md`
+- `00-global/quality-gate.md`
 - `{domain}/overview.md`
 - `{source_doc}`
 - `{ai_rules_doc}`

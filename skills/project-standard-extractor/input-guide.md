@@ -75,6 +75,7 @@ extraction_mode: profile-first
 可选值：
 
 - profile only
+- extraction map only
 - batch plan only
 - standard only
 - ai-rules only
@@ -85,7 +86,7 @@ extraction_mode: profile-first
 
 默认：
 
-- `profile-first`：`profile only` + `batch plan only`
+- `profile-first`：`profile only` + `extraction map only` + `batch plan only`
 - `batch-extraction` / `focused-module`：`full package`
 
 ### Step 6：子领域
