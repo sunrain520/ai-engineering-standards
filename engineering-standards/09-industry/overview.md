@@ -16,3 +16,7 @@
 | Risk Control | no-evidence | 提供项目路径后萃取 |
 | Compliance | no-evidence | 提供项目路径后萃取 |
 | Transaction Safety | no-evidence | 提供项目路径后萃取 |
+
+## 当前使用边界
+
+当前目录没有 evidence-backed 行业规则。AI 不得把本目录占位说明或通用行业知识当作团队强制规则执行。

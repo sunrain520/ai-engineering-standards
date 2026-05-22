@@ -8,3 +8,5 @@
 2. 由行业、合规、安全或领域负责人确认。
 
 无 evidence 内容只能进入 `pending-confirmation.md` 或 examples。
+
+本文件当前仅为结构占位，不得作为 AI 默认执行规则来源。

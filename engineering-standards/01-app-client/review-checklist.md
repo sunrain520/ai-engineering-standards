@@ -40,3 +40,28 @@ tags:
 ## 3. 历史兼容说明
 
 本 batch 未生成历史兼容条目。`pending-confirmation.md「PENDING-APP-1: contract 模块 UI 依赖是否应收敛」` 已由负责人确认并升级为 `standard-module-boundary.md「P2 contract 模块应保持依赖轻量」`。
+
+## 4. Draft 候选检查项
+
+### android
+
+- [ ] `standard-android.md「P1 App 壳初始化必须区分宿主进程与子进程」`：新增初始化逻辑有明确的进程边界。
+- [ ] `standard-android.md「P1 页面基类选择必须匹配页面状态复杂度」`：Fragment 基类选择与页面状态复杂度一致。
+- [ ] `standard-android.md「P2 交易共享能力应收敛到 trade-core 等 feature-core 模块」`：新增页面跳转没有复制 deprecated `TradeRouter` 模式。
+- [ ] `standard-android.md「P2 账户容器页应只编排页面结构和导航消费」`：账户容器没有新增叶子业务计算。
+
+### kmp-shared
+
+- [ ] `standard-kmp-shared.md「P1 KMP 业务能力必须保持 UseCase -> Repository 的依赖方向」`：UseCase 依赖 Repository 接口而非具体实现。
+- [ ] `standard-kmp-shared.md「P1 KMP Presenter 应以状态流驱动页面而不是直接操作原生 UI」`：Presenter 不直接操作 Android View 或 Fragment。
+- [ ] `standard-kmp-shared.md「P2 KMP 模块矩阵应按 core / business / app 分层维护」`：新增 KMP 模块归属层级清晰。
+
+### build-governance
+
+- [ ] `standard-build-governance.md「P1 本地工程替换必须集中在根 settings 治理」`：本地替换规则集中、可关闭，并带存在性判断。
+- [ ] `standard-build-governance.md「P2 快速构建开关只能跳过校验任务，不能改变产物语义」`：快速构建开关默认关闭且不影响 release 产物语义。
+
+### pending / legacy
+
+- [ ] `pending-confirmation.md「PENDING-APP-2: core-ui-kit 是否应拆除对聚合 KMP 入口的直接依赖」`：新增 UI 基础层依赖是否避免直接依赖聚合 KMP App 入口。
+- [ ] `pending-confirmation.md「PENDING-APP-3: 账户容器是否允许直接注入 KMP UseCase」`：新增账户容器逻辑是否避免直接注入 KMP UseCase。

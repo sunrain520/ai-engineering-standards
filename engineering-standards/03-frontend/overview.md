@@ -23,3 +23,7 @@
 - `merge-suggestions.md`
 - `conflicts.md`
 - `evidence/`
+
+## 当前使用边界
+
+当前目录没有 evidence-backed 前端规则。AI 不得把本目录占位说明当作团队强制规则执行。

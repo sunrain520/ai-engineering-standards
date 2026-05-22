@@ -126,7 +126,7 @@ LEG-{DOMAIN}-{N}  → evidence/legacy-compatible.md
 ```yaml
 doc_id: "{domain}-{sub_domain}-standard"
 doc_type: standard
-status: active   # auto 模式直接输出 active；用户审查后删除不认可的内容即可
+status: draft    # 自动运行不得直接发布 active；active 只能由领域负责人确认后手动升级
 evidence_tier: "{从 code_facts 中最高的 tier}"
 source_batch: "{batch_id}"
 ```
@@ -327,7 +327,7 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 - [ ] 有至少 1 个反例代码块（来自 NEG-* evidence）
 - [ ] FORBIDDEN 规则已用 `⛔ FORBIDDEN` 标注，并引用 NEG-* evidence
 - [ ] Evidence 参考表格已填写（无空行）
-- [ ] `status: active`（auto 模式直接输出 active）
+- [ ] `status: draft`（自动运行不得直接发布 active）
 - [ ] 规则正文没有具体项目绝对路径
 - [ ] `ai-rules.md` 和 `review-checklist.md` 引用了 standard 章节
 - [ ] Sub-step D 在 B+C 完成后才执行
@@ -348,7 +348,7 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 1. 先在 B0 阶段理解 sub_domain 架构，再动笔写文档。
 2. `standard-{sub_domain}.md` 是开发者工作手册，不是规则注册表——每节要有实质内容。
 3. 代码示例（正例+反例）必须内联在主文档，基于真实 evidence，路径脱敏。
-4. `status` 在 auto 模式下输出 `active`，在 interactive 模式下输出 `draft`。
+4. 自动运行输出 `draft`，不得直接发布 `active`；`active` 只能由领域负责人确认后手动升级。
 5. ai-rules 和 review-checklist 是 standard 的派生，不得新创内容。
 6. 候选索引产物标记 `candidate`，不得默认发布。
 
@@ -358,6 +358,6 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 2. 不得在 Sub-step A 未完成时开始写 standard。
 3. 不得把无 evidence 的内容写成强制规则或 FORBIDDEN 标注。
 4. 不得在 ai-rules.md 里强制执行 pending/conflict/legacy-compatible 规则。
-5. 不得输出 `status: active` 在 interactive 模式下——interactive 模式只输出 `draft`。
+5. 不得在任何自动运行路径输出 `status: active`。
 6. 不得默认发布候选索引产物。
 7. 不得凭空编写架构图——从 code_facts 推断，不确定的打「?」标注。

@@ -22,9 +22,9 @@
 | `engineering-standards/README.md` | 规范资产总入口 |
 | `engineering-standards/00-global/` | 全局规则生命周期、模板、证据策略和质量门禁 |
 | `engineering-standards/01-app-client/` | APP 客户端规范（KMP / Android / iOS / 数据中台 / 多展业地） |
-| `engineering-standards/02-pc-client/` | PC 客户端规范（待萃取） |
-| `engineering-standards/03-frontend/` | 前端规范（待萃取） |
-| `engineering-standards/04-backend/` | 后端规范（待萃取） |
+| `engineering-standards/02-pc-client/` | PC 客户端规范结构入口（待萃取） |
+| `engineering-standards/03-frontend/` | 前端规范结构入口（待萃取） |
+| `engineering-standards/04-backend/` | 后端规范结构入口（待萃取） |
 | `engineering-standards/05-testing/` | 测试规范（预留） |
 | `engineering-standards/06-release/` | 发布规范（预留） |
 | `engineering-standards/07-security/` | 安全规范（预留） |

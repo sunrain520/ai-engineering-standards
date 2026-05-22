@@ -115,9 +115,10 @@ tags:
 1. **删除不认可的内容**：打开对应 `standard-{sub_domain}.md`，删除不准确的规则节或章节。
 2. **处理冲突**：打开 `conflicts.md`，按裁定结果保留/删除对应规则。
 3. **处理 pending**：补充 evidence 后重新运行 Skill，或由领域负责人书面确认后手动添加到规范文档。
-4. **发布索引（可选）**：确认无误后，将 `{run_id}-rules-index-candidate.json` 重命名为正式 `.index/rules-index.json`。
+4. **升级 active（人工）**：领域负责人显式确认后，手动把认可规则的状态从 `draft` 改为 `active`。
+5. **发布索引（可选）**：确认无误后，将 `{run_id}-rules-index-candidate.json` 重命名为正式 `.index/rules-index.json`。
 
-> 文档已是 `active` 状态，无需手动改状态。
+> Skill 自动运行不会发布 `active`；负责人确认前，生成内容只能作为 `draft` 或待处理候选使用。
 
 ---
 

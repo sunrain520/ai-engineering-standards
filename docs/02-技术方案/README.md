@@ -13,6 +13,7 @@
 - [第一阶段技术方案.md](./第一阶段技术方案.md)：第一阶段范围和落地基线。
 - [skill建设.md](./skill建设.md)：`project-standard-extractor` Skill 建设细节。
 - [高质量萃取.md](./高质量萃取.md)：规范质量门禁参考。
+- [当前代码与规范产物分析.md](./当前代码与规范产物分析.md)：当前仓库 source assets、Skill 执行流程和各研发域规范产物状态分析。
 - [../plans/2026-05-21-001-feat-project-standard-extractor-plan.md](../plans/2026-05-21-001-feat-project-standard-extractor-plan.md)：当前执行计划。
 
 实际源资产已迁移到：

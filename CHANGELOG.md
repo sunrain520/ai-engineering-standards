@@ -52,3 +52,6 @@
 - v0.1.0 2026-05-22 00:45:00 leokuang: 将规范模板和生成策略扩展为全领域适用：standard-template 增加 app/kmp/ios/frontend/backend/pc/testing/security/industry 领域适配说明注释；generation B0 增加全领域架构推导参考表；extraction-batch-policy §6 覆盖所有领域的 candidate_files 选取示例 (user-visible)
 - v0.1.0 2026-05-22 01:10:00 leokuang: 将 Skill 升级为全自动多步骤编排器：SKILL.md 重写定义 auto 模式（SKILL 顺序调用 6 个 agent，自动迭代所有 ready batch，无需用户中途介入）；workflow.md 重写为编排流程；intake-and-scope 添加 auto 模式跳过确认对话；profile-and-batch-planner 输出 ordered_batch_queue；merge-coordinator 添加 Step 8 全量 review-summary 生成；新增 review-summary-template 作为用户审查入口 (user-visible)
 - v0.1.0 2026-05-22 01:20:00 leokuang: auto 模式直接输出 active 状态文档，用户审查后删除不认可内容即可，无需手动改状态；更新 SKILL.md 强制边界、generation 必须做/禁止做、standard-template 默认 status、workflow 最终步骤、review-summary 行动指引 (user-visible)
+- v0.1.0 2026-05-22 12:19:38 leokuang: 新增当前代码与规范产物分析文档，梳理 project-standard-extractor 执行流程、APP/PC/前端/后端/行业规范产物状态和 active/draft 口径冲突 (user-visible)
+- v0.1.0 2026-05-22 13:11:31 leokuang: 继续使用 project-standard-extractor 萃取 kaz-mvp，补充 Android、KMP Shared、Build Governance draft 规范、evidence、examples 索引、AI rules、review checklist、候选索引和 review summary (user-visible)
+- v0.1.0 2026-05-22 13:04:54 leokuang: 按分析建议修复规范治理问题，统一 Skill 自动输出为 draft-only，补齐 PC 客户端规范结构入口，并明确 APP 映射及占位目录不可作为 AI 默认执行规则来源 (user-visible)

@@ -47,3 +47,54 @@ tags:
   - [ ] 标记为 `legacy-compatible`
   - [ ] `rejected`
   - [ ] 继续 `pending`，新截止日期：TBD
+
+## PENDING-APP-2: core-ui-kit 是否应拆除对聚合 KMP 入口的直接依赖
+
+- 状态：待确认
+- 拟定规则正文标题：`P2 Android UI 基础层不得默认依赖聚合 KMP App 入口`
+- 拟定 source_doc：`standard-android.md`
+- 来源（事实 / 行业 / 用户提议）：`evidence/code-facts.md「EV-APP-11」`
+- 关联 evidence：
+  - `evidence/code-facts.md「EV-APP-11」`
+  - `evidence/legacy-compatible.md「LEG-APP-1」`
+- 缺失 evidence:
+  - 当前 `core-ui-kit` 实际使用 `biz_kaz_app` 的类型清单。
+  - 可替换的更小 KMP core utils 模块。
+  - 迁移后对现有页面编译和运行的影响。
+- 需要确认的问题:
+  - 新增 UI 基础层依赖是否禁止直接依赖聚合 KMP App 入口。
+  - 现有依赖是否按模块拆分迁移，还是保留历史兼容。
+- 建议负责人角色：APP 架构负责人 / KMP 负责人
+- 建议负责人：TBD
+- 截止日期 (SLA)：TBD
+- 下一步：单独选择 focused-module batch 读取 `core-ui-kit` 对 KMP 类型的具体使用点。
+- 状态迁移意向：
+  - [ ] 升级到 `standard-android.md`
+  - [x] 标记为 `legacy-compatible`
+  - [ ] `rejected`
+  - [ ] 继续 `pending`，新截止日期：TBD
+
+## PENDING-APP-3: 账户容器是否允许直接注入 KMP UseCase
+
+- 状态：待确认
+- 拟定规则正文标题：`P2 账户容器不得直接承载 KMP UseCase 调用`
+- 拟定 source_doc：`standard-android.md`
+- 来源（事实 / 行业 / 用户提议）：`evidence/code-facts.md「EV-APP-15」`
+- 关联 evidence：
+  - `evidence/code-facts.md「EV-APP-15」`
+  - `evidence/legacy-compatible.md「LEG-APP-3」`
+- 缺失 evidence:
+  - 账户页 ViewModel / Presenter 可承接 tab 排序逻辑的替代路径。
+  - 负责人对容器层和 KMP Presentation 层职责边界的确认。
+- 需要确认的问题:
+  - 容器 Fragment 是否仅允许编排页面结构和导航消费。
+  - 现有 UseCase 注入是否作为历史兼容保留，还是迁移到 ViewModel / Presenter。
+- 建议负责人角色：交易 APP 负责人 / KMP 负责人
+- 建议负责人：TBD
+- 截止日期 (SLA)：TBD
+- 下一步：按账户页架构选择 focused-module batch，读取 ViewModel、Presenter 和 tab 排序实现链路。
+- 状态迁移意向：
+  - [ ] 升级到 `standard-android.md`
+  - [x] 标记为 `legacy-compatible`
+  - [ ] `rejected`
+  - [ ] 继续 `pending`，新截止日期：TBD

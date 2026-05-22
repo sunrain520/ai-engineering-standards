@@ -35,3 +35,4 @@
 .serena/
 .history/
 # spec-first:end
+.githooks/

@@ -46,3 +46,49 @@ AI 不得执行 `pending-confirmation`、`conflict`、`legacy-compatible`、`rej
 ## 3. 高风险警告
 
 - `standard-module-boundary.md「P1 跨域协作必须通过 contract 稳定边界」` 和 `standard-module-boundary.md「P2 contract 模块应保持依赖轻量」` 已确认 active，但 evidence 仍来自单项目 batch。跨项目推广前建议补充第二项目 evidence。
+
+## 4. Draft 候选规则
+
+### android
+
+- `standard-android.md「P1 App 壳初始化必须区分宿主进程与子进程」`
+  - AI 在 `Application` 中新增初始化逻辑前，必须先判断宿主进程边界。
+  - AI 不得把宿主进程的业务初始化默认复制到子进程分支。
+
+- `standard-android.md「P1 页面基类选择必须匹配页面状态复杂度」`
+  - AI 新增 Fragment 时，必须根据页面状态复杂度选择最低足够的基类。
+  - AI 新增异步加载页面时，应接入统一 loading/error/empty 状态。
+
+- `standard-android.md「P2 交易共享能力应收敛到 trade-core 等 feature-core 模块」`
+  - AI 新增交易共享能力时，应优先检查 `trade-core` 是否已有合适位置。
+  - AI 不得基于 deprecated 路由单例复制新增跳转模式。
+
+- `standard-android.md「P2 账户容器页应只编排页面结构和导航消费」`
+  - AI 修改账户容器时，应保持容器职责为结构编排与导航消费。
+  - AI 不得把叶子页业务计算新增到容器 Fragment。
+
+### kmp-shared
+
+- `standard-kmp-shared.md「P1 KMP 业务能力必须保持 UseCase -> Repository 的依赖方向」`
+  - AI 新增 KMP 业务能力时，必须先定义 domain 语义，再补 Repository 接口和实现。
+  - AI 不得让 Presenter 直接依赖网络实现或 DTO 细节。
+
+- `standard-kmp-shared.md「P1 KMP Presenter 应以状态流驱动页面而不是直接操作原生 UI」`
+  - AI 新增 KMP Presenter 时，应输出状态流，不直接引用 Android View。
+  - AI 新增分页能力时，必须处理首屏、刷新、加载更多和失败重置。
+
+- `standard-kmp-shared.md「P2 KMP 模块矩阵应按 core / business / app 分层维护」`
+  - AI 新增 KMP module include 时，必须说明模块归属层级。
+  - AI 不得把跨业务共享能力直接放入 app 模块。
+
+### build-governance
+
+- `standard-build-governance.md「P1 本地工程替换必须集中在根 settings 治理」`
+  - AI 新增本地替换规则时，必须放在根 settings 的统一治理区域。
+  - AI 不得在业务模块 build.gradle 中临时硬编码 Maven 坐标替换。
+
+- `standard-build-governance.md「P2 快速构建开关只能跳过校验任务，不能改变产物语义」`
+  - AI 新增构建提速能力时，必须说明影响的任务类型。
+  - AI 不得把快速构建开关用于跳过打包必需任务或改变 release 行为。
+
+> 以上规则为 `draft` 候选，只能作为生成草案的上下文使用；执行前需在输出中标注 draft 状态和 single-project evidence。

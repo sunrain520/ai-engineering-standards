@@ -1,12 +1,15 @@
-# Engineering Standards — app-client — module-boundary — published
-# Generated: 2026-05-22T02:31:58Z
-# Batch: app-client-module-boundary-contract-layer
+# Engineering Standards — app-client — multi-batch — candidate
+# Generated: 2026-05-22T05:11:31Z
+# Batch: multi-batch
 
 ## 规范文件
 
 - standard-module-boundary.md — APP 模块边界团队级规范（2 条 active 规则）
-- ai-rules.md — AI 编码规则汇总派生视图（2 条）
-- review-checklist.md — Review 检查项汇总派生视图（7 条）
+- standard-android.md — Android App Shell / UI State / Trade Feature / Account Container draft 规范（4 条）
+- standard-kmp-shared.md — KMP Shared Clean Architecture draft 规范（3 条）
+- standard-build-governance.md — Gradle 构建治理 draft 规范（2 条）
+- ai-rules.md — AI 编码规则汇总派生视图（2 条 active + 9 条 draft）
+- review-checklist.md — Review 检查项汇总派生视图（7 条 active + 11 条 draft/pending）
 
 ## Evidence
 
@@ -19,10 +22,12 @@
 
 - 20260522-100947-app-client-rules-index-candidate.json
 - 20260522-100947-app-client-ai-context-pack.md
+- 20260522-100947-app-client-review-summary.md
 
 ## 状态
 
 - active 规则：2 条
-- pending-confirmation：0 条待处理，`PENDING-APP-1` 已升级
+- draft 规则：9 条
+- pending-confirmation：2 条待处理，`PENDING-APP-1` 已升级
 - conflict：0 条
-- 本文件原为候选入口地图，已按负责人确认同步发布到 `llms.txt`。
+- 本文件是候选入口地图；正式发布到 `llms.txt` 需要用户显式确认。

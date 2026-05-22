@@ -83,7 +83,7 @@ project_paths
     ↓ 删除不认可的内容（规则节、章节或整份文档）
     ↓ 修改不准确的描述
     ↓ 对 conflict / pending 做裁定
-    （文档已是 active，无需手动改状态）
+    ↓ 对认可的 draft 规则，由领域负责人显式确认后手动升级为 active
 ```
 
 ---

@@ -8,3 +8,5 @@
 2. 规则正文保持团队级抽象。
 3. 真实路径写入 `evidence/`。
 4. 无 evidence 规则进入 `pending-confirmation.md`，不得写成 AI 必须遵守的 `draft`。
+
+本文件当前仅为结构占位，不得作为 AI 默认执行规则来源。
