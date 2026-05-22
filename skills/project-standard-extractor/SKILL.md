@@ -1,185 +1,146 @@
 ---
 name: project-standard-extractor
-description: 从一个或多个真实项目代码路径中全自动萃取团队级研发规范，输出规范文档、AI Coding Rules、Review Checklist 和 evidence。适用于部门级 engineering-standards 仓库。
+description: 从真实项目代码路径中萃取团队级研发规范，输出可直接复用的 Markdown 规范文档。给代码路径，自动分析并生成像 02-android-standard.md 这样的规范文档。
 ---
 
 # Project Standard Extractor
 
-## Purpose / 目的
-
-本 Skill 是编排器入口。用户提供项目路径后，Skill 自动调用 6 个内部 agent 完成全流程萃取，最终输出一批 `draft` 状态的规范文档供用户审查。**用户只需在最后审查文档并决定哪些内容升级为 active。**
-
-## When To Use / 何时使用
-
-- 需要从真实代码中沉淀 APP、PC、前端、后端或行业规范。
-- 需要生成 AI Coding Rules、Review Checklist、正反例和 evidence。
-- 需要把多项目实践整理为团队级标准。
-
-## When Not To Use / 何时不要使用
-
-- 只想解释某个项目代码。
-- 只想生成行业通用最佳实践，且没有团队代码或负责人确认。
-- 需要修改业务代码。
+当此 Skill 被调用时，立即执行以下步骤，不询问用户任何问题（除非路径不可读）。
 
 ---
 
-## Inputs / 输入
+## 执行步骤
 
-**最小输入**：一个或多个 `project_paths`，其余全部自动推断。
+### Step 1 — 解析输入
 
-```yaml
-project_paths:
-  - /path/to/project1
-  - /path/to/project2          # 可选，多项目
-domain: ""                     # 可选，留空则自动推断
-output_dir: ""                 # 可选，默认 engineering-standards/{domain}/
-run_mode: auto                 # auto（默认）| interactive（逐步确认）
-```
+从用户消息中提取：
+- `project_paths`：一个或多个本地项目路径（必填）
+- `output_dir`：输出目录（可选，默认 `engineering-standards/{domain}/`）
+- `domain`：研发域（可选，留空则自动推断）
 
-`run_mode: auto`（默认）：Skill 自动推断所有参数，自动执行全部 batch，无中途停顿，最后输出 review summary 供用户审查。
-
-`run_mode: interactive`：保留原有逐步确认行为，适合首次探索或高风险场景。
+路径不可读时停止并说明原因，其余情况直接继续。
 
 ---
 
-## Workflow / 自动编排流程
+### Step 2 — 扫描项目结构（轻量，≤3层）
 
-Skill 按以下顺序调用内部 agent，自动执行全流程：
+只读以下内容，不读业务源码：
+- 根目录 manifest（`package.json`、`pom.xml`、`build.gradle.kts`、`go.mod`、`Cargo.toml` 等）
+- 顶层目录名
+- `README.md` 前 30 行
+- `.gitignore`（了解构建产物边界）
+
+从扫描结果推断：
+- `domain`（app-client / frontend / backend / pc-client / industry / testing / security）
+- `sub_domain` 列表（android / kmp-shared / ios / react / java-spring / golang 等）
+- 技术栈信号
+
+---
+
+### Step 3 — 为每个 sub_domain 读取代表性代码文件
+
+按以下优先级选取文件（每个 sub_domain 读 15-25 个文件）：
+
+| 优先级 | 说明 | 典型文件 |
+| --- | --- | --- |
+| P0 入口层 | 最顶层使用模式 | Fragment/ViewController/Controller/Page/Handler |
+| P1 核心层 | 核心业务逻辑 | ViewModel/Reactor/Service/UseCase |
+| P2 数据层 | 数据访问和契约 | Repository/Mapper/DTO/Store/Schema |
+| P3 反例 | 已知反范式代码 | 任何明显违反架构的文件 |
+| P4 配置 | 技术栈声明 | build.gradle/package.json/tsconfig |
+
+各领域代表性文件参考：
+
+| domain/sub_domain | P0 | P1 | P2 |
+| --- | --- | --- | --- |
+| app-client/android | Fragment, Activity | ViewModel, BaseVM | Repository, DTO, Mapper |
+| app-client/kmp-shared | UseCase | Presenter, RepositoryImpl | DomainModel, Mapper |
+| app-client/ios | ViewController | Reactor | State, Action |
+| frontend/react | Page, Route | Component, Hook | Store, API Client, Type |
+| backend/java-spring | Controller | Service | Repository, Mapper, DTO |
+| backend/golang | Handler/Router | Service | Repository, Model |
+| pc-client/electron | Main Process 入口 | IPC Handler | Preload, Renderer |
+
+排除：`build/`、`dist/`、`node_modules/`、`Pods/`、`target/`、`.git/`、密钥/凭据文件。
+
+---
+
+### Step 4 — 分析代码，理解架构
+
+读完代码后，在内部回答：
+
+1. **这个 sub_domain 的分层结构是什么？** 有哪些角色，依赖方向如何？
+2. **团队真实遵循的规律是什么？** 哪些模式在多个文件中重复出现？
+3. **有哪些明显的反范式？** 哪些写法被避开或应该被禁止？
+4. **技术栈是什么？** 用了哪些框架和库？
+
+---
+
+### Step 5 — 为每个 sub_domain 生成规范文档
+
+按 `templates/standard-template.md` 的结构写 `standard-{sub_domain}.md`：
+
+**文档结构**（参考 `02-android-standard.md`、`01-kmp-shared-layer-standard.md`）：
 
 ```
-用户输入 project_paths
-    │
-    ▼
-【Agent 1】intake-and-scope
-    · 推断 domain、sub_domain、extraction_mode
-    · 识别敏感文件，建立排除清单
-    · auto 模式：只在硬性阻断（路径不可读、所有路径均敏感）时停止
-    · 输出: scope_summary + run_id
-    │
-    ▼
-【Agent 2】profile-and-batch-planner
-    · 轻量目录扫描（≤30 文件，≤3 层）
-    · 按 sub_domain 生成 extraction-map 和 batch-plan
-    · auto 模式：按优先级自动排序所有 ready batch
-    · 输出: project-profile.md / extraction-map.md / batch-plan.md
-            + ordered_batch_queue（所有 ready batch，按优先级排列）
-    │
-    ▼  ┌──────────────────────────────────────────────────────────┐
-    │  │  FOR EACH batch IN ordered_batch_queue (顺序执行)        │
-    │  │                                                          │
-    │  │  【Agent 3】facts-and-classification                     │
-    │  │      · 读取 batch 候选文件（evidence_limit: 25）         │
-    │  │      · 萃取事实 → 分类（recommended/forbidden/pending）  │
-    │  │                                                          │
-    │  │  【Agent 4】generation                                   │
-    │  │      · Sub-step A: 写 evidence/*                        │
-    │  │      · Sub-step B: 综合编写 Developer Guide              │
-    │  │        standard-{sub_domain}.md（新建或补充已有章节）    │
-    │  │      · Sub-step C: 派生 ai-rules.md / review-checklist  │
-    │  │      · Sub-step D: 生成候选索引产物                     │
-    │  │                                                          │
-    │  │  【Agent 5】review-and-quality-gate                     │
-    │  │      · 7 persona 评审（Evidence/Team/AI/Review/         │
-    │  │        Conflict/Industry/Governance）                    │
-    │  │      · 输出 quality_gate_decisions                      │
-    │  │                                                          │
-    │  │  【Agent 6】merge-coordinator                           │
-    │  │      · append-only 写入规范目录                         │
-    │  │      · 冲突 → conflicts.md                              │
-    │  │      · 待确认 → pending-confirmation.md                 │
-    │  │                                                          │
-    │  │  → 记录该 batch 完成状态到 run_log                      │
-    │  └──────────────────────────────────────────────────────────┘
-    │  （循环结束）
-    │
-    ▼
-【最终步骤】生成 {run_id}-review-summary.md
-    · 本次运行所有 batch 的完成状态
-    · 所有新增/更新的规范文件清单
-    · 需要用户审查的标记项（FORBIDDEN / draft / conflict / pending）
-    · 负责人确认项清单
-    │
-    ▼
-用户审查 draft 文档，手动将认可内容的 status 改为 active
+Front Matter（YAML，见模板）
+# {Sub-domain} 开发规范
+## 1. 技术栈与工程约束
+## 2. 分层职责（ASCII图 + 责任矩阵表格）
+## 3. {角色A} 规范（强制规则 / 推荐规则 / 禁止事项 / 正例代码 / 反例代码）
+## 4. {角色B} 规范
+...
+## N. 目录与命名规范（如有 evidence）
+## N+1. AI 生成规则
+## N+2. Review 检查项
 ```
 
-**完整说明见 `workflow.md`。Agent 契约见 `agents/`。输出模板见 `templates/`。**
+**写作要求**：
+- 代码示例直接内联（正例+反例），基于真实读取的代码，路径脱敏
+- 强制规则用 numbered list，禁止事项用 bullet
+- 每条规则说明**怎么做**，不只是"应该"
+- 节数由代码 evidence 决定，没有 evidence 的节不写
+- 不写行业通用常识，只写团队代码中真实体现的规律
+
+**Front Matter 状态**：`status: active`（直接可用）
+
+---
+
+### Step 6 — 生成 AI Rules 和 Review Checklist
+
+从各 `standard-{sub_domain}.md` 的 AI 生成规则和 Review 检查项节汇总：
+
+- `ai-rules.md`：所有 sub_domain 的 AI 约束汇总
+- `review-checklist.md`：所有 sub_domain 的检查项汇总
+
+格式参考 `10-app-ai-rules.md`、`11-code-review-checklist.md`。
+
+---
+
+### Step 7 — 输出完成摘要
+
+列出：
+- 生成的文件列表
+- 每份文档覆盖的 sub_domain 和主要章节
+- 没有足够 evidence 跳过的内容（如有）
+- 建议用户补充的内容（如有）
 
 ---
 
 ## 强制边界
 
-1. 规则正文不得包含具体项目路径；路径只能进入 `evidence/`。
-2. 没有真实 evidence 的内容不得进入 AI 可执行 `draft`；无 evidence → `pending-confirmation.md`。
-3. 不得覆盖已有 `active`，不得覆盖已有 `draft`（只追加）。
-4. FORBIDDEN 标注必须有直接负例代码 evidence。
-5. 敏感配置、密钥、token、生产凭据只记录脱敏存在事实。
-6. **auto 模式直接输出 `active`**，用户审查后删除或修改不认可的内容即可；interactive 模式输出 `draft`，由用户手动升级。
-7. 所有输出 Markdown 顶部必须包含 `config/frontmatter-format.md` 定义的 YAML Front Matter。
-8. evidence 按 `sub_domain` 拆分；跨 sub_domain 共性使用 `sub_domain: common`。
-9. 广范围输入必须先走 profile-first（Agent 2），不得直接读完整源码生成规范。
-10. 每次循环只处理一个 batch，Agent 3-6 的读取范围严格限定在该 batch 的 `candidate_files`。
-11. 候选索引产物（rules-index / llms / ai-context-pack）永远标记 `candidate`，不自动发布。
+1. 规范正文不写具体项目路径，路径只用于读取代码，不出现在输出文档中。
+2. 不读取密钥、token、生产凭据、`.env` 文件原值。
+3. 没有代码 evidence 的规则不写进文档（写进摘要的"建议补充"）。
+4. 输出文档 `status: active`，用户审查后删除不认可的内容即可。
+5. 不覆盖已有文档，已存在的 `standard-{sub_domain}.md` 追加缺失章节。
 
 ---
 
-## Outputs / 输出
+## 输出文件
 
-每次运行最终产出（写入 `output_dir`）：
+写入 `output_dir`（默认 `engineering-standards/{domain}/`）：
 
-**规范文档（用户审查目标）**
-- `standard-{sub_domain}.md` — 每个 sub_domain 一份 Developer Guide
-- `standard-common.md` — 跨 sub_domain 共性规范（如有）
-- `ai-rules.md` — AI 编码规则汇总视图
-- `review-checklist.md` — Review 检查项汇总视图
-
-**证据文件**
-- `evidence/code-facts.md`
-- `evidence/positive-examples.md`
-- `evidence/forbidden-examples.md`
-- `evidence/legacy-compatible.md`
-
-**待处理文件**
-- `pending-confirmation.md` — 需负责人确认的候选规则
-- `conflicts.md` — 与已有规则冲突的候选
-- `merge-suggestions.md` — 相似规则合并建议
-
-**运行时 handoff（indexable: false）**
-- `{run_id}-project-profile.md`
-- `{run_id}-extraction-map.md`
-- `{run_id}-batch-plan.md`
-- `{run_id}-review-summary.md` ← **用户审查入口**
-
-**候选索引产物（需人工发布）**
-- `{run_id}-rules-index-candidate.json`
-- `{run_id}-llms-candidate.txt`
-- `{run_id}-ai-context-pack.md`
-
----
-
-## Failure Modes / 失败模式
-
-| 失败模式 | 触发条件 | 处理方式 |
-| --- | --- | --- |
-| `NO_VALID_PROJECT_PATHS` | 所有路径不可读 | **停止整个运行**，请用户重新提供路径 |
-| `ALL_PATHS_SENSITIVE` | 所有路径均命中敏感文件策略 | **停止整个运行**，说明原因 |
-| `NO_READY_BATCHES` | batch-plan 中所有 batch 状态为 pending/skipped/blocked | 输出 profile + batch-plan，说明需要用户补充 evidence 或确认后再运行 |
-| `BATCH_INSUFFICIENT_EVIDENCE` | 某个 batch 没有代表性 evidence | 跳过该 batch，记录到 review-summary，继续下一个 batch |
-| `BATCH_ALL_SENSITIVE` | 某个 batch 所有候选文件均为敏感文件 | 跳过该 batch，记录原因，继续下一个 batch |
-| `TARGET_CONFLICT` | 新规则与已有 `active` 冲突 | 写入 `conflicts.md`，不覆盖，继续执行 |
-| `GENERATION_FAILED` | generation agent 产出为空 | 记录到 review-summary，继续下一个 batch |
-
-**auto 模式原则：单个 batch 失败不中止整个运行，记录失败原因并跳过，继续处理剩余 batch。**
-
----
-
-## 最小验收
-
-一次有效运行（auto 模式）必须证明：
-
-1. 所有 ready batch 都被尝试执行（跳过的有记录）。
-2. 每份 standard-{sub_domain}.md 包含：技术栈、分层图、≥1 个角色规范节、AI 规则、Review 检查项。
-3. 所有规则都能追溯到 evidence（无 evidence → pending-confirmation）。
-4. 所有输出状态为 `draft`（没有 `active`）。
-5. `{run_id}-review-summary.md` 已生成，包含完整变更清单和待确认项。
-6. 敏感文件没有被读取或复制原值。
+- `standard-{sub_domain}.md` — 每个 sub_domain 一份完整规范
+- `ai-rules.md` — AI 编码规则汇总
+- `review-checklist.md` — Review 检查项汇总
