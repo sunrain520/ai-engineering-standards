@@ -2,16 +2,28 @@
 
 APP 端已有较完整的专题规范，本目录不强制把内容压平成单个 `standard.md`。统一结构通过本 README 和 `evidence/` 目录对齐。
 
-## 统一结构映射
+## 编号文档体系
 
-| 统一结构 | APP 现有文件 |
+| 文件 | 规范维度 | 状态 |
 | --- | --- |
-| `overview` | `00-app-client-overview.md` |
-| `standard` | `01-kmp-shared-layer-standard.md`、`02-android-standard.md`、`03-ios-standard.md`、`04-data-center-standard.md`、`05-module-standard.md`、`06-multi-market-standard.md`、`07-ui-component-standard.md`、`08-testing-standard.md`、`09-performance-standard.md` |
-| `ai-rules` | `10-app-ai-rules.md` |
-| `review-checklist` | `11-code-review-checklist.md` |
-| `examples` | 后续由真实代码萃取补充 |
-| `evidence` | `evidence/` |
+| `00-app-client-overview.md` | 总览、架构目标、入口导航 | owner-confirmed |
+| `01-kmp-shared-layer-standard.md` | KMP 共享层 | owner-confirmed + 待补 evidence |
+| `02-android-standard.md` | Android 平台层 | owner-confirmed + 待补 evidence |
+| `03-ios-standard.md` | iOS 平台层 | owner-confirmed + 待补 evidence |
+| `04-data-center-standard.md` | 数据访问与缓存 | owner-confirmed + 待补 evidence |
+| `05-module-standard.md` | 模块化与模块边界 | owner-confirmed + active evidence-backed 增量 |
+| `06-multi-market-standard.md` | 多展业地 | owner-confirmed + 待补 evidence |
+| `07-ui-component-standard.md` | UI 与组件 | owner-confirmed + 待补 evidence |
+| `08-testing-standard.md` | 测试 | owner-confirmed + 待补 evidence |
+| `09-performance-standard.md` | 性能与稳定性 | owner-confirmed + 待补 evidence |
+| `10-app-ai-rules.md` | AI Coding Rules 派生视图 | owner-confirmed |
+| `11-code-review-checklist.md` | Code Review Checklist 派生视图 | owner-confirmed |
+| `12-state-error-standard.md` | 状态与错误处理 | structure-ready |
+| `13-navigation-routing-standard.md` | 路由与页面协作 | structure-ready |
+| `14-build-dependency-standard.md` | 构建与依赖治理 | structure-ready + draft evidence-backed 增量 |
+| `15-security-compliance-standard.md` | 安全与合规 | structure-ready |
+| `16-observability-standard.md` | 日志、埋点与可观测性 | structure-ready |
+| `17-app-standard-extraction-process.md` | APP 代码规范萃取流程 | active process doc |
 
 ## 子领域覆盖矩阵
 
@@ -25,6 +37,11 @@ APP 端已有较完整的专题规范，本目录不强制把内容压平成单�
 | UI Component | owner-confirmed | 已有专题规范，待补真实代码 evidence |
 | Testing | owner-confirmed | 已有专题规范，待补真实代码 evidence |
 | Performance | owner-confirmed | 已有专题规范，待补真实代码 evidence |
+| State & Error | structure-ready | 已定义萃取维度，待真实代码 evidence |
+| Navigation & Routing | structure-ready | 已定义萃取维度，待真实代码 evidence |
+| Build & Dependency | draft evidence-backed | 已有 `standard-build-governance.md` 单项目增量萃取，待负责人确认并收敛到编号文档 |
+| Security & Compliance | structure-ready | 已定义萃取维度，待真实代码 evidence / 负责人确认 |
+| Observability | structure-ready | 已定义萃取维度，待真实代码 evidence |
 
 ## 使用规则
 
@@ -37,7 +54,16 @@ APP 端已有较完整的专题规范，本目录不强制把内容压平成单�
 
 当前 APP 目录同时保留两类产物：
 
-- 早期负责人确认的专题规范：`01-*.md` 到 `11-*.md`，作为 APP 端历史主入口。
-- `project-standard-extractor` 生成的新结构产物：`standard-{sub_domain}.md`、`ai-rules.md`、`review-checklist.md`、`evidence/` 和候选索引。
+- 编号化稳定入口：`00-*.md` 到 `17-*.md`，作为 APP 开发规范和萃取维度主入口。
+- `project-standard-extractor` 生成的 evidence-backed 增量产物：`standard-{sub_domain}.md`、`ai-rules.md`、`review-checklist.md`、`evidence/` 和候选索引。
 
-短期通过本 README 维护映射关系，不强行迁移专题规范文件名。后续新增萃取产物应优先使用 `standard-{sub_domain}.md` 结构，并在本 README 增补映射。
+短期通过本 README 维护映射关系，不强行删除已萃取的 `standard-*` 文件。后续新增萃取产物应先判断所属 `00-xx` 维度，稳定规则逐步收敛进编号文档。
+
+## 已萃取增量产物映射
+
+| 萃取产物 | 对应编号文档 | 说明 |
+| --- | --- | --- |
+| `standard-kmp-shared.md` | `01-kmp-shared-layer-standard.md` | KMP Shared 单项目 draft 增量 |
+| `standard-android.md` | `02-android-standard.md` | Android app shell / 页面状态 / 账户页组合单项目 draft 增量 |
+| `standard-module-boundary.md` | `05-module-standard.md` | contract / module-boundary active 规则 |
+| `standard-build-governance.md` | `14-build-dependency-standard.md` | Gradle / local fast build / dependency substitution 单项目 draft 增量 |

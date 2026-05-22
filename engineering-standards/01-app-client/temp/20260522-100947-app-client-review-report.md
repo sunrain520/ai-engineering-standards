@@ -38,9 +38,9 @@ tags:
 - `evidence/positive-examples.md`
 - `evidence/forbidden-examples.md`
 - `evidence/legacy-compatible.md`
-- `20260522-100947-app-client-rules-index-candidate.json`
-- `20260522-100947-app-client-llms-candidate.txt`
-- `20260522-100947-app-client-ai-context-pack.md`
+- `temp/20260522-100947-app-client-rules-index-candidate.json`
+- `temp/20260522-100947-app-client-llms-candidate.txt`
+- `temp/20260522-100947-app-client-ai-context-pack.md`
 
 ## 3. 规则评审
 

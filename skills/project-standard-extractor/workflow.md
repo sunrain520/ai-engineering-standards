@@ -7,7 +7,7 @@
 | `auto`（默认） | Skill 自动调度所有 agent，遍历全部 ready batch，无中途停顿 | 日常使用、首次建设 domain 规范 |
 | `interactive` | 每个关键决策点暂停等待用户确认，逐步推进 | 高风险场景、需要精细控制时 |
 
-**auto 模式是默认行为**，用户只需提供 `project_paths`，最后审查 `{run_id}-review-summary.md`。
+**auto 模式是默认行为**，用户只需提供 `project_paths`，最后审查 `temp/{run_id}-review-summary.md`。
 
 ---
 
@@ -27,9 +27,9 @@ project_paths
     轻量扫描（≤30 文件，≤3 层）
     生成 project-profile + extraction-map + batch-plan
     auto 模式：生成 ordered_batch_queue（所有 ready batch，按优先级排序）
-    输出: {run_id}-project-profile.md
-          {run_id}-extraction-map.md
-          {run_id}-batch-plan.md
+    输出: temp/{run_id}-project-profile.md
+          temp/{run_id}-extraction-map.md
+          temp/{run_id}-batch-plan.md
           ordered_batch_queue[]
     │
     ▼
@@ -70,7 +70,7 @@ project_paths
 ╚════════════════════════════════════════════════════╝
     │
     ▼（所有 batch 执行完毕）
-[最终步骤] 生成 {run_id}-review-summary.md
+[最终步骤] 生成 temp/{run_id}-review-summary.md
     汇总: 所有 batch 执行状态
           所有新增/更新的文档清单
           所有 FORBIDDEN 和高风险规则
@@ -175,7 +175,7 @@ ordered_batch_queue:
 
 **每 batch 执行**：append-only 写入（与现有契约相同）
 
-**全量完成后执行一次**：生成 `{run_id}-review-summary.md`（见模板 `templates/review-summary-template.md`）
+**全量完成后执行一次**：生成 `temp/{run_id}-review-summary.md`（见模板 `templates/review-summary-template.md`）
 
 ---
 

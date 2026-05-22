@@ -41,7 +41,7 @@ ordered_batch_queue:
 
 interactive 模式：不生成此字段，等待用户选择。
 
-### 2b. `{run_id}-project-profile.md`
+### 2b. `temp/{run_id}-project-profile.md`
 
 ```yaml
 ---
@@ -73,7 +73,7 @@ tags: ["{domain}", "project-profile"]
 ## 待确认问题
 ```
 
-### 2b. `{run_id}-extraction-map.md`
+### 2b. `temp/{run_id}-extraction-map.md`
 
 ```yaml
 ---
@@ -85,7 +85,7 @@ indexable: false
 
 正文：domain → sub_domain → module/task_type → candidate_evidence 映射表。每行列：`domain | sub_domain | module | task_type | evidence_kind | candidate_signals`。
 
-### 2c. `{run_id}-batch-plan.md`
+### 2c. `temp/{run_id}-batch-plan.md`
 
 ```yaml
 ---

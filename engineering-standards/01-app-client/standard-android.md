@@ -19,7 +19,7 @@ tags:
 
 # APP Android 团队规范
 
-本文件从 `kaz-mvp` 的 Android app shell、core UI、trade route、account page composition batch 萃取，当前为 `draft`，等待 APP 负责人审查。
+本文件从 `kaz-mvp` 的 Android app shell、core UI、trade route、account page composition batch 萃取，当前为单项目 evidence-backed `draft`。跨项目推广或升级为 `active` 前，需要 APP 负责人确认。
 
 ## 技术栈
 
@@ -203,12 +203,300 @@ superseded_by: null
 - `evidence/code-facts.md「EV-APP-14」`
 - `evidence/code-facts.md「EV-APP-15」`
 
+## P1 KMP 桥接层必须通过 Presenter/UseCase 工厂方法获取，不直接构造 Service
+
+```yaml
+status: draft
+level: P1
+source_kind: extracted
+evidence_tier: single-project
+risk_tag: high
+owner: TBD
+last_reviewed: "2026-05-22"
+recommended_action: keep-draft
+conflicts_with: []
+superseded_by: null
+```
+
+### 适用范围
+
+- 所有 Android 侧调用 KMP 业务层的 ViewModel、Manager、桥接对象。
+
+### 推荐做法
+
+1. 通过 `XxxPresenterFactory.createXxxPresenter()` 或 `XxxModule.createXxxPresenter()` 获取 Presenter 实例，不直接 `new XxxPresenter()`。
+2. ViewModel 持有 Presenter 生命周期，在 `onCleared()` 中调用 `presenter.close()`。
+3. KMP `StateFlow` 在 `viewModelScope` 或 `lifecycleScope` 内用 `repeatOnLifecycle(STARTED)` 收集，不在 `GlobalScope` 直接 collect UI 状态。
+4. Android 侧不直接持有 KMP `Service` 单例（如 `WatchlistService`），通过 `WatchListKmp` 等 object 桥接层统一访问。
+
+### 正例
+
+```kotlin
+// ViewModel 通过工厂方法获取 Presenter
+class MarketViewModel(application: Application) : BaseKmpPageViewModel<MarketUiState>(application) {
+    override val presenter: MarketPresenter = MarketPresenter()
+    init { startObservingPresenter() }
+}
+
+// 复杂模块通过 Module 工厂
+val presenter: AccountCondOrderPresenter = TradeCondModule.createAccountCondOrderPresenter()
+```
+
+### 反例
+
+```kotlin
+// 直接构造 KMP Service，绕过桥接层
+private val watchlistService = WatchlistService(GlobalScope) // 禁止
+```
+
+### AI 生成代码要求
+
+1. AI 新增 ViewModel 时，必须通过工厂方法获取 Presenter，不直接构造 KMP Service。
+2. AI 在 ViewModel 中收集 KMP Flow 时，必须绑定 `viewModelScope`，不使用 `GlobalScope`。
+3. AI 必须在 `onCleared()` 中调用 `presenter.close()`。
+
+### Code Review 检查项
+
+- [ ] Presenter 通过工厂方法获取，没有直接 `new` KMP Service。
+- [ ] KMP Flow 收集绑定了正确的 CoroutineScope。
+- [ ] `onCleared()` 中有 `presenter.close()`。
+
+---
+
+## P1 宿主 Fragment 只做结构编排，子页状态不上浮到宿主
+
+```yaml
+status: draft
+level: P1
+source_kind: extracted
+evidence_tier: single-project
+risk_tag: medium
+owner: TBD
+last_reviewed: "2026-05-22"
+recommended_action: keep-draft
+conflicts_with: []
+superseded_by: null
+```
+
+### 适用范围
+
+- 含 ViewPager + Tab 的宿主 Fragment（如 WatchListFragment、账户容器页）。
+
+### 推荐做法
+
+1. 宿主 Fragment 负责：Tab/ViewPager 初始化、Banner/Notification 挂载、分组切换、指数条显隐等宿主级渲染控制。
+2. 子页（分组页、账户子页）的业务状态不上浮到宿主 ViewModel；宿主只通过接口（如 `OnGroupInfoChangedListener`）向子页派发事件。
+3. 宿主向子页传递数据通过 `Fragment.arguments` 注入，不通过宿主 ViewModel 的 LiveData 直接暴露给子页。
+4. 子页需要触发宿主行为时，通过 `internal fun` 或接口回调，不直接访问宿主 ViewModel。
+
+### 正例
+
+```kotlin
+// 宿主通过 internal fun 收口子页触发的宿主行为
+internal fun cycleDynamicBlockModeFromPage() {
+    mainViewModel.cycleDynamicBlockMode()
+}
+
+// 子页通过 arguments 接收分组 id，不依赖宿主 ViewModel
+return WatchListPageFragment().apply {
+    arguments = Bundle().apply {
+        putString(Config.STOCK_GROUP_ID, groupId)
+    }
+}
+```
+
+### AI 生成代码要求
+
+1. AI 新增宿主 Fragment 时，子页状态不得直接写入宿主 ViewModel。
+2. AI 向子页传参必须通过 `arguments`，不通过宿主 ViewModel 的 LiveData。
+
+### Code Review 检查项
+
+- [ ] 子页业务状态没有上浮到宿主 ViewModel。
+- [ ] 宿主向子页传参通过 `arguments`，不通过共享 ViewModel 直接暴露。
+- [ ] 子页触发宿主行为通过 `internal fun` 或接口，不直接访问宿主 ViewModel。
+
+---
+
+## P2 StateMapper 负责 KMP UiState → Android Vo 的单向映射
+
+```yaml
+status: draft
+level: P2
+source_kind: extracted
+evidence_tier: single-project
+risk_tag: low
+owner: TBD
+last_reviewed: "2026-05-22"
+recommended_action: keep-draft
+conflicts_with: []
+superseded_by: null
+```
+
+### 适用范围
+
+- 所有需要把 KMP Presenter UiState 转换为 Android 侧 ViewObject 的模块（trade-order、watchlist 等）。
+
+### 推荐做法
+
+1. 用独立的 `XxxStateMapper` object 承载 KMP UiState → Android Vo 的转换，不在 ViewModel 内散落转换逻辑。
+2. Mapper 只做数据结构转换，不持有任何状态，不调用 Android API。
+3. KMP 枚举到 Android Vo 枚举的映射用 `when` 穷举，不用 `else` 兜底（保证编译期覆盖检查）。
+4. Vo 类型用 sealed interface/class 表达列表项多态，不用 Any 或 Object。
+
+### 正例
+
+```kotlin
+object CondOrderStateMapper {
+    fun toAccountPageState(state: AccountCondOrderUiState, ...): AccountCondPageState { ... }
+
+    private fun CondStatusFilter.toVo(): CondStatusFilterVo = when (this) {
+        CondStatusFilter.ALL -> CondStatusFilterVo.ALL
+        CondStatusFilter.PENDING -> CondStatusFilterVo.PENDING
+        // 穷举，无 else
+    }
+}
+```
+
+### 反例
+
+```kotlin
+// 在 ViewModel 内散落转换逻辑
+fun onResult(state: AccountCondOrderUiState) {
+    val items = state.orders.map { CondOrderCardVo(it.id, ...) } // 禁止直接在 VM 内转换
+}
+```
+
+### AI 生成代码要求
+
+1. AI 新增 KMP 状态消费时，必须通过独立 Mapper object 转换，不在 ViewModel 内散落。
+2. AI 写枚举映射时必须穷举 `when` 分支，不用 `else`。
+
+### Code Review 检查项
+
+- [ ] KMP UiState → Vo 转换集中在 Mapper object，不散落在 ViewModel。
+- [ ] 枚举映射 `when` 穷举，无 `else` 兜底。
+- [ ] Vo 列表项多态用 sealed interface/class 表达。
+
+---
+
+## P2 ViewBinding 使用 nullable backing field 模式，onDestroyView 中置 null
+
+```yaml
+status: draft
+level: P2
+source_kind: extracted
+evidence_tier: single-project
+risk_tag: medium
+owner: TBD
+last_reviewed: "2026-05-22"
+recommended_action: keep-draft
+conflicts_with: []
+superseded_by: null
+```
+
+### 适用范围
+
+- 所有使用 ViewBinding 的 Fragment。
+
+### 推荐做法
+
+1. 声明 `private var _binding: XxxBinding? = null`，通过 `private val binding get() = _binding!!` 访问。
+2. 在 `onDestroyView()` 中将 `_binding = null`，防止 Fragment 视图销毁后持有 View 引用导致内存泄漏。
+3. 不在 `onDestroyView()` 之后访问 `binding`。
+
+### 正例
+
+```kotlin
+private var _binding: FragmentMeBinding? = null
+private val binding get() = _binding!!
+
+override fun initView() {
+    _binding = FragmentMeBinding.bind(requireView())
+}
+
+override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
+}
+```
+
+### AI 生成代码要求
+
+1. AI 新增 Fragment 时，ViewBinding 必须使用 nullable backing field 模式。
+2. AI 必须在 `onDestroyView()` 中置 `_binding = null`。
+
+### Code Review 检查项
+
+- [ ] ViewBinding 使用 `_binding` nullable backing field。
+- [ ] `onDestroyView()` 中有 `_binding = null`。
+
+---
+
+## P2 EventBus 注册/注销必须成对，在 onAttach/onDetach 或 onCreate/onDestroy 中完成
+
+```yaml
+status: draft
+level: P2
+source_kind: extracted
+evidence_tier: single-project
+risk_tag: medium
+owner: TBD
+last_reviewed: "2026-05-22"
+recommended_action: keep-draft
+conflicts_with: []
+superseded_by: null
+```
+
+### 适用范围
+
+- 所有使用 EventBus（GreenRobot）的 Fragment 和 Application。
+
+### 推荐做法
+
+1. Fragment 在 `onAttach` 注册、`onDetach` 注销；Application 在 `onCreate` 注册、`onTerminate` 注销。
+2. 不在 `onResume/onPause` 注册/注销（会导致 ViewPager 切换时频繁注销）。
+3. `@Subscribe` 方法必须指定 `threadMode`，UI 操作使用 `ThreadMode.MAIN`。
+
+### 正例
+
+```kotlin
+override fun onAttach(context: Context) {
+    super.onAttach(context)
+    EventBus.getDefault().register(this)
+}
+override fun onDetach() {
+    super.onDetach()
+    EventBus.getDefault().unregister(this)
+}
+
+@Subscribe(threadMode = ThreadMode.MAIN)
+fun onBusGroupCheckChanged(event: BusGroupCheckChanged) { ... }
+```
+
+### AI 生成代码要求
+
+1. AI 新增 EventBus 订阅时，必须在对应生命周期方法中成对注册/注销。
+2. AI 必须为 `@Subscribe` 指定 `threadMode`。
+
+### Code Review 检查项
+
+- [ ] EventBus 注册/注销成对，生命周期对称。
+- [ ] `@Subscribe` 有明确 `threadMode`。
+
+---
+
 ## AI 规则
 
 - 新增 Application 初始化时先判断宿主进程边界。
 - 新增 Fragment 时按静态 / MVVM / 加载态复杂度选择最低足够基类。
 - 新增交易共享能力优先收敛到 feature-core，避免复制 deprecated 路由单例。
 - 修改账户容器时只做结构编排与导航消费，不写叶子业务计算。
+- 新增 ViewModel 时通过工厂方法获取 KMP Presenter，在 `onCleared()` 中 `close()`。
+- KMP UiState → Vo 转换集中在独立 Mapper object，枚举映射 `when` 穷举无 `else`。
+- Fragment ViewBinding 使用 nullable backing field，`onDestroyView` 中置 null。
+- EventBus 注册/注销在 `onAttach/onDetach` 成对，`@Subscribe` 必须指定 `threadMode`。
+- 宿主 Fragment 子页传参通过 `arguments`，子页触发宿主行为通过 `internal fun` 或接口。
 
 ## Review 检查项
 
@@ -216,3 +504,8 @@ superseded_by: null
 - [ ] Fragment 基类选择与页面状态复杂度一致。
 - [ ] 交易共享能力没有散落到具体业务页。
 - [ ] 账户容器没有新增叶子业务计算或未经确认的跨层 UseCase 调用。
+- [ ] KMP Presenter 通过工厂方法获取，`onCleared()` 中有 `close()`。
+- [ ] KMP UiState → Vo 转换在 Mapper object，枚举映射穷举无 `else`。
+- [ ] ViewBinding 使用 nullable backing field，`onDestroyView` 中置 null。
+- [ ] EventBus 注册/注销成对，`@Subscribe` 有 `threadMode`。
+- [ ] 宿主 Fragment 子页传参通过 `arguments`，子页触发宿主行为通过接口。

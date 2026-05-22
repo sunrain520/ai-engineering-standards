@@ -19,7 +19,7 @@ tags:
 
 # APP Build Governance 团队规范
 
-本文件从 `kaz-mvp` 的 Gradle versioning / local fast build batch 萃取，当前为 `draft`，等待构建负责人审查。
+本文件从 `kaz-mvp` 的 Gradle versioning / local fast build batch 萃取，当前为单项目 evidence-backed `draft`。跨项目推广或升级为 `active` 前，需要 APP 构建治理负责人确认。
 
 ## 技术栈
 

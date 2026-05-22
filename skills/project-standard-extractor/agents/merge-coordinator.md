@@ -105,7 +105,7 @@ dry_run_plan:
 | similar existing rule（title fingerprint 相似度 ≥ 0.8） | `merge-suggestions.md` | 不重复写规则 |
 | target_state=legacy-compatible | `evidence/legacy-compatible.md` | 不写为推荐规则 |
 | target_state=rejected | review_report 记录，不写入任何文件 |
-| candidate artifact | `{run_id}-rules-index-candidate.json` + `{run_id}-llms-candidate.txt` + `{run_id}-ai-context-pack.md` | 候选，不发布 |
+| candidate artifact | `temp/{run_id}-rules-index-candidate.json` + `temp/{run_id}-llms-candidate.txt` + `temp/{run_id}-ai-context-pack.md` | 候选，不发布 |
 
 ### Step 3 — 幂等合并协议
 
@@ -170,17 +170,17 @@ dry_run_plan:
 ```yaml
 candidate_handling:
   rules_index:
-    dest: "{run_id}-rules-index-candidate.json"
+    dest: "temp/{run_id}-rules-index-candidate.json"
     status: candidate
     must_not_overwrite: [".index/rules-index.json"]
 
   llms:
-    dest: "{run_id}-llms-candidate.txt"
+    dest: "temp/{run_id}-llms-candidate.txt"
     status: candidate
     must_not_overwrite: ["llms.txt"]
 
   ai_context_pack:
-    dest: "{run_id}-ai-context-pack.md"
+    dest: "temp/{run_id}-ai-context-pack.md"
     indexable: false
     must_not_overwrite: []
 ```
@@ -216,10 +216,10 @@ run_log_entry:
 
 ### Step 8 — Review Summary 生成（所有 batch 完成后，auto 模式执行一次）
 
-所有 batch 循环结束后，生成 `{run_id}-review-summary.md`（见模板 `templates/review-summary-template.md`）：
+所有 batch 循环结束后，生成 `temp/{run_id}-review-summary.md`（见模板 `templates/review-summary-template.md`）：
 
 ```
-{run_id}-review-summary.md 包含：
+`temp/{run_id}-review-summary.md` 包含：
 
 1. 执行概览
    - run_id、执行时间、处理 batch 数、成功/跳过/失败统计

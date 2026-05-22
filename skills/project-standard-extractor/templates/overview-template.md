@@ -64,7 +64,7 @@ AI 不得执行：
 
 ## 5. 本次运行追溯
 
-- review-report：`{domain}/{run_id}-review-report.md`（`indexable: false`）
+- review-report：`{domain}/temp/{run_id}-review-report.md`（`indexable: false`）
 - 规则状态决策：`rule-state-decision/*.md`（`indexable: false`）
-- project-profile / extraction-map / batch-plan：`{domain}/{run_id}-*.md`（`indexable: false`）
-- fast-index candidates：`{domain}/{run_id}-rules-index-candidate.json`、`{domain}/{run_id}-llms-candidate.txt`、`{domain}/{run_id}-ai-context-pack.md`
+- project-profile / extraction-map / batch-plan：`{domain}/temp/{run_id}-*.md`（`indexable: false`）
+- fast-index candidates：`{domain}/temp/{run_id}-rules-index-candidate.json`、`{domain}/temp/{run_id}-llms-candidate.txt`、`{domain}/temp/{run_id}-ai-context-pack.md`

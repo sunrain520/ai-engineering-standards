@@ -9,7 +9,7 @@ generated_from: {run_id}
 - Standard: engineering-standards/{source_doc}
 - AI Rules: engineering-standards/{ai_rules_doc}
 - Review Checklist: engineering-standards/{review_checklist_doc}
-- Rules Index Candidate: engineering-standards/{domain}/{run_id}-rules-index-candidate.json
+- Rules Index Candidate: engineering-standards/{domain}/temp/{run_id}-rules-index-candidate.json
 
 ## Loading Policy
 

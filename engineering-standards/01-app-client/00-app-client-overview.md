@@ -77,6 +77,12 @@ Network / Cache / Database / Config / Log
 | `09-performance-standard.md` | 启动、页面、网络、缓存、行情和稳定性性能规范 |
 | `10-app-ai-rules.md` | APP 端 AI Coding Rules |
 | `11-code-review-checklist.md` | APP 端 Code Review Checklist |
+| `12-state-error-standard.md` | 页面状态、错误处理、重试和降级规范 |
+| `13-navigation-routing-standard.md` | 路由、DeepLink、页面协作和跨模块调用规范 |
+| `14-build-dependency-standard.md` | 构建、依赖、版本和 contract 轻量化治理规范 |
+| `15-security-compliance-standard.md` | 账号、权限、隐私、交易和合规安全规范 |
+| `16-observability-standard.md` | 日志、埋点、Crash、性能指标和诊断上下文规范 |
+| `17-app-standard-extraction-process.md` | APP 代码开发规范萃取流程和维度矩阵 |
 
 ## 6. 第一版强制规则
 

@@ -44,9 +44,9 @@
 - [ ] `evidence/forbidden-examples.md` 存在。
 - [ ] `evidence/legacy-compatible.md` 存在。
 - [ ] `examples/README.md` 存在。
-- [ ] 需要时输出 `{run_id}-rules-index-candidate.json`。
-- [ ] 需要时输出 `{run_id}-llms-candidate.txt`。
-- [ ] 需要时输出 `{run_id}-ai-context-pack.md`。
+- [ ] 需要时输出 `temp/{run_id}-rules-index-candidate.json`。
+- [ ] 需要时输出 `temp/{run_id}-llms-candidate.txt`。
+- [ ] 需要时输出 `temp/{run_id}-ai-context-pack.md`。
 - [ ] 候选索引产物不默认覆盖正式根文件。
 
 ## 6. 安全

@@ -9,7 +9,7 @@
 5. 运行 Generation，只基于 code facts 生成规则。
 6. 运行 Review and Quality Gate，给出状态建议。
 7. 运行 Merge Coordinator，append-only 写入目标目录。
-8. 输出修改文件、Rule ID、Evidence ID、pending/conflict 和负责人确认项。
+8. 输出修改文件、规则定位（`source_doc + section_title`）、Evidence ID、pending/conflict 和负责人确认项。
 
 禁止：
 

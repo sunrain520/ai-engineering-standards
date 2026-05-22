@@ -11,9 +11,9 @@
 | `02-pc-client/` | PC 客户端规范结构入口，等待真实项目萃取 |
 | `03-frontend/` | 前端规范结构入口，等待真实项目萃取 |
 | `04-backend/` | 后端规范结构入口，等待真实项目萃取 |
-| `05-testing/` | 测试规范预留目录 |
-| `06-release/` | 发布规范预留目录 |
-| `07-security/` | 安全规范预留目录 |
+| `05-testing/` | 测试规范结构入口，等待真实项目萃取 |
+| `06-release/` | 发布规范结构入口，等待真实项目萃取 |
+| `07-security/` | 安全规范结构入口，等待真实项目萃取 |
 | `08-ai-coding/` | AI 开发输入、自检和评审规则 |
 | `09-industry/` | 证券、信贷、银行等跨研发域行业规范入口 |
 | `prompts/` | 可复制给 AI 的标准输入 prompt |
@@ -23,7 +23,7 @@
 1. 新增规范前，先看 `00-global/rule-lifecycle.md`。
 2. 从真实代码萃取规范时，使用 `../skills/project-standard-extractor/SKILL.md`。
 3. APP 端开发直接查看 `01-app-client/README.md` 和现有专题规范。
-4. PC、前端、后端、行业目录当前只提供结构和 evidence policy，真实规则必须由后续萃取或负责人确认产生。
+4. PC、前端、后端、测试、发布、安全和行业目录当前只提供结构和 evidence policy，真实规则必须由后续萃取或负责人确认产生。
 
 ## 关键原则
 

@@ -163,9 +163,9 @@ AI 新增接口时必须先检查是否已有 Service，不得在 Controller 中
 
 输出候选：
 
-- `04-backend/20260521-180000-backend-rules-index-candidate.json`
-- `04-backend/20260521-180000-backend-llms-candidate.txt`
-- `04-backend/20260521-180000-backend-ai-context-pack.md`
+- `04-backend/temp/20260521-180000-backend-rules-index-candidate.json`
+- `04-backend/temp/20260521-180000-backend-llms-candidate.txt`
+- `04-backend/temp/20260521-180000-backend-ai-context-pack.md`
 
 `rules-index` 候选条目使用 `title`、`domain`、`sub_domain`、`level`、`source_doc`、`section_title`、`evidence_doc`、`tags`，不使用 `rule_id` 或 `anchor`。
 

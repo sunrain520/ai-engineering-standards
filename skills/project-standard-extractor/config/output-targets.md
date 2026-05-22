@@ -5,9 +5,11 @@
 每个 domain 目录应提供：
 
 - `overview.md`
-- `{run_id}-project-profile.md`
-- `{run_id}-extraction-map.md`
-- `{run_id}-batch-plan.md`
+- `temp/{run_id}-project-profile.md`
+- `temp/{run_id}-extraction-map.md`
+- `temp/{run_id}-batch-plan.md`
+- `temp/{run_id}-review-report.md`
+- `temp/{run_id}-review-summary.md`
 - `standard-{sub_domain}.md`       ← 每个 sub_domain 一份；跨 sub_domain 共性使用 `standard-common.md`
 - `ai-rules.md`                    ← 汇总所有 sub_domain 的派生视图，每个 domain 一份
 - `review-checklist.md`            ← 汇总所有 sub_domain 的派生视图，每个 domain 一份
@@ -20,9 +22,9 @@
 - `evidence/positive-examples.md`
 - `evidence/forbidden-examples.md`
 - `evidence/legacy-compatible.md`
-- `{run_id}-rules-index-candidate.json`
-- `{run_id}-llms-candidate.txt`
-- `{run_id}-ai-context-pack.md`
+- `temp/{run_id}-rules-index-candidate.json`
+- `temp/{run_id}-llms-candidate.txt`
+- `temp/{run_id}-ai-context-pack.md`
 
 ### 1.1 sub_domain 拆分规则
 
@@ -38,9 +40,11 @@
 | 结果类型 | 目标文件 | doc_type |
 | --- | --- | --- |
 | evidence-backed 规则 | `standard-{sub_domain}.md` | `standard` |
-| 项目画像 handoff | `{run_id}-project-profile.md` | `project-profile` |
-| extraction map handoff | `{run_id}-extraction-map.md` | `extraction-map` |
-| batch plan handoff | `{run_id}-batch-plan.md` | `batch-plan` |
+| 项目画像 handoff | `temp/{run_id}-project-profile.md` | `project-profile` |
+| extraction map handoff | `temp/{run_id}-extraction-map.md` | `extraction-map` |
+| batch plan handoff | `temp/{run_id}-batch-plan.md` | `batch-plan` |
+| 质量评审报告 | `temp/{run_id}-review-report.md` | `review-report` |
+| 运行审查摘要 | `temp/{run_id}-review-summary.md` | `review-report` |
 | AI 执行规则 | `ai-rules.md` | `ai-rules` |
 | Review 检查项 | `review-checklist.md` | `review-checklist` |
 | 无证据或需确认规则 | `pending-confirmation.md` | `pending-confirmation` |
@@ -50,18 +54,18 @@
 | 正例 | `evidence/positive-examples.md` | `evidence-positive` |
 | 反例 | `evidence/forbidden-examples.md` | `evidence-forbidden` |
 | 历史兼容 | `evidence/legacy-compatible.md` | `evidence-legacy` |
-| AI Context Pack 候选 | `{run_id}-ai-context-pack.md` | `ai-context-pack` |
-| rules-index 候选 | `{run_id}-rules-index-candidate.json` | 不适用 |
-| llms 入口候选 | `{run_id}-llms-candidate.txt` | 不适用 |
+| AI Context Pack 候选 | `temp/{run_id}-ai-context-pack.md` | `ai-context-pack` |
+| rules-index 候选 | `temp/{run_id}-rules-index-candidate.json` | 不适用 |
+| llms 入口候选 | `temp/{run_id}-llms-candidate.txt` | 不适用 |
 
 ## 3. doc_id 命名
 
 | 文件 | doc_id |
 | --- | --- |
 | `overview.md` | `{domain}-overview` |
-| `{domain}/{run_id}-project-profile.md` | `{domain}-{run_id}-project-profile` |
-| `{domain}/{run_id}-extraction-map.md` | `{domain}-{run_id}-extraction-map` |
-| `{domain}/{run_id}-batch-plan.md` | `{domain}-{run_id}-batch-plan` |
+| `{domain}/temp/{run_id}-project-profile.md` | `{domain}-{run_id}-project-profile` |
+| `{domain}/temp/{run_id}-extraction-map.md` | `{domain}-{run_id}-extraction-map` |
+| `{domain}/temp/{run_id}-batch-plan.md` | `{domain}-{run_id}-batch-plan` |
 | `standard-{sub_domain}.md` | `{domain}-{sub_domain}-standard` |
 | `ai-rules.md` | `{domain}-{sub_domain}-ai-rules` |
 | `review-checklist.md` | `{domain}-{sub_domain}-review-checklist` |
@@ -74,8 +78,9 @@
 | `evidence/legacy-compatible.md` | `{domain}-{sub_domain}-evidence-legacy` |
 | `evidence/README.md` | `{domain}-evidence-readme` |
 | `examples/README.md` | `{domain}-examples-readme` |
-| `{domain}/{run_id}-ai-context-pack.md` | `{domain}-{run_id}-ai-context-pack` |
-| `{domain}/{run_id}-review-report.md` | `{domain}-{run_id}-review-report` |
+| `{domain}/temp/{run_id}-ai-context-pack.md` | `{domain}-{run_id}-ai-context-pack` |
+| `{domain}/temp/{run_id}-review-report.md` | `{domain}-{run_id}-review-report` |
+| `{domain}/temp/{run_id}-review-summary.md` | `{domain}-{run_id}-review-summary` |
 | `{domain}/rule-state-decision/{slug}.md` | `{domain}-{sub_domain}-{slug}-state-decision` |
 
 `{run_id}` 与 `{slug}` 生成规则:
@@ -101,7 +106,7 @@
 
 ## 6. Handoff 与候选索引产物
 
-1. `project-profile`、`extraction-map`、`batch-plan` 和 `ai-context-pack` 是运行级 Markdown artifact，必须有 Front Matter，默认 `indexable: false`。
+1. `project-profile`、`extraction-map`、`batch-plan`、`review-summary`、`review-report` 和 `ai-context-pack` 是运行级 Markdown artifact，必须写入 `temp/`，必须有 Front Matter，默认 `indexable: false`。
 2. `rules-index-candidate.json` 必须是候选文件，字段使用 `title`、`domain`、`sub_domain`、`level`、`source_doc`、`section_title`、`evidence_doc`、`tags`，不得包含 `rule_id` 或 `anchor`。
 3. `llms-candidate.txt` 是候选入口地图，不得默认覆盖根 `llms.txt`。
 4. 发布正式 `.index/rules-index.json` 或根 `llms.txt` 需要用户显式确认；本 Skill 第一阶段只输出候选和合并建议。

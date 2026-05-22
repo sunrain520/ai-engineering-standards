@@ -20,7 +20,7 @@ tags:
 ## 1. 来源
 
 - run_id: `{run_id}`
-- source_profile: `{domain}/{run_id}-project-profile.md`
+- source_profile: `{domain}/temp/{run_id}-project-profile.md`
 - extraction_mode: `profile-first`
 
 ## 2. 映射矩阵

@@ -11,9 +11,9 @@
 ```yaml
 inputs:
   scope_summary:              # 来自 intake-and-scope
-  profile_doc:                # {run_id}-project-profile.md
-  extraction_map:             # {run_id}-extraction-map.md
-  batch_plan:                 # {run_id}-batch-plan.md
+  profile_doc:                # temp/{run_id}-project-profile.md
+  extraction_map:             # temp/{run_id}-extraction-map.md
+  batch_plan:                 # temp/{run_id}-batch-plan.md
   selected_batch_id:          # 用户或调用方选定的 batch_id（必填）
   existing_standards:         # 现有 active/draft 规范文件清单（用于冲突检测）
   domain_taxonomy:            # config/domain-taxonomy.md

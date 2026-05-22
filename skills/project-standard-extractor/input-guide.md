@@ -158,15 +158,15 @@ selected_batch:
 
 profile-first 产物默认写入：
 
-- `{domain}/{run_id}-project-profile.md`
-- `{domain}/{run_id}-extraction-map.md`
-- `{domain}/{run_id}-batch-plan.md`
+- `{domain}/temp/{run_id}-project-profile.md`
+- `{domain}/temp/{run_id}-extraction-map.md`
+- `{domain}/temp/{run_id}-batch-plan.md`
 
 fast-index 候选产物默认写入：
 
-- `{domain}/{run_id}-rules-index-candidate.json`
-- `{domain}/{run_id}-llms-candidate.txt`
-- `{domain}/{run_id}-ai-context-pack.md`
+- `{domain}/temp/{run_id}-rules-index-candidate.json`
+- `{domain}/temp/{run_id}-llms-candidate.txt`
+- `{domain}/temp/{run_id}-ai-context-pack.md`
 
 ### Step 13：确认声明
 

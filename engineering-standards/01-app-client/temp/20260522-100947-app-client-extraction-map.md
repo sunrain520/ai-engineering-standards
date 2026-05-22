@@ -21,7 +21,7 @@ tags:
 ## 1. 来源
 
 - run_id: `20260522-100947-app-client`
-- source_profile: `engineering-standards/01-app-client/20260522-100947-app-client-project-profile.md`
+- source_profile: `engineering-standards/01-app-client/temp/20260522-100947-app-client-project-profile.md`
 - extraction_mode: `profile-first`
 - project_path: `/Users/kuang/xiaobu/kaz-mvp`
 

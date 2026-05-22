@@ -15,7 +15,7 @@ inputs:
   code_facts:             # facts-and-classification 的全量输出
   classification:         # recommended / forbidden / legacy_compatible / pending_confirmation / conflict
   selected_batch_summary: # batch_id / domain / sub_domain / evidence_limit
-  project_profile:        # {run_id}-project-profile.md（用于理解架构背景）
+  project_profile:        # temp/{run_id}-project-profile.md（用于理解架构背景）
   global_templates:       # templates/ 目录（standard-template.md 是主要参考）
   frontmatter_format:     # config/frontmatter-format.md
   output_targets:         # config/output-targets.md
@@ -34,9 +34,9 @@ inputs:
 | `pending-confirmation.md` | pending-confirmation | false | Sub-step B |
 | `ai-rules.md` | ai-rules | true | Sub-step C |
 | `review-checklist.md` | review-checklist | true | Sub-step C |
-| `{run_id}-rules-index-candidate.json` | — | — | Sub-step D |
-| `{run_id}-llms-candidate.txt` | — | — | Sub-step D |
-| `{run_id}-ai-context-pack.md` | ai-context-pack | false | Sub-step D |
+| `temp/{run_id}-rules-index-candidate.json` | — | — | Sub-step D |
+| `temp/{run_id}-llms-candidate.txt` | — | — | Sub-step D |
+| `temp/{run_id}-ai-context-pack.md` | ai-context-pack | false | Sub-step D |
 
 ## 生成管线（严格工序）
 

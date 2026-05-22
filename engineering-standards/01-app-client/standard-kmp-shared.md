@@ -19,7 +19,7 @@ tags:
 
 # APP KMP Shared 团队规范
 
-本文件从 `kaz-mvp` 的 `trade-order` KMP batch 萃取，当前为 `draft`，等待 KMP / APP 负责人审查。
+本文件从 `kaz-mvp` 的 `trade-order` KMP batch 萃取，当前为单项目 evidence-backed `draft`。跨项目推广或升级为 `active` 前，需要 APP/KMP 负责人确认。
 
 ## 技术栈
 
@@ -162,14 +162,125 @@ superseded_by: null
 
 - `evidence/code-facts.md「EV-APP-19」`
 
+## P2 KMP 桥接 object 统一封装 Service 访问，Android 侧不直接持有 Service 实例
+
+```yaml
+status: draft
+level: P2
+source_kind: extracted
+evidence_tier: single-project
+risk_tag: medium
+owner: TBD
+last_reviewed: "2026-05-22"
+recommended_action: keep-draft
+conflicts_with: []
+superseded_by: null
+```
+
+### 适用范围
+
+- Android 侧调用 KMP Service（如 WatchlistService、ApplicationLogic）的所有入口。
+
+### 推荐做法
+
+1. 用 Kotlin `object`（如 `WatchListKmp`）封装 KMP Service 的生命周期和访问入口，Android 侧只调用 object 方法。
+2. object 内部持有 Service 实例，负责初始化（`doInitWithCombination()`）和状态管理。
+3. 旧的直接调用 Service 方法的代码应注释保留（用 `//` 注释掉旧实现），新实现通过 object 桥接，便于回滚和对比。
+4. 桥接 object 的方法签名应与 Android 侧调用习惯对齐，隐藏 KMP 内部参数细节。
+
+### 正例
+
+```kotlin
+object WatchListKmp {
+    private var watchlistService: WatchlistService = WatchlistService(globalScope)
+    init { watchlistService.doInitWithCombination() }
+
+    suspend fun groupAddStocks(groupId: String?, isSystem: Int?, stocks: List<SecurityItem>?, isManual: String?): HSResult<Boolean> {
+        val groups = groupId?.let { listOf(it to isSystem?.toString()) }
+        return watchlistService.groupAddStocks(groups, stocks, isManual)
+    }
+}
+```
+
+### AI 生成代码要求
+
+1. AI 新增 KMP Service 调用时，必须通过桥接 object，不直接在 ViewModel 或 Manager 中持有 Service 实例。
+2. AI 替换旧实现时，应注释保留旧代码，不直接删除。
+
+### Code Review 检查项
+
+- [ ] Android 侧没有直接持有 KMP Service 实例。
+- [ ] 桥接 object 负责 Service 初始化和生命周期。
+
+---
+
+## P2 KMP Presenter 的 EffectFlow 用于一次性副作用，不用于持久状态
+
+```yaml
+status: draft
+level: P2
+source_kind: extracted
+evidence_tier: single-project
+risk_tag: low
+owner: TBD
+last_reviewed: "2026-05-22"
+recommended_action: keep-draft
+conflicts_with: []
+superseded_by: null
+```
+
+### 适用范围
+
+- 所有使用 KMP Presenter 的 ViewModel，特别是有弹窗、导航、Toast 等副作用的场景。
+
+### 推荐做法
+
+1. 一次性副作用（Toast、导航跳转、弹窗触发）通过 `effectFlow` 发送，不写入 `stateFlow`。
+2. Android ViewModel 在 `init` 中用 `viewModelScope.launch` 收集 `effectFlow`，映射为 Android 侧 LiveData 事件。
+3. `stateFlow` 只承载可重放的页面状态，`effectFlow` 只承载消费一次的事件。
+
+### 正例
+
+```kotlin
+init {
+    viewModelScope.launch {
+        presenter.effectFlow.collect(::handlePresenterEffect)
+    }
+}
+
+private fun handlePresenterEffect(effect: AccountCondOrderEffect) {
+    when (effect) {
+        is AccountCondOrderEffect.ShowToast -> showToast(effect.message)
+        is AccountCondOrderEffect.OpenModify -> mutableUiEvent.postValue(AccountCondOrderUiEvent.ModifyOrder(effect.preparation))
+        AccountCondOrderEffect.RefreshCurrentList -> onActionSuccessRefresh()
+    }
+}
+```
+
+### AI 生成代码要求
+
+1. AI 新增 KMP Presenter 副作用时，必须通过 `effectFlow` 而非 `stateFlow`。
+2. AI 在 ViewModel 中收集 `effectFlow` 时，必须在 `init` 中启动，不在 `onResume` 等生命周期方法中重复订阅。
+
+### Code Review 检查项
+
+- [ ] 一次性副作用通过 `effectFlow`，不写入 `stateFlow`。
+- [ ] `effectFlow` 在 `init` 中订阅，不重复订阅。
+
+---
+
 ## AI 规则
 
 - KMP 业务逻辑先写 UseCase 与 Repository 接口，再连接实现。
 - Presenter 只输出状态流，不直接操作 Android View。
 - 新增 KMP 模块必须说明 core / business / app 归属。
+- Android 侧通过桥接 object 访问 KMP Service，不直接持有 Service 实例。
+- 一次性副作用通过 `effectFlow`，持久状态通过 `stateFlow`。
 
 ## Review 检查项
 
 - [ ] UseCase、Repository、Presenter 依赖方向清晰。
 - [ ] 分页 Presenter 处理请求防重、失败重置和游标更新。
 - [ ] ObjC/iOS 暴露边界变更被显式说明。
+- [ ] Android 侧没有直接持有 KMP Service 实例。
+- [ ] 一次性副作用通过 `effectFlow`，不写入 `stateFlow`。

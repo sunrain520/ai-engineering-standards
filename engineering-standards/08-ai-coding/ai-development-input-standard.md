@@ -31,7 +31,7 @@
 
 1. 需求归属判断。
 2. 可复用能力。
-3. 应遵守规则和 Rule ID。
+3. 应遵守规则定位（`{source_doc}「{section_title}」`）。
 4. draft / pending / conflict 风险。
 5. 修改文件列表。
 6. 实现方案。

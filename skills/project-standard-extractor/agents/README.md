@@ -44,7 +44,7 @@ intake-and-scope
 | 从 → 到 | 传递内容 |
 | --- | --- |
 | intake → profile-planner | `scope_summary` |
-| profile-planner → facts | `{run_id}-project-profile.md` + `{run_id}-batch-plan.md` + `selected_batch_id` |
+| profile-planner → facts | `temp/{run_id}-project-profile.md` + `temp/{run_id}-batch-plan.md` + `selected_batch_id` |
 | facts → generation | `code_facts` + `classification`（YAML 摘要，不含源码） |
 | generation → review | 产物路径列表 + `batch_summary` |
 | review → merge | `quality_gate_decisions[]` + `review_report` |

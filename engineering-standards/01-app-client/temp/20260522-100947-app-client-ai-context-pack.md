@@ -83,9 +83,9 @@ standard-module-boundary.md「P1 跨域协作必须通过 contract 稳定边界�
 - 必须保持 `contract` 不依赖 `feature` 实现模块。
 - 不得在 `contract` 中生成页面实现、复杂业务流程或内部状态管理代码。
 - 命中 `pending-confirmation.md「PENDING-APP-1: contract 模块 UI 依赖是否应收敛」` 时，只能提示负责人确认。
-- 命中 `standard-android.md`、`standard-kmp-shared.md`、`standard-build-governance.md` 的 draft 规则时，只能作为草案上下文使用，并在输出中标注 `draft` 与 `single-project evidence`。
+- 命中 `standard-android.md`、`standard-kmp-shared.md`、`standard-build-governance.md` 的 active 规则时，应直接执行；因 evidence 来自单项目，跨项目推广前建议补充第二项目 evidence。
 - 命中 `pending-confirmation.md「PENDING-APP-2: core-ui-kit 是否应拆除对聚合 KMP 入口的直接依赖」` 或 `pending-confirmation.md「PENDING-APP-3: 账户容器是否允许直接注入 KMP UseCase」` 时，只能提示负责人确认。
 
 ## 7. 自检要求
 
-生成后必须逐条引用命中的 `standard-*.md「section_title」` 输出遵守情况；draft 规则不得宣称为 active。
+生成后必须逐条引用命中的 `standard-*.md「section_title」` 输出遵守情况；pending-confirmation 与 legacy-compatible 条目不得宣称为 active。

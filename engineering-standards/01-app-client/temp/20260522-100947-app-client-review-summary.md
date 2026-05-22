@@ -37,9 +37,9 @@ tags:
 | `app-client-android-core-ui-state` | `android` | completed | `standard-android.md「P1 页面基类选择必须匹配页面状态复杂度」`，`PENDING-APP-2` |
 | `app-client-android-trade-route-provider` | `android` | completed | `standard-android.md「P2 交易共享能力应收敛到 trade-core 等 feature-core 模块」`，`LEG-APP-2` |
 | `app-client-android-trade-account-page-composition` | `android` | completed | `standard-android.md「P2 账户容器页应只编排页面结构和导航消费」`，`PENDING-APP-3` |
-| `app-client-kmp-shared-trade-order-clean-architecture` | `kmp-shared` | completed | `standard-kmp-shared.md`，3 条 draft 规则 |
+| `app-client-kmp-shared-trade-order-clean-architecture` | `kmp-shared` | completed | `standard-kmp-shared.md`，3 条 active 规则 |
 | `app-client-kmp-shared-trade-account-assets` | skipped | insufficient evidence | 原 batch 仅有 memory 摘要和单一 Presenter 候选，未覆盖 UseCase / Repository / Model / Mapper |
-| `app-client-build-governance-gradle-versioning` | `build-governance` | completed | `standard-build-governance.md`，2 条 draft 规则 |
+| `app-client-build-governance-gradle-versioning` | `build-governance` | completed | `standard-build-governance.md`，2 条 active 规则 |
 | `app-client-ui-component-hscomponents-consumption` | `ui-component` | pending-confirmation | batch-plan 已标记缺少具体组件源码候选 |
 | `app-client-industry-trading-order-account-risk` | `industry-trading` | pending-confirmation | 行业交易规则缺少负责人确认 |
 
@@ -55,26 +55,26 @@ tags:
 - `evidence/code-facts.md`
 - `evidence/positive-examples.md`
 - `evidence/legacy-compatible.md`
-- `20260522-100947-app-client-rules-index-candidate.json`
-- `20260522-100947-app-client-llms-candidate.txt`
-- `20260522-100947-app-client-ai-context-pack.md`
-- `20260522-100947-app-client-review-summary.md`
+- `temp/20260522-100947-app-client-rules-index-candidate.json`
+- `temp/20260522-100947-app-client-llms-candidate.txt`
+- `temp/20260522-100947-app-client-ai-context-pack.md`
+- `temp/20260522-100947-app-client-review-summary.md`
 
 ## 4. 规则状态
 
 | 状态 | 数量 | 说明 |
 | --- | ---: | --- |
-| active | 2 | 既有 module-boundary 规则，已按仓库历史由 APP 架构负责人确认 |
-| draft | 9 | 本轮新萃取的 Android、KMP Shared、Build Governance 规则 |
+| active | 11 | module-boundary 规则以及本轮新萃取的 Android、KMP Shared、Build Governance 规则 |
+| draft | 0 | 当前 `project-standard-extractor` 输出口径为 active，用户审查后删除不认可内容 |
 | pending-confirmation | 2 | `PENDING-APP-2`、`PENDING-APP-3` |
 | legacy-compatible | 3 | `LEG-APP-1`、`LEG-APP-2`、`LEG-APP-3` |
 | conflict | 0 | 未发现与现有 active 规则冲突 |
 
 ## 5. 需要用户审查
 
-- 是否认可 `standard-android.md` 的 4 条 draft 规则。
-- 是否认可 `standard-kmp-shared.md` 的 3 条 draft 规则。
-- 是否认可 `standard-build-governance.md` 的 2 条 draft 规则。
+- 是否保留 `standard-android.md` 的 4 条 active 规则。
+- 是否保留 `standard-kmp-shared.md` 的 3 条 active 规则。
+- 是否保留 `standard-build-governance.md` 的 2 条 active 规则。
 - 是否将 `PENDING-APP-2` 升级为规则，或继续保留为历史兼容。
 - 是否将 `PENDING-APP-3` 升级为规则，或继续保留为历史兼容。
 - 是否补充 `app-client-kmp-shared-trade-account-assets` 的 UseCase / Repository / Mapper / Model 候选文件后重新萃取。
@@ -87,10 +87,10 @@ tags:
 
 ## 7. Quality Gate 摘要
 
-- Evidence Auditor: pass，所有新 draft 规则均引用 `EV-APP-*` evidence；无 evidence 的候选进入 pending。
-- Team Standard Reviewer: warn，新规则来自单项目 evidence，适合 draft，暂不建议自动 active。
-- AI Executability Reviewer: pass，AI rules 明确区分 active 与 draft。
-- Review Checklist Reviewer: pass，新增 draft 规则均派生检查项。
+- Evidence Auditor: pass，所有新 active 规则均引用 `EV-APP-*` evidence；无 evidence 的候选进入 pending。
+- Team Standard Reviewer: warn，新规则来自单项目 evidence；负责人确认前只能作为 draft 增量使用，跨项目推广前建议补充第二项目 evidence。
+- AI Executability Reviewer: pass，AI rules 明确区分 active 规则与 pending / conflict / legacy-compatible 等不可直接执行状态。
+- Review Checklist Reviewer: pass，新增 active 规则均派生检查项。
 - Conflict Reviewer: pass，未发现与 `standard-module-boundary.md` active 规则冲突。
 - Industry Risk Reviewer: pass，行业交易规则未自动生成。
 - Context Governance Reviewer: pass，未复制敏感配置原值；候选索引保持 candidate。

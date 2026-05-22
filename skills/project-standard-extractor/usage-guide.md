@@ -76,11 +76,11 @@ cp -r skills/project-standard-extractor ~/.codex/skills/
 
 | 产物 | 位置 |
 | --- | --- |
-| `project-profile.md` / `extraction-map.md` / `batch-plan.md` | `engineering-standards/<域>/{run_id}-*.md` |
+| `project-profile.md` / `extraction-map.md` / `batch-plan.md` | `engineering-standards/<域>/temp/{run_id}-*.md` |
 | `overview.md` / `standard.md` / `ai-rules.md` / `review-checklist.md` | `engineering-standards/<域>/` |
 | `evidence/code-facts.md` / `positive-examples.md` / `forbidden-examples.md` / `legacy-compatible.md` | `engineering-standards/<域>/evidence/` |
 | `pending-confirmation.md` / `merge-suggestions.md` / `conflicts.md` | `engineering-standards/<域>/` |
-| `rules-index-candidate.json` / `llms-candidate.txt` / `ai-context-pack.md` | `engineering-standards/<域>/{run_id}-*` |
+| `rules-index-candidate.json` / `llms-candidate.txt` / `ai-context-pack.md` | `engineering-standards/<域>/temp/{run_id}-*` |
 
 新规则初始状态都是 `draft`；端 / 行业负责人确认后才能升级 `active`。状态机详见 `engineering-standards/00-global/rule-lifecycle.md`。
 

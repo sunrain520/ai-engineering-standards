@@ -20,8 +20,8 @@ tags:
 ## 1. 来源
 
 - run_id: `{run_id}`
-- source_profile: `{domain}/{run_id}-project-profile.md`
-- source_extraction_map: `{domain}/{run_id}-extraction-map.md`
+- source_profile: `{domain}/temp/{run_id}-project-profile.md`
+- source_extraction_map: `{domain}/temp/{run_id}-extraction-map.md`
 
 ## 2. 可执行 batch
 
@@ -60,5 +60,5 @@ batches:
 ```yaml
 selected_batch:
   batch_id:
-  source_batch_plan: "{domain}/{run_id}-batch-plan.md"
+  source_batch_plan: "{domain}/temp/{run_id}-batch-plan.md"
 ```

@@ -15,7 +15,7 @@ inputs:
   review_checklist_doc:   # 生成的 review-checklist.md
   evidence_docs:          # evidence/code-facts.md + positive + forbidden + legacy
   pending_doc:            # pending-confirmation.md
-  candidate_index:        # {run_id}-rules-index-candidate.json
+  candidate_index:        # temp/{run_id}-rules-index-candidate.json
   existing_standards:     # 当前 engineering-standards/ 下的 active/draft 规则清单
   batch_summary:          # batch_id + evidence_limit + rule_limit + stop_conditions_hit
 ```
