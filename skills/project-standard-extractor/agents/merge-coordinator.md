@@ -52,7 +52,7 @@ merge_summary:
   written_files: []            # 写入或追加的文件列表
   new_rule_locators: []        # 新增 [{source_doc, section_title, level}]
   new_evidence_ids: []         # 新增 [EV/POS/NEG/LEG-DOMAIN-N]
-  merged_to_draft: 0           # 写入 standard.md 的规则数
+  merged_to_draft: 0           # 写入 standard-{sub_domain}.md 的规则数
   moved_to_pending: 0
   moved_to_conflicts: 0
   added_to_merge_suggestions: 0
@@ -78,7 +78,7 @@ dry_run_plan:
 
 `risk_level: high` 时（命中任一）：
 - 有 ≥ 1 条规则与已有 `active` 冲突
-- 有规则要写入已有 `standard.md` 且现有规则 ≥ 10 条
+- 有规则要写入已有 `standard-{sub_domain}.md` 且该文件现有规则 ≥ 30 条（或文件行数 ≥ 1000 行）
 
 **高风险时**：输出 dry-run 计划并暂停，等待负责人确认后再执行实际写入。
 
@@ -99,7 +99,7 @@ dry_run_plan:
 
 | Decision 条件 | 写入位置 | 说明 |
 | --- | --- | --- |
-| target_state=draft, recommended_action=keep-draft | `standard.md`（追加）+ `ai-rules.md`（追加）+ `review-checklist.md`（追加）+ `evidence/*`（追加） | 主路径 |
+| target_state=draft, recommended_action=keep-draft | `standard-{sub_domain}.md`（按 sub_domain 路由追加）+ `ai-rules.md`（追加）+ `review-checklist.md`（追加）+ `evidence/*`（追加） | 主路径 |
 | target_state=pending-confirmation | `pending-confirmation.md` | 不进 ai-rules |
 | target_state=conflict | `conflicts.md` | 不进 standard |
 | similar existing rule（title fingerprint 相似度 ≥ 0.8） | `merge-suggestions.md` | 不重复写规则 |
@@ -141,12 +141,21 @@ dry_run_plan:
 
 ### Step 4 — 写入执行
 
+**standard 文件路由（按 sub_domain）**：
+
+| batch.sub_domain | 写入目标文件 |
+| --- | --- |
+| 明确的 sub_domain（如 `java-spring`） | `standard-java-spring.md` |
+| 跨 sub_domain 共性规则 | `standard-common.md` |
+| sub_domain 未知 | 写入 `pending-confirmation.md`，标注 `reason: sub_domain_unknown` |
+
 每次写入操作：
 
 1. 先读取目标文件（若已存在），确认不会覆盖已有 `active` 内容。
 2. 追加到文件末尾（或对应 section 末尾），保留已有内容。
-3. 若目标文件不存在：按 `config/frontmatter-format.md` 新建，写入 Front Matter，规则 H2 满足 `^(P0|P1|P2|FORBIDDEN) ` 前缀。
+3. 若目标文件不存在：按 `config/frontmatter-format.md` 新建，写入 Front Matter（`doc_id: {domain}-{sub_domain}-standard`），规则 H2 满足 `^(P0|P1|P2|FORBIDDEN) ` 前缀。
 4. 若目标文件缺少 Front Matter（历史遗留）：追加到 `merge-suggestions.md`，不直接修改头部。
+5. **⚠️ 文档大小预警**：写入后若 `standard-{sub_domain}.md` 超过 **1500 行**，在 `merge_summary.warnings` 追加：`"{sub_domain} 规范文件已达 {N} 行，建议按 task_type 拆分为多个 sub_domain 文件"`。
 
 **冲突严重度分级**（写入 `conflicts.md` 时标注）：
 
@@ -189,17 +198,54 @@ candidate_handling:
 - [ ] `pending_human_actions` 列出所有需要负责人手动操作的项目
 - [ ] evidence 编号无重复（追加了 `existing_index.evidence_ids` 后验证）
 
-### Step 7 — Run Summary 输出
+### Step 7 — Run Summary 输出（每 batch 执行后）
 
-合并完成后输出标准 `merge_summary`，包含：
+每个 batch 合并完成后追加到 `run_log`：
 
-1. 修改文件列表（路径 + 追加 / 新建 / 跳过）。
-2. 新增规则定位列表（`{source_doc}「{section_title}」`）。
-3. 新增 Evidence 条目编号列表。
-4. merge / conflict / pending 统计。
-5. 候选索引产物状态。
-6. **AI 使用警告**（针对所有 `draft / risk_tag: high / pending / conflict` 规则）。
-7. 负责人确认项（`pending_human_actions`，每项含确认内容和建议负责人）。
+```yaml
+run_log_entry:
+  batch_id: ""
+  status: completed | skipped | failed
+  skip_reason: null
+  written_files: []
+  new_sections: []       # standard-{sub_domain}.md 新增的章节标题
+  evidence_count: 0
+  pending_count: 0
+  conflict_count: 0
+```
+
+### Step 8 — Review Summary 生成（所有 batch 完成后，auto 模式执行一次）
+
+所有 batch 循环结束后，生成 `{run_id}-review-summary.md`（见模板 `templates/review-summary-template.md`）：
+
+```
+{run_id}-review-summary.md 包含：
+
+1. 执行概览
+   - run_id、执行时间、处理 batch 数、成功/跳过/失败统计
+
+2. 新增/更新的规范文档
+   - 每份文档：文件名 + 章节清单 + evidence 数量
+
+3. 需要审查的标记项
+   - FORBIDDEN 标注规则（需负责人确认有效性）
+   - 置信度 low 的推断（需确认是否准确）
+   - industry 域规则（需行业负责人确认）
+
+4. 待处理清单
+   - pending-confirmation.md 中的所有条目（附 promotion_criteria）
+   - conflicts.md 中的所有冲突（附严重度 breaking/warning/info）
+   - merge-suggestions.md 中的相似规则建议
+
+5. 跳过的 batch
+   - batch_id + skip_reason + 如何解决（补充哪些 evidence 或确认）
+
+6. 下一步行动指引
+   - 认可内容 → 手动将 standard-*.md 中对应规则 status 改为 active
+   - 不认可内容 → 删除或移入 pending-confirmation
+   - conflict → 手动裁定保留哪个版本
+   - pending → 补充 evidence 或负责人确认后重新运行
+```
 
 ## 失败模式映射
 

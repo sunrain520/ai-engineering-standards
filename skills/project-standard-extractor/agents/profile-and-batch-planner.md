@@ -20,7 +20,28 @@ inputs:
 
 ## 输出（Handoff Schema）
 
-### 2a. `{run_id}-project-profile.md`
+### 2a. `ordered_batch_queue`（auto 模式附加输出）
+
+```yaml
+ordered_batch_queue:
+  - batch_id: ""
+    priority: high        # high / medium / low
+    estimated_doc: "standard-{sub_domain}.md"
+    sub_domain: ""
+    status: ready         # 只有 ready 的 batch 进入队列
+    skip_reason: null
+```
+
+排序规则（priority 高的排前面）：
+1. `high`：有 owner-confirmed 对照文档 OR 候选文件横跨多个角色层级
+2. `medium`：单模块局部 batch，候选文件集中
+3. `low`：行业高风险 batch（仍执行，review-summary 特别标注）
+
+`pending-confirmation` 和 `skipped` 的 batch **不进入 ordered_batch_queue**，单独记录在 batch-plan.md。
+
+interactive 模式：不生成此字段，等待用户选择。
+
+### 2b. `{run_id}-project-profile.md`
 
 ```yaml
 ---

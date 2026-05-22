@@ -10,7 +10,7 @@
 
 ```yaml
 inputs:
-  standard_doc:           # 生成的 standard.md（规则全集）
+  standard_docs:          # 生成的 standard-{sub_domain}.md 列表（按 sub_domain 分文件；含 standard-common.md 如有）
   ai_rules_doc:           # 生成的 ai-rules.md
   review_checklist_doc:   # 生成的 review-checklist.md
   evidence_docs:          # evidence/code-facts.md + positive + forbidden + legacy
@@ -90,9 +90,9 @@ quality_gate_decision:    # 每条规则各一份
 
 **检查清单**：
 
-- [ ] 每条 `standard.md` 规则有 `## AI 生成代码要求` 小节，且内容不为空 → 若缺失 → **WARN**
+- [ ] 每条 `standard-{sub_domain}.md` 规则有 `## AI 生成代码要求` 小节，且内容不为空 → 若缺失 → **WARN**
 - [ ] AI 要求是正向约束句式（"必须…" / "禁止…" / "应在… 中…"），而非描述句式 → 若是描述 → **WARN**
-- [ ] `ai-rules.md` 中每条 Rule 有 `standard.md「{section_title}」` 来源引用 → 若缺引用 → **BLOCK**
+- [ ] `ai-rules.md` 中每条 Rule 有 `standard-{sub_domain}.md「{section_title}」` 来源引用 → 若缺引用 → **BLOCK**
 - [ ] `draft / risk_tag: high / pending / conflict / legacy-compatible` 规则在 `ai-rules.md §3` 有 warning → 若缺 warning → **BLOCK**
 - [ ] AI 要求不包含"参考项目中的做法" / "按团队习惯" 等无法独立执行的表述 → 若含 → **WARN**
 - [ ] P0 / FORBIDDEN 规则的 AI 要求没有"可以"等允许例外的语气 → 若含 → **WARN**
@@ -105,10 +105,10 @@ quality_gate_decision:    # 每条规则各一份
 
 **检查清单**：
 
-- [ ] `review-checklist.md` 每条检查项有 `standard.md「{section_title}」` 来源引用 → 若缺 → **BLOCK**
+- [ ] `review-checklist.md` 每条检查项有 `standard-{sub_domain}.md「{section_title}」` 来源引用 → 若缺 → **BLOCK**
 - [ ] 检查项是**可判断的陈述**（reviewer 看代码即可二值判断），不是"好好检查…" → 若不可判断 → **WARN**
 - [ ] P0 / FORBIDDEN 的检查项在 `§1 必检项` 段 → 若在 §2 → **BLOCK**
-- [ ] 检查项数量与 `standard.md` 规则数相匹配（每条规则 ≥ 1 个检查项）→ 若有规则无检查项 → **WARN**
+- [ ] 检查项数量与各 `standard-{sub_domain}.md` 规则数相匹配（每条规则 ≥ 1 个检查项）→ 若有规则无检查项 → **WARN**
 - [ ] 检查项语言精确：含主语（"Controller 层"）+ 谓语 + 宾语，不含 "注意"/"请确认"等模糊前缀 → 若含 → **WARN**
 
 ---
@@ -168,7 +168,7 @@ debate_record:
 
 **检查清单**：
 
-- [ ] `standard.md` 中不含任何具体项目绝对路径 → 若含 → **BLOCK**
+- [ ] 所有 `standard-{sub_domain}.md` 中不含任何具体项目绝对路径 → 若含 → **BLOCK**
 - [ ] 所有规则 evidence 均来自选定 batch 的 `candidate_files`，未越界读取 → 若有 `unread_candidates: []` 以外的路径 → **WARN**
 - [ ] `batch_summary.stop_conditions_hit` 不为空时，检查对应规则是否都被正确降级为 pending → 若未降级 → **BLOCK**
 - [ ] `rules-index-candidate.json` 的 `status` 字段为 `candidate` → 若为 `active`/`published` → **BLOCK**
@@ -219,7 +219,7 @@ confidence:
 | --- | --- |
 | evidence_tier: none 规则 > 50% | 整批标记 `INSUFFICIENT_EVIDENCE`；所有规则进入 pending-confirmation |
 | P0/FORBIDDEN 无 NEG 负例 | P1 BLOCK；规则降为 P1 或进 pending-confirmation |
-| 与已有 active 冲突 | P5 HARD FAIL；不得写入 standard.md；进 conflicts.md |
+| 与已有 active 冲突 | P5 HARD FAIL；不得写入 standard-{sub_domain}.md；进 conflicts.md |
 | industry 规则无 owner 确认 | P6 DEFER；不进 ai-rules.md 可执行段 |
 
 ## 必须做

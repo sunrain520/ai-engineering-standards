@@ -4,6 +4,17 @@
 
 ## 快速入口
 
+### 按使用场景阅读
+
+| 你要做什么 | 推荐入口 |
+| --- | --- |
+| 第一次了解这个仓库 | `docs/03-用户手册/AI辅助研发工程规范用户手册.md` |
+| 查团队规范资产 | `engineering-standards/README.md` |
+| 从真实项目萃取新规范 | `skills/project-standard-extractor/usage-guide.md` |
+| 让 AI 按团队规范写代码 | `engineering-standards/08-ai-coding/README.md` 和对应研发域的 `ai-rules.md` |
+| 做代码评审 | 对应研发域的 `review-checklist.md` 和 `standard-{sub_domain}.md` |
+| 维护 Skill 或输出模板 | `skills/project-standard-extractor/README.md` |
+
 ### 规范资产
 
 | 入口 | 说明 |
@@ -43,6 +54,7 @@
 | `docs/02-技术方案/skill建设.md` | Skill 单入口多 agent 评审建设方案 |
 | `docs/02-技术方案/高质量萃取.md` | 高质量萃取要求 |
 | `docs/02-技术方案/一期方案.md` | 一期总体方案 |
+| `docs/03-用户手册/README.md` | 面向使用者的手册入口：首次使用、规范萃取、产物消费和发布边界 |
 | `docs/plans/` | spec-first 计划文档（按日期编号） |
 | `docs/brainstorms/` | 早期头脑风暴与决策记录 |
 

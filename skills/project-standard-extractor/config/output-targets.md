@@ -8,9 +8,9 @@
 - `{run_id}-project-profile.md`
 - `{run_id}-extraction-map.md`
 - `{run_id}-batch-plan.md`
-- `standard.md`
-- `ai-rules.md`
-- `review-checklist.md`
+- `standard-{sub_domain}.md`       ← 每个 sub_domain 一份；跨 sub_domain 共性使用 `standard-common.md`
+- `ai-rules.md`                    ← 汇总所有 sub_domain 的派生视图，每个 domain 一份
+- `review-checklist.md`            ← 汇总所有 sub_domain 的派生视图，每个 domain 一份
 - `pending-confirmation.md`
 - `merge-suggestions.md`
 - `conflicts.md`
@@ -24,11 +24,20 @@
 - `{run_id}-llms-candidate.txt`
 - `{run_id}-ai-context-pack.md`
 
+### 1.1 sub_domain 拆分规则
+
+| 条件 | 操作 |
+| --- | --- |
+| 首次生成该 sub_domain 的规则 | 新建 `standard-{sub_domain}.md`，写入 Front Matter + 规则 |
+| 该 sub_domain 已有 `standard-{sub_domain}.md` | append-only 追加新规则到文件末尾 |
+| 跨多个 sub_domain 均适用的共性规则 | 写入 `standard-common.md`（sub_domain: common） |
+| 单个 `standard-{sub_domain}.md` 超过 **1500 行** | 在 merge_summary 输出 ⚠️ 拆分建议（按 task_type 进一步拆分） |
+
 ## 2. 写入规则
 
 | 结果类型 | 目标文件 | doc_type |
 | --- | --- | --- |
-| evidence-backed 规则 | `standard.md` | `standard` |
+| evidence-backed 规则 | `standard-{sub_domain}.md` | `standard` |
 | 项目画像 handoff | `{run_id}-project-profile.md` | `project-profile` |
 | extraction map handoff | `{run_id}-extraction-map.md` | `extraction-map` |
 | batch plan handoff | `{run_id}-batch-plan.md` | `batch-plan` |
@@ -53,7 +62,7 @@
 | `{domain}/{run_id}-project-profile.md` | `{domain}-{run_id}-project-profile` |
 | `{domain}/{run_id}-extraction-map.md` | `{domain}-{run_id}-extraction-map` |
 | `{domain}/{run_id}-batch-plan.md` | `{domain}-{run_id}-batch-plan` |
-| `standard.md` | `{domain}-{sub_domain}-standard` |
+| `standard-{sub_domain}.md` | `{domain}-{sub_domain}-standard` |
 | `ai-rules.md` | `{domain}-{sub_domain}-ai-rules` |
 | `review-checklist.md` | `{domain}-{sub_domain}-review-checklist` |
 | `pending-confirmation.md` | `{domain}-pending-confirmation` |

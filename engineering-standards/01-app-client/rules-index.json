@@ -1,0 +1,38 @@
+{
+  "index_format": "engineering-standards-rules-index-v1",
+  "generated_at": "2026-05-22T02:31:58Z",
+  "generated_from": "20260522-100947-app-client",
+  "batch_id": "app-client-module-boundary-contract-layer",
+  "status": "published",
+  "candidate": false,
+  "rules": [
+    {
+      "title": "P1 跨域协作必须通过 contract 稳定边界",
+      "domain": "app-client",
+      "sub_domain": "module-boundary",
+      "level": "P1",
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 跨域协作必须通过 contract 稳定边界",
+      "evidence_doc": "evidence/code-facts.md",
+      "tags": [
+        "app-client",
+        "module-boundary",
+        "cross-module-contract"
+      ]
+    },
+    {
+      "title": "P2 contract 模块应保持依赖轻量",
+      "domain": "app-client",
+      "sub_domain": "module-boundary",
+      "level": "P2",
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P2 contract 模块应保持依赖轻量",
+      "evidence_doc": "evidence/code-facts.md",
+      "tags": [
+        "app-client",
+        "module-boundary",
+        "contract-dependency"
+      ]
+    }
+  ]
+}

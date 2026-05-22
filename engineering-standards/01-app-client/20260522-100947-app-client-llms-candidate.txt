@@ -1,0 +1,28 @@
+# Engineering Standards — app-client — module-boundary — published
+# Generated: 2026-05-22T02:31:58Z
+# Batch: app-client-module-boundary-contract-layer
+
+## 规范文件
+
+- standard-module-boundary.md — APP 模块边界团队级规范（2 条 active 规则）
+- ai-rules.md — AI 编码规则汇总派生视图（2 条）
+- review-checklist.md — Review 检查项汇总派生视图（7 条）
+
+## Evidence
+
+- evidence/code-facts.md
+- evidence/positive-examples.md
+- evidence/forbidden-examples.md
+- evidence/legacy-compatible.md
+
+## 候选索引
+
+- 20260522-100947-app-client-rules-index-candidate.json
+- 20260522-100947-app-client-ai-context-pack.md
+
+## 状态
+
+- active 规则：2 条
+- pending-confirmation：0 条待处理，`PENDING-APP-1` 已升级
+- conflict：0 条
+- 本文件原为候选入口地图，已按负责人确认同步发布到 `llms.txt`。

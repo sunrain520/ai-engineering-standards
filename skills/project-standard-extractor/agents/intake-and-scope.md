@@ -13,28 +13,37 @@
 - 当前规范仓库目录（用于检测重复 / 冲突基线）。
 - `config/context-governance.md`、`config/extraction-batch-policy.md`、`config/output-targets.md`。
 
+## Run Mode
+
+| run_mode | 确认行为 | 停止条件 |
+| --- | --- | --- |
+| `auto`（默认） | 所有字段自动推断，**跳过**确认对话，推断结果写入 `inferred_decisions` | 只有 `NO_VALID_PROJECT_PATHS` 或 `ALL_PATHS_SENSITIVE` 才停止 |
+| `interactive` | 执行 Step 7 完整确认协议（10 步） | 任何 `open_questions` 未解决都停止 |
+
+**auto 模式推断策略**：置信度 high → 直接采用；medium → 采用并写入 inferred_decisions；low → 采用但在 review-summary 标注待确认。不等待用户逐项确认。
+
 ## 输出（Handoff Schema）
 
 ```yaml
 scope_summary:
   run_id: "{YYYYMMDD-HHMMSS-{primary_domain}}"
+  run_mode: auto                          # auto | interactive
   project_paths: []                       # 必填，去重后的绝对路径
-  extraction_mode: profile-first          # profile-first | batch-extraction | focused-module | review-only | merge-only
-  dev_domains: []                         # app-client | frontend | backend | pc | industry
+  run_id: ""                              # YYYYMMDD-HHMMSS-{primary_domain}
+  extraction_mode: profile-first          # profile-first | batch-extraction | focused-module
+  dev_domains: []                         # app-client | frontend | backend | pc-client | industry | testing | security
   industry_domains: []
   output_scope: full-package              # full-package | single-domain | single-sub-domain
   sub_domains: []
   business_modules: []
-  existing_docs: []                       # 现有 active/draft 文件清单（如有）
-  quality_focus: []                       # 用户关注的质量维度
+  existing_docs: []                       # 现有 active/draft 文件清单
   output_targets: []                      # 目标 domain 目录列表
   broad_input: false
-  selected_batch: null                    # batch-extraction 模式下必填
   sensitive_file_policy: sanitized-existence-only
-  confirmation: false
-  inferred_decisions: []                  # 推断项 + 推断依据 + 是否已被用户确认
-  open_questions: []                      # 阻塞执行的待确认项
-  scope_conflicts: []                     # 推断与用户输入冲突项
+  inferred_decisions: []                  # 推断项 + 推断依据 + 置信度
+  # auto 模式下以下两项不阻断执行，记录到 review-summary 供用户事后确认
+  open_questions: []
+  scope_conflicts: []
 ```
 
 ## 执行步骤
@@ -113,24 +122,20 @@ rules:
 1. 在 `engineering-standards/` 下匹配候选 domain 目录，列出其中已有 `standard.md` / `ai-rules.md` 的 `(source_doc, section_title)` 列表，作为冲突检测基线写入 `existing_docs`。
 2. 输出范围由用户指定；用户未指定时按推断 domain 缩窄到 `single-domain` 或 `single-sub-domain`，避免一次萃取覆盖多个 domain。
 
-### Step 7 — 确认协议
+### Step 7 — 确认协议（interactive 模式）/ 推断记录（auto 模式）
 
-每个推断项 / 决策项必须形成一个**可单选 / 可一键确认**的待确认条目，按以下顺序与用户交互（已提供过的项跳过）：
-
-1. project_paths（如有路径不可读，先停在这里）
+**interactive 模式**：逐项确认，未确认项进入 `open_questions`，不进入下一阶段。确认顺序：
+1. project_paths（路径不可读时停止）
 2. extraction_mode + 广范围判定理由
 3. dev_domains + 推断置信度
-4. industry_domains
-5. output_scope
-6. sub_domains
-7. business_modules
-8. selected_batch（仅 `batch-extraction`）
-9. 已有规范覆盖范围
-10. quality_focus
-11. output_targets
-12. confirmation 声明
+4. industry_domains / output_scope / sub_domains / business_modules
+5. 已有规范覆盖范围 / output_targets
+6. confirmation 声明
 
-未确认项进入 `open_questions`，**不进入下一阶段**。
+**auto 模式**：跳过确认对话，将所有推断决策写入 `inferred_decisions`：
+- 置信度 high / medium → 直接采用，记录推断依据
+- 置信度 low → 采用，同时写入 `open_questions`（不阻断执行，输出到 review-summary 供事后确认）
+- 唯一停止条件：`NO_VALID_PROJECT_PATHS` 或 `ALL_PATHS_SENSITIVE`
 
 ### Step 8 — Self-check（移交前）
 
