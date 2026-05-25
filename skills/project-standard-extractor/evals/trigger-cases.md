@@ -1,5 +1,7 @@
 # Trigger Cases
 
+> Authority: package-local smoke subset only. Full source-of-truth: `docs/evals/project-standard-extractor/trigger-cases.md`.
+
 这些用例应触发 `project-standard-extractor` 的公开稳定路径。
 
 ## TC-001 Broad Repository Profile

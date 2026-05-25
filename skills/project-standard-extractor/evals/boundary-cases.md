@@ -1,5 +1,7 @@
 # Boundary Cases
 
+> Authority: package-local smoke subset only. Full source-of-truth: `docs/evals/project-standard-extractor/boundary-cases.md`.
+
 这些用例不应触发本 skill，或必须停在公开稳定路径边界内。
 
 ## BC-001 Single File Explanation

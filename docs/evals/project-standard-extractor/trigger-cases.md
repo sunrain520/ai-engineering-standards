@@ -59,6 +59,8 @@ output_scope: full package
 
 ```yaml
 request: 基于已生成的 batch plan 萃取订单 API 规范
+project_paths:
+  - /repo/order-service
 extraction_mode: batch-extraction
 selected_batch:
   batch_id: backend-java-api-order
@@ -68,5 +70,7 @@ selected_batch:
 期望：
 
 - 只读取 `backend-java-api-order` 的 candidate files。
-- 输出 code facts、classification、规则候选和候选 fast-index artifacts。
+- 使用 `generation_profile: phase1-selected-batch`。
+- 不要求 `activation-report`，不读取 `dimension-activator`。
+- 输出 code facts、classification、evidence-backed draft `standard-{sub_domain}.md`、`ai-rules.md`、`review-checklist.md` 和 review summary。
 - 不读取其它 batch 的数据库、MQ 或 job 文件。

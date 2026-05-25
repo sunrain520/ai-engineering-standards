@@ -31,6 +31,7 @@ scope_summary:
   project_paths: []                       # 必填，去重后的绝对路径
   extraction_mode: profile-first          # profile-first | batch-extraction | focused-module | diff | review-only | merge-only | full
   output_action: append                   # append（默认）| force-rebuild | restore | pin | unpin | list（与 extraction_mode 正交）
+  maintainer_context: false               # 内部调用上下文标记；公开 skill 路径不得置 true
   domain: ""                              # output_action ≠ append 时必填,例:01-app-client(强制边界 #9)
   restore_from: ""                        # output_action ∈ {restore, pin, unpin} 必填,UTC-ts 形式
   keep: 10                                # output_action=force-rebuild 的 --keep=N 自动清理阈值
@@ -113,13 +114,14 @@ scope_summary:
 按以下顺序处理:
 
 1. **默认值**:用户未传 `output_action` → `append`(沿用本 skill 全部历史模式;不触发 backup-manager)。
-2. **互斥校验 R91**:`output_action ≠ append` 且 `extraction_mode = diff` → 抛 `INCOMPATIBLE_OUTPUT_ACTION`,提示"force-rebuild / restore / pin / unpin / list 与 diff 模式互斥",停止。
-3. **互斥校验 R92**:`output_action ≠ append` 且 `len(project_paths) > 1` → 抛 `INCOMPATIBLE_OUTPUT_ACTION`,提示"force-rebuild 等子模式仅接受单 project,跨项目模式必须先 append 完成 unified-activation-map",停止。
-4. **强制边界 #9 — `--domain` 必填**:`output_action ∈ {force-rebuild, restore, pin, unpin, list}` 必须显式 `domain: <例:01-app-client>`;缺失 → 抛 `MISSING_DOMAIN_FOR_DESTRUCTIVE_ACTION`。
-5. **强制边界 #10 — interactive 必填**:`output_action = force-rebuild` 必须 `run_mode = interactive`;auto / headless / pipeline → 抛 `NON_INTERACTIVE_CONTEXT_REJECTED`(restore / pin / unpin / list 不强制交互)。
-6. **`restore_from` 必填**:`output_action ∈ {restore, pin, unpin}` 必须提供 `restore_from`(UTC-ts 形式);缺失 → 抛 `MISSING_RESTORE_FROM`。
-7. **分流到 `backup-manager`**:校验通过后,把 `{run_id, output_action, domain, mode_args, dimension_activation_report_summary, operator, run_mode}` 注入 `references/agents/backup-manager.md`,等待 backup-manager 完成 safeguard / 备份 / atomic rename(force-rebuild)/ 拷回(restore)/ 标记(pin/unpin)/ 只读列表(list)再返回。
-8. **`output_action = append`**:跳过本 step 5 之外的所有动作,直接进入 Step 5 敏感文件策略 + 后续 phase 2 default `full` 管道。
+2. **maintainer context gate**:`output_action ≠ append` 必须来自显式 maintainer / repair-only 调用上下文(`maintainer_context = true`),例如 `references/workflow.md#maintainer--repair-only` 或 force-rebuild orchestrator;公开 SKILL profile-first / batch-extraction 路径不得置 true。缺失 → 抛 `MAINTAINER_CONTEXT_REQUIRED`,停止。
+3. **互斥校验 R91**:`output_action ≠ append` 且 `extraction_mode = diff` → 抛 `INCOMPATIBLE_OUTPUT_ACTION`,提示"force-rebuild / restore / pin / unpin / list 与 diff 模式互斥",停止。
+4. **互斥校验 R92**:`output_action ≠ append` 且 `len(project_paths) > 1` → 抛 `INCOMPATIBLE_OUTPUT_ACTION`,提示"force-rebuild 等子模式仅接受单 project,跨项目模式必须先 append 完成 unified-activation-map",停止。
+5. **强制边界 #9 — `--domain` 必填**:`output_action ∈ {force-rebuild, restore, pin, unpin, list}` 必须显式 `domain: <例:01-app-client>`;缺失 → 抛 `MISSING_DOMAIN_FOR_DESTRUCTIVE_ACTION`。
+6. **强制边界 #10 — interactive 必填**:`output_action = force-rebuild` 必须 `run_mode = interactive`;auto / headless / pipeline → 抛 `NON_INTERACTIVE_CONTEXT_REJECTED`(restore / pin / unpin / list 不强制交互)。
+7. **`restore_from` 必填**:`output_action ∈ {restore, pin, unpin}` 必须提供 `restore_from`(UTC-ts 形式);缺失 → 抛 `MISSING_RESTORE_FROM`。
+8. **分流到 `backup-manager`**:校验通过后,把 `{run_id, output_action, domain, mode_args, dimension_activation_report_summary, operator, run_mode}` 注入 `references/agents/backup-manager.md`,等待 backup-manager 完成 safeguard / 备份 / atomic rename(force-rebuild)/ 拷回(restore)/ 标记(pin/unpin)/ 只读列表(list)再返回。
+9. **`output_action = append`**:跳过本 step 5 之外的所有动作,直接进入 Step 5 敏感文件策略 + 后续 phase 2 default `full` 管道。
 
 **force-rebuild 全管道失败信号监听(U24)**:`output_action = force-rebuild` 时,intake-and-scope 在 backup-manager step 1–8 完成、phase 2 `full` 管道启动后,负责把以下信号回传给 backup-manager step 10 dispatcher:
 
@@ -135,6 +137,7 @@ scope_summary 写入:
 ```yaml
 scope_summary:
   output_action: force-rebuild | restore | pin | unpin | list | append
+  maintainer_context: true                # output_action ≠ append 时必填 true；公开 skill 路径保持 false
   domain: "01-app-client"               # output_action ≠ append 时必填
   restore_from: "20260524T130000Z"      # restore / pin / unpin 必填;list 不需要
   keep: 10
@@ -201,6 +204,7 @@ rules:
 - [ ] `selected_batch` 字段在 `batch-extraction` 模式下非空
 - [ ] `scope_summary` 通过 YAML 校验
 - [ ] 用户已对所有推断项给出 `confirmation = true`，否则保留 `open_questions` 并停止
+- [ ] **maintainer context gate**:`output_action ≠ append` 时 `maintainer_context = true`，且来源为 repair-only / force-rebuild orchestrator
 - [ ] **R91 / R92 互斥校验**:`output_action ≠ append` 与 `extraction_mode = diff` / 多 projects 互斥已校验
 - [ ] **强制边界 #9**:`output_action ∈ {force-rebuild, restore, pin, unpin, list}` 已校验 `domain` 非空
 - [ ] **强制边界 #10**:`output_action = force-rebuild` 已校验 `run_mode = interactive`
@@ -219,6 +223,7 @@ rules:
 | `diff` 模式但 baseline 不可解析 | `BASELINE_UNRESOLVABLE` | 停止，要求用户改 mode 或提供有效 ref |
 | `diff` 模式但工作树非 git / shallow 不足 / 维度映射覆盖率 < 20% / changed_files > 2000 | `DIFF_FALLBACK_TO_FULL_SCAN` | 不停止，diff-scoper 自动降级 `profile-first` 并写 `limitations` |
 | 父级多仓 workspace 用 `diff` 模式且未指定 `target_repo` | `DIFF_REQUIRES_TARGET_REPO` | 停止，要求显式 scope 到子仓 |
+| `output_action ≠ append` 但缺少 maintainer / repair-only 调用上下文 | `MAINTAINER_CONTEXT_REQUIRED` | 停止，提示改用 maintainer 工具或显式 repair-only workflow |
 | `output_action ≠ append` && `extraction_mode = diff` / 多 projects | `INCOMPATIBLE_OUTPUT_ACTION` | 停止,提示互斥规则 R91 / R92 |
 | `output_action ∈ {force-rebuild, restore, pin, unpin, list}` 但缺 `domain` | `MISSING_DOMAIN_FOR_DESTRUCTIVE_ACTION` | 停止,要求补 `--domain=<>` |
 | `output_action = force-rebuild` 但 `run_mode ≠ interactive` | `NON_INTERACTIVE_CONTEXT_REJECTED` | 停止,提示需 interactive host |

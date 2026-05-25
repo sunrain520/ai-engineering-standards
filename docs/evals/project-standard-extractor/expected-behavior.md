@@ -33,6 +33,7 @@
 - 完整项目 / 完整仓库 / 多服务 / 未知域输入默认进入 `profile-first`。
 - `profile-first` 只生成画像、extraction map、batch plan 和代表性文件候选。
 - `batch-extraction` 必须选择一个 batch，且只读取该 batch 的 candidate files 和必要邻近文件。
+- selected-batch 公开路径必须使用 `generation_profile: phase1-selected-batch`，不要求 `activation-report`，不读取 `dimension-activator`。
 - batch 必须包含 `domain`、`sub_domain`、`module` 或 `task_type`、`candidate_files`、`excluded_paths`、`evidence_limit`、`rule_limit`、`stop_conditions`。
 - 命中 stop condition 后停止，不扩大到完整项目读取。
 
@@ -61,6 +62,9 @@
 - 不读取、不复制密钥、token、私钥、生产凭据原值。
 - 敏感文件只记录脱敏存在事实。
 - 输出报告必须说明敏感文件处理策略。
+- SKILL.md 的 `Inputs` 与公开稳定流程不暴露 `output_action` / `restore_from` / `keep`。
+- `output_action != append` 必须带显式 maintainer / repair-only 上下文，否则触发 `MAINTAINER_CONTEXT_REQUIRED`。
+- 普通 `profile-first` / `batch-extraction` 公开路径不得进入 backup-manager 或调用 maintainer 脚本。
 
 ## 成功标准:不要用过程指标度量
 

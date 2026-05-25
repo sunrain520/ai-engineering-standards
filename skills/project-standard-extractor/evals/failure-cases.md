@@ -1,5 +1,7 @@
 # Failure Cases
 
+> Authority: package-local smoke subset only. Full source-of-truth: `docs/evals/project-standard-extractor/failure-cases.md`.
+
 这些用例必须映射到 `SKILL.md` 的失败模式，并停止在安全状态。
 
 ## FC-001 No Valid Project Paths

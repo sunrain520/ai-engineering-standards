@@ -24,10 +24,12 @@
 | `engineering-standards/` | 按研发域沉淀团队规范、AI Rules、Review Checklist 和 evidence |
 | `skills/project-standard-extractor/` | 从真实项目代码萃取团队规范的 Skill 源包 |
 | `docs/01-版本路线/` | 产品背景、定位和演进方向 |
-| `docs/02-技术方案/` | 第一阶段技术方案、Skill 建设方案和质量要求 |
+| `docs/02-技术方案/` | 技术方案、Skill 建设方案和质量要求 |
 | `docs/03-用户手册/` | 面向使用者的操作说明 |
 
-第一阶段重点是 `project-standard-extractor`：从真实项目代码中提取代码事实，再生成团队级规范草案、AI Coding Rules、Review Checklist、evidence、待确认项、合并建议和冲突记录。
+当前公开稳定能力聚焦 `project-standard-extractor`：先从真实项目代码生成 project profile、extraction map 和 batch plan；选择单个 ready batch 后，再生成团队级规范草案、AI Coding Rules、Review Checklist、evidence、待确认项、合并建议和冲突记录。
+
+Phase 2 维度框架、cross-project、EA-Doc、securities PoC 以及 force-rebuild / restore / pin / unpin / list 当前仍是 `blocked / repair-only`，不是普通用户的稳定运行路径。
 
 ## 3. 适用角色
 
@@ -48,16 +50,18 @@
 | --- | --- |
 | 了解仓库整体结构 | 根目录 `README.md` |
 | 了解规范资产 | `engineering-standards/README.md` |
-| 了解 Skill 怎么用 | `skills/project-standard-extractor/usage-guide.md` |
+| 上帝视角理解 Skill 执行逻辑 | `docs/03-用户手册/project-standard-extractor-execution-analysis.md` |
 | 执行规范萃取 | `skills/project-standard-extractor/SKILL.md` |
-| 查看完整阶段流程 | `skills/project-standard-extractor/workflow.md` |
-| 查看输入项含义 | `skills/project-standard-extractor/input-guide.md` |
-| 查看输出位置 | `skills/project-standard-extractor/config/output-targets.md` |
-| 了解状态门禁 | `engineering-standards/00-global/rule-lifecycle.md` |
+| 查看完整阶段流程 | `skills/project-standard-extractor/references/workflow.md` |
+| 查看阶段契约 | `skills/project-standard-extractor/references/agents/` |
+| 查看输出位置 | `skills/project-standard-extractor/references/config/output-targets.md` |
+| 查看维护者工具边界 | `tools/maintainer/project-standard-extractor/README.md` |
 
 如果只是使用现有规范，不需要执行萃取，直接从 `engineering-standards/README.md` 进入对应研发域即可。
 
-如果要从真实项目沉淀新规范，从 `skills/project-standard-extractor/usage-guide.md` 开始。
+如果要从真实项目沉淀新规范，从 `skills/project-standard-extractor/SKILL.md` 开始；如果需要先理解完整数据流，先读执行逻辑分析文档。
+
+阅读内部 `references/agents/*.md` 时按这个权威顺序理解：`SKILL.md` 定义公开触发面，`references/workflow.md` 定义稳定路径和 repair-only 边界，阶段 agent 契约只解释该阶段内部 handoff。凡是阶段契约中出现 `activation-report`、`dimension-activator` 或 `output_action != append`，普通用户都应按 repair-only / maintainer-only 内容处理，除非 `SKILL.md` 和 `workflow.md` 同时把它列为稳定公开路径。
 
 ## 5. 使用前准备
 
@@ -67,13 +71,13 @@
 | --- | --- | --- |
 | `project_paths` | 必需 | 一个或多个真实项目路径，可以是仓库根、模块目录或服务目录 |
 | `extraction_mode` | 可选 | 未提供时由 Skill 推断，广范围输入默认 `profile-first` |
-| 研发域 | 可选 | APP、PC、Frontend、Backend、Industry、Cross-domain |
-| 行业场景 | 可选 | none、securities、credit、banking、payment、insurance、other |
-| 输出范围 | 可选 | 默认由萃取模式决定 |
-| 子领域 / 技术栈 | 可选 | 如 KMP、Android、iOS、Frontend components、Backend API |
-| 业务模块 | 可选 | 如交易、行情、用户、账户、订单、风控 |
+| `selected_batch.batch_id` | 条件必需 | `batch-extraction` 必填；一次只允许选择一个 ready batch |
+| `run_mode` | 可选 | 默认 `auto`；高风险或需要逐项确认时用 `interactive` |
+| 研发域 / 子领域 / 业务模块说明 | 可选 | 可以用自然语言说明，公开稳定字段中不要传 `domain`；由 Intake 推断并在需要时记录待确认项 |
 | 已有规范或文档 | 可选 | 用于避免重复生成和识别冲突 |
 | 质量关注点 | 可选 | 如架构分层、安全合规、测试、AI 生成质量 |
+
+公开稳定入口不要传 `output_action`、`restore_from`、`keep`、`full` 或维护者级 `domain` 字段；这些属于 repair-only / maintainer 契约。
 
 写入前需要确认：
 
@@ -83,7 +87,7 @@
 
 ## 6. 安装与测试 Skill
 
-当前第一阶段 `project-standard-extractor` 是 Skill source package，不是自动注册的 CLI。安装的核心动作是复制整个 `skills/project-standard-extractor/` 目录，或在本仓库直接引用执行。
+当前 `project-standard-extractor` 是 Skill source package，不是自动注册的 CLI。安装的核心动作是复制整个 `skills/project-standard-extractor/` 目录，或在本仓库直接引用执行。
 
 ### 6.1 本仓库直接测试
 
@@ -91,8 +95,8 @@
 
 ```text
 读取 skills/project-standard-extractor/SKILL.md，
-按 workflow.md 执行一次 dry run。
-请先读取 examples/golden-sample-run.md 和 examples/thin-dogfood-run.md，
+按 references/workflow.md 执行一次 dry run。
+请先读取 references/examples/golden-sample-run.md 和 references/examples/thin-dogfood-run.md，
 说明 intake → project-profile → extraction-map → batch-plan → selected-batch facts → classification → generation → review → merge
 每阶段会产生什么产物，以及真实运行还需要哪些输入。
 ```
@@ -114,7 +118,7 @@ project_paths:
 extraction_mode: profile-first
 ```
 
-必须复制整个 `project-standard-extractor/` 目录，不能只复制 `SKILL.md`，否则 `config/`、`agents/`、`templates/`、`prompts/` 的相对引用会断。
+必须复制整个 `project-standard-extractor/` 目录，不能只复制 `SKILL.md`，否则 `references/`、`assets/` 和 `evals/` 的相对引用会断。
 
 ### 6.3 安装到 Codex
 
@@ -139,7 +143,7 @@ extraction_mode: profile-first
 先做 dry run，不给真实项目路径：
 
 ```text
-读取 skills/project-standard-extractor/examples/golden-sample-run.md，
+读取 skills/project-standard-extractor/references/examples/golden-sample-run.md，
 按 project-standard-extractor 的 SKILL.md 检查这个样例是否符合工作流边界。
 只输出每阶段输入、输出、停止条件和不会做什么。
 ```
@@ -150,7 +154,6 @@ extraction_mode: profile-first
 project_paths:
   - /path/to/target-repo
 extraction_mode: profile-first
-output_scope: profile only + extraction map only + batch plan only
 ```
 
 期望结果：只生成或说明 `project-profile`、`extraction-map`、`batch-plan`，不能直接生成 `standard-{sub_domain}.md`。
@@ -163,8 +166,9 @@ project_paths:
 extraction_mode: batch-extraction
 selected_batch:
   batch_id: <batch-plan 里的 batch_id>
-  source_batch_plan: <batch-plan 文档路径>
 ```
+
+同时把对应 `temp/{run_id}-batch-plan.md` 作为上下文提供，便于校验 batch 是否为 `ready`。
 
 期望结果：只读取该 batch 的代表性文件，先输出 `code-facts`，再生成 `draft` 规则、AI Rules、Review Checklist、evidence 和候选索引产物。
 
@@ -190,7 +194,7 @@ selected_batch:
 可直接在本仓库的 AI 会话中输入：
 
 ```text
-读取 skills/project-standard-extractor/SKILL.md，按 workflow.md 执行萃取。
+读取 skills/project-standard-extractor/SKILL.md，按 references/workflow.md 执行萃取。
 project_paths:
   - <项目1的本地路径>
   - <项目2的本地路径>
@@ -199,9 +203,9 @@ extraction_mode: profile-first
 
 `profile-first` 只输出：
 
-- `{run_id}-project-profile.md`
-- `{run_id}-extraction-map.md`
-- `{run_id}-batch-plan.md`
+- `temp/{run_id}-project-profile.md`
+- `temp/{run_id}-extraction-map.md`
+- `temp/{run_id}-batch-plan.md`
 - 代表性文件候选
 - 需要确认的问题
 
@@ -217,8 +221,9 @@ project_paths:
 extraction_mode: batch-extraction
 selected_batch:
   batch_id: <来自 batch-plan 的 batch_id>
-  source_batch_plan: <batch-plan 文档路径>
 ```
+
+同时把对应 `temp/{run_id}-batch-plan.md` 作为上下文提供，便于校验 batch 是否为 `ready`。
 
 一次正式萃取只能处理一个 batch。需要处理多个 batch 时，分多次运行。
 
@@ -230,21 +235,15 @@ selected_batch:
 project_paths:
   - <模块路径>
 extraction_mode: focused-module
-domain: Backend
-sub_domain: API
-module: order
 ```
 
-即使是 `focused-module`，仍然必须保留 evidence 边界、敏感文件处理和质量门禁。
+即使是 `focused-module`，仍然必须保留 evidence 边界、敏感文件处理和质量门禁。研发域、子领域和模块由 Intake 根据路径和说明推断；需要人工确认时写入待确认项。
 
 ### 7.4 只评审或只合并
 
-已有萃取产物时，可使用：
+当前公开稳定入口不把 `review-only` / `merge-only` 作为普通用户调用模式。已有萃取产物需要复核时，直接阅读 `temp/{run_id}-review-summary.md`、`pending-confirmation.md`、`merge-suggestions.md` 和 `conflicts.md`；需要执行维护者级合并或恢复时，按 `tools/maintainer/project-standard-extractor/README.md` 的边界处理。
 
-| 模式 | 用途 |
-| --- | --- |
-| `review-only` | 只评审规则、evidence 和候选索引，不新增规则 |
-| `merge-only` | 只对已确认候选做 append-only 合并 |
+普通规范萃取仍按两步走：先 `profile-first`，再选择单个 ready batch 执行 `batch-extraction`。
 
 ## 8. 产物怎么读
 
@@ -253,9 +252,9 @@ module: order
 | 产物 | 读者 | 用途 |
 | --- | --- | --- |
 | `overview.md` | 所有人 | 对该研发域规范做总览 |
-| `{run_id}-project-profile.md` | 规范维护者 | 记录项目画像、候选模块和敏感边界 |
-| `{run_id}-extraction-map.md` | 规范维护者 | 展示可萃取区域和证据候选 |
-| `{run_id}-batch-plan.md` | 规范维护者 | 选择正式萃取 batch |
+| `temp/{run_id}-project-profile.md` | 规范维护者 | 记录项目画像、候选模块和敏感边界 |
+| `temp/{run_id}-extraction-map.md` | 规范维护者 | 展示可萃取区域和证据候选 |
+| `temp/{run_id}-batch-plan.md` | 规范维护者 | 选择正式萃取 batch |
 | `standard-{sub_domain}.md` | 研发 / AI / Reviewer | 团队级规范主文档 |
 | `standard-common.md` | 研发 / AI / Reviewer | 跨子领域共性规则 |
 | `ai-rules.md` | AI 使用者 | 可复制给 AI 的执行规则视图 |
@@ -267,9 +266,9 @@ module: order
 | `pending-confirmation.md` | 领域负责人 | 证据不足或需要确认的候选 |
 | `merge-suggestions.md` | 规范维护者 | 相近规则合并建议 |
 | `conflicts.md` | 领域负责人 | 规则或事实冲突 |
-| `{run_id}-rules-index-candidate.json` | 规范维护者 | 规则索引候选 |
-| `{run_id}-llms-candidate.txt` | 规范维护者 | AI 入口地图候选 |
-| `{run_id}-ai-context-pack.md` | AI 使用者 / 维护者 | 运行级 AI 上下文候选 |
+| `temp/{run_id}-rules-index-candidate.json` | 规范维护者 | 规则索引候选 |
+| `temp/{run_id}-llms-candidate.txt` | 规范维护者 | AI 入口地图候选 |
+| `temp/{run_id}-ai-context-pack.md` | AI 使用者 / 维护者 | 运行级 AI 上下文候选 |
 
 ## 9. 如何用于 AI 编码和 Review
 
@@ -301,7 +300,7 @@ Reviewer 应优先查看：
 {source_doc}「{section_title}」
 ```
 
-不要引用 Rule ID 或 HTML anchor；第一阶段不使用这两类定位方式。
+不要引用 Rule ID 或 HTML anchor；当前规范定位使用 `{source_doc}「{section_title}」` 二元组。
 
 ## 10. 状态和发布边界
 
@@ -317,9 +316,11 @@ Reviewer 应优先查看：
 
 `project-standard-extractor` 不能自动把规则发布为 `active`。升级 `active` 必须由领域负责人确认。
 
+`candidate` 是候选索引或 Phase 2 repair-only 激活态中的状态，不是可发布规则状态。候选 `rules-index`、`llms` 和 `ai-context-pack` 只能作为审查材料，不能进入 AI 默认执行路径。
+
 ## 11. 不能做什么
 
-第一阶段明确不做：
+当前公开稳定入口明确不做：
 
 - 不自动安装到 Codex、Claude Code 或其他宿主 runtime。
 - 不注册 CLI。
@@ -327,6 +328,8 @@ Reviewer 应优先查看：
 - 不自动发布正式 `.index/rules-index.json` 或根 `llms.txt`。
 - 不从完整仓库直接生成正式规则。
 - 不一次处理多个 batch。
+- 不把 Phase 2 `dimension-activator`、cross-project、EA-Doc、securities PoC 作为稳定 runtime 能力。
+- 不通过公开入口执行 `force-rebuild`、`restore`、`pin`、`unpin` 或 `list`。
 - 不覆盖已有 `active` 或 `draft`。
 - 不读取或复制密钥、token、私钥、生产凭据原值。
 - 不把行业通用最佳实践直接写成团队规则。
@@ -384,21 +387,21 @@ Reviewer 应优先查看：
 ### 14.1 生成项目画像和 batch plan
 
 ```text
-读取 skills/project-standard-extractor/SKILL.md，按 workflow.md 执行 profile-first。
+读取 skills/project-standard-extractor/SKILL.md，按 references/workflow.md 执行 profile-first。
 project_paths:
   - <项目路径>
-domain: <可选>
-industry: <可选>
-output_scope: profile only + extraction map only + batch plan only
 ```
 
 ### 14.2 选择 batch 正式萃取
 
 ```text
 继续使用 project-standard-extractor 执行 batch-extraction。
+project_paths:
+  - <项目路径>
+extraction_mode: batch-extraction
 selected_batch:
   batch_id: <batch_id>
-  source_batch_plan: <batch-plan 路径>
+同时参考 temp/{run_id}-batch-plan.md 校验该 batch 为 ready。
 请只读取该 batch 的 candidate_files 和必要邻近文件，先输出 code-facts，再生成 draft 规则、AI Rules、Review Checklist、evidence 和候选索引产物。
 ```
 
@@ -433,3 +436,13 @@ selected_batch:
 - 规则正文不得写真实项目路径；真实路径只放在 evidence。
 - 所有合并动作必须 append-only。
 - `active` 升级必须有人类负责人确认。
+
+## 16. Skill 执行逻辑分析
+
+需要上帝视角理解 `project-standard-extractor` 的触发条件、稳定公开流程、阶段产物、ASCII 图、Phase 2 blocked 状态和 maintainer-only 边界时，阅读：
+
+```text
+docs/03-用户手册/project-standard-extractor-execution-analysis.md
+```
+
+该文档按当前 `SKILL.md`、`references/workflow.md`、`references/agents/*.md` 和 `references/config/output-targets.md` 对齐，适合作为执行前的流程核对清单。

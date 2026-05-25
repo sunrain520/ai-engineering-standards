@@ -1,6 +1,7 @@
 ---
 name: project-standard-extractor
 description: "从真实项目代码路径中萃取团队级研发规范；稳定路径先生成 project-profile、extraction-map、batch-plan，用户选择单个 batch 后生成 evidence-backed draft standard-{sub_domain}.md、ai-rules.md、review-checklist.md。Use when: user provides project_paths and asks to extract/generate engineering standards, coding conventions, AI rules, or review checklists from an existing codebase. Do not trigger for: code review, single-file explanation, business code edits, generic best-practice docs without code, or querying existing standards."
+x-external-evals-root: docs/evals/project-standard-extractor/
 ---
 
 # Project Standard Extractor
@@ -84,6 +85,6 @@ Phase 2 `dimension-activator`、cross-project、EA-Doc、securities PoC 和 forc
 - 阶段契约：`references/agents/{stage}.md`
 - 生成格式与骨架：`assets/standard-template.md`、`assets/skeletons/`、`references/agents/generation.md`
 - 质量门禁：`references/quality-gate.md`
-- 公开入口 evals：`evals/`
-- 外部 evals：`docs/evals/project-standard-extractor/`
+- 公开入口 evals：`evals/`（package-local smoke subset）
+- 外部 evals：`docs/evals/project-standard-extractor/`（完整 source-of-truth）
 - Maintainer 工具：`tools/maintainer/project-standard-extractor/README.md`（仓库根路径，不进入 skill 包）

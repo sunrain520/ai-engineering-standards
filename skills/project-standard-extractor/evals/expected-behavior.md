@@ -1,5 +1,7 @@
 # Expected Behavior
 
+> Authority: package-local smoke subset only. Full source-of-truth: `docs/evals/project-standard-extractor/expected-behavior.md`.
+
 公开稳定路径的一次有效运行必须满足以下结果。
 
 ## Profile First

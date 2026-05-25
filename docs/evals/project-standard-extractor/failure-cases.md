@@ -103,3 +103,22 @@ selected_batch:
 - 触发 `NO_REPRESENTATIVE_EVIDENCE`。
 - 保持 `pending-confirmation` / `skipped`。
 - 不生成 AI 可执行规则。
+
+## FC-008 maintainer action 缺少 repair-only 上下文
+
+```yaml
+request: 重建 APP 客户端规范
+project_paths:
+  - /repo/mobile-app
+output_action: force-rebuild
+maintainer_context: false
+domain: 01-app-client
+run_mode: interactive
+```
+
+期望：
+
+- 触发 `MAINTAINER_CONTEXT_REQUIRED`。
+- 不进入 `backup-manager`。
+- 不调用 `tools/maintainer/project-standard-extractor/backup.sh`。
+- 提示改用 maintainer 工具或显式 repair-only workflow。

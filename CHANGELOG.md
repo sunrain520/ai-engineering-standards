@@ -9,6 +9,13 @@
   - 用户可感知的变更在末尾追加 `(user-visible)`
 
 - v0.1.0 2026-05-21 00:50:29 leokuang: 使用 spec-first 初始化项目
+- v0.1.0 2026-05-26 01:22:51 leokuang: 将本地 `.claude/` 与 `.history/` 运行目录加入 gitignore，避免 host/runtime 临时资产进入项目变更 (user-visible)
+- v0.1.0 2026-05-26 01:20:09 leokuang: 新增 project-standard-extractor 30 分钟核心研发团队分享稿，面向重度 AI 辅助开发场景覆盖稳定使用路径、AI 上下文消费、设计取舍和共建试点机制，并加入用户手册入口 (user-visible)
+- v0.1.0 2026-05-26 01:02:38 leokuang: 为 project-standard-extractor 增加只读 public-surface validator，并明确外部 evals 与 package-local smoke evals 的权威关系，防止公开入口、maintainer gate 和 repair fallback 契约漂移 (user-visible)
+- v0.1.0 2026-05-26 01:02:37 leokuang: 新增 project-standard-extractor 执行逻辑分析用户手册，补齐稳定公开流程、阶段产物、ASCII 图、Phase 2 repair-only 边界，并修正用户手册中的旧路径和公开输入口径 (user-visible)
+- v0.1.0 2026-05-26 00:46:46 leokuang: 新增 project-standard-extractor 公开入口治理与安全收敛 deep 技术方案，明确 profile-first/selected-batch 稳定路径、maintainer context gate、eval 权威关系和确定性验证链 (user-visible)
+- v0.1.0 2026-05-26 00:25:28 leokuang: 调整 project-standard-extractor 公开入口治理验收口径，移除 SKILL.md 行数硬门槛，改以 8 小节完整性、公开说明质量和 maintainer 隔离为 G4 标准 (user-visible)
+- v0.1.0 2026-05-26 00:01:17 leokuang: 根据文档审查逐项修复 project-standard-extractor 公开入口治理 brainstorm：升版 r7，校准当前实现状态，统一 profile-first / selected-batch 稳定路径口径，补 maintainer context gate 与 G2/G6/G7 验收，补外部 evals 回归用例，并为 SKILL frontmatter 增加外部 evals 指针 (user-visible)
 - v0.1.0 2026-05-25 16:37:33 Codex: 收敛 project-standard-extractor 目录结构优化需求与实施计划口径，补齐 scripts/README.md 与 config/backup/README.md 的 P0 范围和删除描述 (user-visible)
 - v0.1.0 2026-05-25 17:01:44 leokuang: 彻底重构 project-standard-extractor skill 分发结构，仅保留 SKILL.md、references、assets、scripts 运行资产，迁出 evals 到 docs/evals 并删除开发说明文档，完成打包与快速校验 (user-visible)
 - v0.1.0 2026-05-25 17:20:00 leokuang: 修复 project-standard-extractor 结构优化复审问题，将默认入口收敛到 Phase 1 profile-first / selected-batch 稳定路径，并修正 quality gate agent 的迁移后引用路径 (user-visible)

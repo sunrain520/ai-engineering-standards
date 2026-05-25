@@ -106,3 +106,45 @@ dimension-activator 完成信号扫描,发现 EA-Backend-09 无任何 signal 命
 jq '.dimensions[] | select(.dimension_id=="EA-Backend-09") | .evidence_count' report.json | grep -q "^0$"
 jq '.dimensions[] | select(.dimension_id=="EA-Backend-09") | .state' report.json | grep -q "candidate"
 ```
+
+---
+
+## TSC-004 — baseline-only repair fallback 可生成最小 draft
+
+**Given**
+
+```yaml
+generation_profile: phase2-dimension-aware
+activation_report:
+  schema: activation-report.v1
+  dimensions:
+    - dimension_id: D01
+      state: baseline
+    - dimension_id: D02
+      state: baseline
+code_facts: []
+baseline_dimensions: references/config/dimension-framework/baseline-dimensions.yaml
+```
+
+activation-report 只含 baseline 维度，没有 activated / shallow / pending-confirmation 维度。
+
+**When**
+
+generation agent 执行 Phase 2 repair fallback。
+
+**Then**
+
+- 不抛 `EMPTY_ACTIVATION_REPORT`
+- 不抛 `NO_DIMENSION_CAN_GENERATE`
+- `standard-{sub_domain}.md` 至少渲染 D01 / D02 的最小章节
+- baseline 章节正文只能来自 `baseline-dimensions.yaml.default_content`
+- `ai-rules.md` / `review-checklist.md` 不把 baseline 章节升级为 AI 默认强制规则
+
+**回归断言（grep）**
+
+```bash
+grep -q "记录项目模块、分层职责与外部依赖" standard-*.md
+grep -q "记录目录和命名约定的待确认入口" standard-*.md
+grep -q "EMPTY_ACTIVATION_REPORT" review-summary.md && exit 1
+grep -q "NO_DIMENSION_CAN_GENERATE" review-summary.md && exit 1
+```

@@ -12,6 +12,8 @@
 ## 命令
 
 ```bash
+tools/maintainer/project-standard-extractor/public-surface-validate.sh
+
 tools/maintainer/project-standard-extractor/backup.sh --dry-run --domain=<domain>
 tools/maintainer/project-standard-extractor/backup.sh --domain=<domain> --target=<backup_dir>
 tools/maintainer/project-standard-extractor/backup.sh --restore --domain=<domain> --source=<backup_dir>
@@ -21,6 +23,12 @@ tools/maintainer/project-standard-extractor/backup.sh --unpin --domain=<domain> 
 
 tools/maintainer/project-standard-extractor/force-rebuild-validate.sh --domain=<domain> --backup-dir=<backup_dir>
 ```
+
+## Public Surface Validator
+
+`public-surface-validate.sh` 是只读检查器，用于验证公开 skill 入口、stable workflow、selected-batch、baseline fallback、maintainer context gate、旧脚本路径和 eval 权威关系是否一致。
+
+它不会执行 backup / restore / force-rebuild，也不会读取或修改 `engineering-standards/<domain>/` 产物。
 
 ## 本地产物
 

@@ -1,5 +1,6 @@
 # spec-first:start
 # spec-first generated runtime assets
+.claude/
 .claude/commands/spec/
 .claude/skills/
 .claude/spec-first/
@@ -29,6 +30,7 @@
 .spec-first/sessions/
 # spec-first:end
 .githooks/
+.history/
 
 # project-standard-extractor maintainer runtime artifacts
 tools/maintainer/project-standard-extractor/.local-backups/
