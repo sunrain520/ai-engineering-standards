@@ -1,0 +1,122 @@
+# dimensions-industry.yaml
+# 行业 adapter 维度池（行业通用层）：覆盖金融（非证券）/ 电商 / 教育 / 医疗 / 政企 / SaaS 六个子领域骨架
+# 证券子领域单独存放在 dimensions-industry-securities.yaml（公司主营，独立子领域）
+# Schema：./schema.json（layer = industry, end = industry）
+# 来源：origin Per-End Dimension Catalog 行业章节，1:1 落地
+
+layer: industry
+end: industry
+version: v0.1.0
+subdomains:
+  - finance-nonsec
+  - ecommerce
+  - education
+  - healthcare
+  - goventerprise
+  - saas
+
+dimensions:
+  IND-01:
+    name: 高风险模块识别
+    owner_phase: profile
+    core_concerns:
+      - 资金链路
+      - 隐私链路
+      - 安全链路
+    must_check_items:
+      - 高风险模块清单
+      - 变更评审强度
+      - 回滚策略
+    activation_signal_hints:
+      - 支付 / 订单 / 用户中心模块名
+      - "关键字 balance / amount / refund / consent"
+    cross_dimensions:
+      - D11
+      - IND-04
+
+  IND-02:
+    name: 合规要求
+    owner_phase: review
+    core_concerns:
+      - "GDPR / 个保法 / PCI-DSS / HIPAA / 等保 / 教育部合规"
+    must_check_items:
+      - 数据采集同意
+      - 数据出境
+      - 留存期
+      - 删除权落地
+    activation_signal_hints:
+      - privacy policy 文件
+      - "consent / gdpr 代码"
+      - 地区合规中间件依赖
+    cross_dimensions:
+      - D11
+      - IND-03
+
+  IND-03:
+    name: 数据敏感分级
+    owner_phase: review
+    core_concerns:
+      - "PII / PCI / PHI 识别"
+      - 敏感字段加密
+      - 传输安全
+    must_check_items:
+      - 敏感字段标注
+      - 字段级加密
+      - 传输 TLS 配置
+      - 脱敏策略
+    activation_signal_hints:
+      - "@Sensitive 注解"
+      - 加密工具调用
+      - "mask / desensitize 函数"
+    cross_dimensions:
+      - D11
+
+  IND-04:
+    name: 日志与审计
+    owner_phase: generation
+    core_concerns:
+      - 审计日志
+      - 操作可追溯
+      - 审计日志不可篡改
+    must_check_items:
+      - "审计字段（who / what / when / where / why）"
+      - 审计日志独立存储
+      - 保留期
+    activation_signal_hints:
+      - "audit_log 表 / 模块"
+      - "@Audit 注解"
+      - 审计中间件
+    cross_dimensions:
+      - D12
+
+  IND-05:
+    name: 术语与领域模型
+    owner_phase: profile
+    core_concerns:
+      - 领域统一术语
+      - 防腐层
+      - 限界上下文
+    must_check_items:
+      - 术语表
+      - 跨服务术语翻译规则
+      - 防腐层适用场景
+    activation_signal_hints:
+      - "domain/ 目录"
+      - "anti-corruption / acl 命名"
+      - 术语词典文件
+
+  IND-06:
+    name: 关键链路一致性
+    owner_phase: generation
+    core_concerns:
+      - 跨服务事务
+      - 最终一致性
+      - 补偿机制
+    must_check_items:
+      - "Saga / TCC / 本地消息表选型"
+      - 对账机制
+      - 补偿超时
+    activation_signal_hints:
+      - "Saga / TCC 框架依赖"
+      - 对账任务定义
+      - "compensation 命名"

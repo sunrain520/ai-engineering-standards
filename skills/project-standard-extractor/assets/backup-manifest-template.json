@@ -1,0 +1,53 @@
+{
+  "$comment": "backup-manifest 写入模板。schema=backup-manifest.v1。生产文件由 scripts/backup.sh 生成,backup-manager 在 success/failure path 中追加 in_progress_lock / rollback 段。所有字段必须按 references/config/backup/manifest-schema.json 校验。",
+  "schema": "backup-manifest.v1",
+  "backup_id": "<UTC-ts: YYYYMMDDTHHMMSSZ>",
+  "created_at": "<ISO8601 UTC>",
+  "domain": "<例:01-app-client>",
+  "source_paths": [
+    "engineering-standards/<domain>/"
+  ],
+  "git_head": {
+    "sha": "<git rev-parse HEAD 或 null>",
+    "branch": "<git rev-parse --abbrev-ref HEAD 或 null>",
+    "iso_date": "<git log -1 --format=%cI 或 null>",
+    "is_git_repo": true,
+    "is_shallow": false,
+    "porcelain_at_backup": ""
+  },
+  "mode_args": {
+    "output_action": "force-rebuild | restore | pin | unpin | list",
+    "extraction_mode": "full",
+    "run_mode": "interactive",
+    "restore_from": null
+  },
+  "dimension_activation_report_summary": {
+    "baseline_count": 0,
+    "activated_count": 0,
+    "candidate_count": 0,
+    "pending_count": 0,
+    "shallow_count": 0,
+    "partial_activated_count": 0,
+    "previous_run_id": null,
+    "previous_timestamp": null
+  },
+  "operator": "<host developer profile name>",
+  "pin": false,
+  "exclude_patterns": [
+    "evidence/raw-*",
+    "temp/",
+    ".git"
+  ],
+  "stats": {
+    "file_count": 0,
+    "byte_count": 0,
+    "sha256_fingerprint": "<64-char hex>"
+  },
+  "in_progress_lock": {
+    "$comment": "force-rebuild safeguard 写入;success path / failure path 写完后必须删除本字段(置 null)",
+    "run_id": "<run_id>",
+    "expected_changelog_anchor": "<期望 CHANGELOG 锚点,例:project-standard-extractor force-rebuild 01-app-client>",
+    "started_at": "<ISO8601 UTC>"
+  },
+  "rollback": null
+}

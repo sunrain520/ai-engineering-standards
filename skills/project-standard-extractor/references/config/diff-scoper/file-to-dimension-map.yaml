@@ -1,0 +1,403 @@
+version: "v0.1.0"
+schema: file-to-dimension-map.v1
+description: |
+  把 changed_files (来自 git diff) 映射到受影响的维度集合。
+  按 glob pattern 匹配,任一 changed_file 命中即把其维度集合并入 affected_dimensions[]。
+  glob 引擎按 POSIX style; ** 匹配多级目录, * 不跨 /; 大小写敏感。
+
+resolution_rules:
+  - 命中多个 pattern 时,所有维度并入 affected_dimensions[] 去重
+  - pattern 之间不相互排斥
+  - changed_file 不命中任何 pattern → 仍记入 unmapped_files[],由调用方决定是否降级全量
+  - dimension_id 必须存在于 references/config/dimension-framework/{baseline-dimensions,dimensions-app-client,dimensions-frontend,dimensions-backend,dimensions-industry,dimensions-industry-securities}.yaml 任一文件,否则视为孤儿映射跳过
+
+# ───────────────────────────────────────────────────────────
+# Baseline (D01-D13) - 跨端通用维度
+# ───────────────────────────────────────────────────────────
+patterns:
+  # D01 模块边界 / 分层结构
+  - glob: "**/build.gradle.kts"
+    dimensions: [D01]
+  - glob: "**/settings.gradle*"
+    dimensions: [D01]
+  - glob: "**/pom.xml"
+    dimensions: [D01]
+  - glob: "**/CMakeLists.txt"
+    dimensions: [D01]
+  - glob: "**/go.mod"
+    dimensions: [D01]
+  - glob: "**/Cargo.toml"
+    dimensions: [D01]
+
+  # D02 命名 / 注释 / 代码风格
+  - glob: "**/.editorconfig"
+    dimensions: [D02]
+  - glob: "**/.eslintrc*"
+    dimensions: [D02]
+  - glob: "**/.prettierrc*"
+    dimensions: [D02]
+  - glob: "**/checkstyle*.xml"
+    dimensions: [D02]
+  - glob: "**/.detekt.yml"
+    dimensions: [D02]
+
+  # D06 错误 / 异常 / 日志
+  - glob: "**/*Logger*.{kt,java,ts,go,py}"
+    dimensions: [D06]
+  - glob: "**/*ExceptionHandler*.{kt,java,ts}"
+    dimensions: [D06]
+  - glob: "**/log4j*.xml"
+    dimensions: [D06]
+  - glob: "**/logback*.xml"
+    dimensions: [D06]
+
+  # D09 测试策略
+  - glob: "**/test/**/*.{kt,java,ts,go,py}"
+    dimensions: [D09]
+  - glob: "**/__tests__/**/*"
+    dimensions: [D09]
+  - glob: "**/*.spec.{ts,tsx,js,jsx}"
+    dimensions: [D09]
+  - glob: "**/*.test.{ts,tsx,js,jsx}"
+    dimensions: [D09]
+  - glob: "**/jest.config*"
+    dimensions: [D09]
+  - glob: "**/vitest.config*"
+    dimensions: [D09]
+
+  # D11 安全 / 合规
+  - glob: "**/SecurityConfig*.{kt,java}"
+    dimensions: [D11]
+  - glob: "**/*AuthFilter*.{kt,java,ts}"
+    dimensions: [D11]
+  - glob: "**/*Encrypt*.{kt,java,ts}"
+    dimensions: [D11]
+  - glob: "**/auth/**/*"
+    dimensions: [D11]
+
+  # D13 构建 / 依赖 / 发布
+  - glob: "**/build.gradle*"
+    dimensions: [D13]
+  - glob: "**/Dockerfile*"
+    dimensions: [D13]
+  - glob: "**/.github/workflows/*.{yml,yaml}"
+    dimensions: [D13]
+  - glob: "**/Jenkinsfile"
+    dimensions: [D13]
+  - glob: "**/package.json"
+    dimensions: [D13]
+  - glob: "**/yarn.lock"
+    dimensions: [D13]
+  - glob: "**/pnpm-lock.yaml"
+    dimensions: [D13]
+
+  # ───────────────────────────────────────────────────────────
+  # APP Client (EA-Client-01–08, KMP/Android/iOS)
+  # ───────────────────────────────────────────────────────────
+
+  # EA-Client-01 KMP 跨平台模块
+  - glob: "**/commonMain/**"
+    dimensions: [EA-Client-01]
+  - glob: "**/expect/**/*.kt"
+    dimensions: [EA-Client-01]
+  - glob: "**/actual/**/*.kt"
+    dimensions: [EA-Client-01]
+
+  # EA-Client-02 平台桥接 (跨平台)
+  - glob: "**/platformMain/**"
+    dimensions: [EA-Client-02]
+  - glob: "**/iosMain/**/*.kt"
+    dimensions: [EA-Client-02]
+  - glob: "**/androidMain/**/*.kt"
+    dimensions: [EA-Client-02]
+
+  # EA-Client-03 Domain / UseCase 层
+  - glob: "**/domain/**/*UseCase*.kt"
+    dimensions: [EA-Client-03]
+  - glob: "**/domain/**/*Repository*.kt"
+    dimensions: [EA-Client-03]
+  - glob: "**/domain/model/**"
+    dimensions: [EA-Client-03]
+
+  # EA-Client-04 Data / Repository 层
+  - glob: "**/data/**/*Repository*.kt"
+    dimensions: [EA-Client-04, D05]
+  - glob: "**/data/**/*DataSource*.kt"
+    dimensions: [EA-Client-04]
+  - glob: "**/data/**/*.dao.kt"
+    dimensions: [EA-Client-04]
+
+  # EA-Client-05 Presentation / UI
+  - glob: "**/presentation/**/*ViewModel*.kt"
+    dimensions: [EA-Client-05, D08]
+  - glob: "**/presentation/**/*Activity*.kt"
+    dimensions: [EA-Client-05]
+  - glob: "**/presentation/**/*Fragment*.kt"
+    dimensions: [EA-Client-05]
+  - glob: "**/*.xml"
+    dimensions: [EA-Client-05]
+    note: layout 资源
+  - glob: "**/*.swift"
+    dimensions: [EA-Client-05]
+    note: iOS 视图
+
+  # EA-Client-06 Hybrid Bridge (H5/RN 跨端)
+  - glob: "**/bundle/registry/**"
+    dimensions: [EA-Client-06]
+  - glob: "**/NativeBridge*.{kt,swift,m,mm}"
+    dimensions: [EA-Client-06]
+  - glob: "**/TurboModule*.{ts,tsx,kt,swift}"
+    dimensions: [EA-Client-06]
+  - glob: "**/codegen/**"
+    dimensions: [EA-Client-06]
+
+  # EA-Client-07 启动 / 性能
+  - glob: "**/Application.kt"
+    dimensions: [EA-Client-07]
+  - glob: "**/AppDelegate.swift"
+    dimensions: [EA-Client-07]
+  - glob: "**/Startup*.{kt,swift}"
+    dimensions: [EA-Client-07]
+  - glob: "**/*Initializer*.{kt,swift}"
+    dimensions: [EA-Client-07]
+
+  # EA-Client-08 数据安全
+  - glob: "**/Keystore*.{kt,swift}"
+    dimensions: [EA-Client-08, D11]
+  - glob: "**/SecureStorage*.{kt,swift}"
+    dimensions: [EA-Client-08, D11]
+  - glob: "**/*Crypto*.{kt,swift}"
+    dimensions: [EA-Client-08, D11]
+
+  # ───────────────────────────────────────────────────────────
+  # Frontend (EA-Web-01–11)
+  # ───────────────────────────────────────────────────────────
+
+  # EA-Web-01 工程化
+  - glob: "**/vite.config.*"
+    dimensions: [EA-Web-01, D13]
+  - glob: "**/webpack.config.*"
+    dimensions: [EA-Web-01, D13]
+  - glob: "**/tsconfig*.json"
+    dimensions: [EA-Web-01]
+  - glob: "**/next.config.*"
+    dimensions: [EA-Web-01]
+
+  # EA-Web-02 路由 / 状态
+  - glob: "**/router/**"
+    dimensions: [EA-Web-02]
+  - glob: "**/store/**"
+    dimensions: [EA-Web-02]
+  - glob: "**/stores/**"
+    dimensions: [EA-Web-02]
+
+  # EA-Web-03 API / 数据请求
+  - glob: "**/api/**/*.{ts,tsx,js,jsx}"
+    dimensions: [EA-Web-03, D05]
+  - glob: "**/services/**/*.{ts,tsx}"
+    dimensions: [EA-Web-03]
+  - glob: "**/*Api*.{ts,tsx}"
+    dimensions: [EA-Web-03]
+
+  # EA-Web-04 组件 / UI 库
+  - glob: "**/components/**"
+    dimensions: [EA-Web-04, D08]
+  - glob: "**/ui/**/*.{tsx,vue}"
+    dimensions: [EA-Web-04, D08]
+
+  # EA-Web-05 H5 / 移动 webview
+  - glob: "**/h5/**"
+    dimensions: [EA-Web-05]
+  - glob: "**/mobile/**"
+    dimensions: [EA-Web-05]
+  - glob: "**/*BridgeAdapter*.{ts,tsx}"
+    dimensions: [EA-Web-05]
+
+  # EA-Web-06 Admin / 后台
+  - glob: "**/admin/**"
+    dimensions: [EA-Web-06]
+  - glob: "**/dashboard/**"
+    dimensions: [EA-Web-06]
+
+  # EA-Web-07 SDK / 嵌入
+  - glob: "**/sdk/**/*.{ts,tsx}"
+    dimensions: [EA-Web-07]
+  - glob: "**/embed/**"
+    dimensions: [EA-Web-07]
+
+  # EA-Web-08 安全防护
+  - glob: "**/csp.{config,json,ts}"
+    dimensions: [EA-Web-08, D11]
+  - glob: "**/*Sanitiz*.{ts,tsx}"
+    dimensions: [EA-Web-08, D11]
+  - glob: "**/*Xss*.{ts,tsx}"
+    dimensions: [EA-Web-08, D11]
+
+  # EA-Web-09 性能 / 懒加载
+  - glob: "**/lazy*.{ts,tsx}"
+    dimensions: [EA-Web-09]
+  - glob: "**/dynamic*.{ts,tsx}"
+    dimensions: [EA-Web-09]
+
+  # EA-Web-10 国际化
+  - glob: "**/i18n/**"
+    dimensions: [EA-Web-10]
+  - glob: "**/locales/**"
+    dimensions: [EA-Web-10]
+
+  # EA-Web-11 监控 / 埋点
+  - glob: "**/analytics/**"
+    dimensions: [EA-Web-11]
+  - glob: "**/track/**"
+    dimensions: [EA-Web-11]
+  - glob: "**/*Tracker*.{ts,tsx}"
+    dimensions: [EA-Web-11]
+
+  # ───────────────────────────────────────────────────────────
+  # Backend (EA-Backend-01–10)
+  # ───────────────────────────────────────────────────────────
+
+  # EA-Backend-01 路由 / 控制器
+  - glob: "**/*Controller.java"
+    dimensions: [EA-Backend-01]
+  - glob: "**/handler/**/*.go"
+    dimensions: [EA-Backend-01]
+  - glob: "**/routes/**/*.{ts,py}"
+    dimensions: [EA-Backend-01]
+
+  # EA-Backend-02 数据访问 / Migration
+  - glob: "**/migrations/**/*.sql"
+    dimensions: [EA-Backend-02, D05]
+  - glob: "**/migration/**/*.{kt,java}"
+    dimensions: [EA-Backend-02]
+  - glob: "**/*Mapper.{xml,java}"
+    dimensions: [EA-Backend-02, D05]
+  - glob: "**/db/schema*.{sql,prisma}"
+    dimensions: [EA-Backend-02]
+  - glob: "**/*Entity.java"
+    dimensions: [EA-Backend-02]
+
+  # EA-Backend-03 业务 / Service
+  - glob: "**/*Service.java"
+    dimensions: [EA-Backend-03]
+  - glob: "**/service/**/*.{kt,java,ts,go,py}"
+    dimensions: [EA-Backend-03]
+
+  # EA-Backend-04 MQ / 异步
+  - glob: "**/*Consumer*.java"
+    dimensions: [EA-Backend-04]
+  - glob: "**/*Producer*.java"
+    dimensions: [EA-Backend-04]
+  - glob: "**/*Listener*.java"
+    dimensions: [EA-Backend-04]
+  - glob: "**/job/**"
+    dimensions: [EA-Backend-04]
+  - glob: "**/*Schedul*.java"
+    dimensions: [EA-Backend-04]
+
+  # EA-Backend-05 RPC / Dubbo / Feign
+  - glob: "**/*Facade*.java"
+    dimensions: [EA-Backend-05]
+  - glob: "**/*Provider*.java"
+    dimensions: [EA-Backend-05]
+  - glob: "**/dubbo*.xml"
+    dimensions: [EA-Backend-05]
+  - glob: "**/dubbo-application.{yml,yaml,properties}"
+    dimensions: [EA-Backend-05]
+
+  # EA-Backend-06 鉴权 / 权限
+  - glob: "**/*AuthFilter*.{kt,java}"
+    dimensions: [EA-Backend-06, D11]
+  - glob: "**/*JwtFilter*.{kt,java}"
+    dimensions: [EA-Backend-06, D11]
+  - glob: "**/*PermissionInterceptor*.{kt,java}"
+    dimensions: [EA-Backend-06, D11]
+
+  # EA-Backend-07 缓存
+  - glob: "**/RedisConfig*.{kt,java}"
+    dimensions: [EA-Backend-07]
+  - glob: "**/*Cache*.{kt,java,ts,go}"
+    dimensions: [EA-Backend-07]
+
+  # EA-Backend-08 监控 / 链路
+  - glob: "**/*Telemetry*.{kt,java}"
+    dimensions: [EA-Backend-08]
+  - glob: "**/Tracing*.{kt,java}"
+    dimensions: [EA-Backend-08]
+  - glob: "**/prometheus*.{yml,yaml}"
+    dimensions: [EA-Backend-08]
+
+  # EA-Backend-09 配置中心
+  - glob: "**/application*.{yml,yaml,properties}"
+    dimensions: [EA-Backend-09]
+  - glob: "**/bootstrap*.{yml,yaml}"
+    dimensions: [EA-Backend-09]
+  - glob: "**/nacos*.{yml,yaml}"
+    dimensions: [EA-Backend-09]
+
+  # EA-Backend-10 异步事件 / 总线
+  - glob: "**/*EventBus*.{kt,java}"
+    dimensions: [EA-Backend-10]
+  - glob: "**/*EventPublisher*.{kt,java}"
+    dimensions: [EA-Backend-10]
+
+  # ───────────────────────────────────────────────────────────
+  # Industry - Securities (SEC-01–10, XSEC-01–06)
+  # ───────────────────────────────────────────────────────────
+
+  - glob: "**/securities/**"
+    dimensions: [IND-01, SEC-01]
+  - glob: "**/trade/**"
+    dimensions: [SEC-01]
+  - glob: "**/order/**/*Order*.{kt,java,ts}"
+    dimensions: [SEC-01, SEC-02]
+  - glob: "**/risk/**"
+    dimensions: [SEC-03]
+  - glob: "**/*Limit*.{kt,java}"
+    dimensions: [SEC-03]
+  - glob: "**/*Quote*.{kt,java}"
+    dimensions: [SEC-04]
+  - glob: "**/*MarketData*.{kt,java}"
+    dimensions: [SEC-04]
+  - glob: "**/clearing/**"
+    dimensions: [SEC-05]
+  - glob: "**/*Settlement*.{kt,java}"
+    dimensions: [SEC-05]
+  - glob: "**/*Audit*.{kt,java}"
+    dimensions: [SEC-06, D11]
+  - glob: "**/*Compliance*.{kt,java}"
+    dimensions: [SEC-06]
+  - glob: "**/account/**"
+    dimensions: [SEC-07]
+  - glob: "**/*Position*.{kt,java}"
+    dimensions: [SEC-08]
+  - glob: "**/portfolio/**"
+    dimensions: [SEC-08]
+  - glob: "**/quotation/**"
+    dimensions: [SEC-09]
+  - glob: "**/realtime/**"
+    dimensions: [SEC-09]
+  - glob: "**/notify/**"
+    dimensions: [SEC-10]
+
+  # XSEC 横切证券维度
+  - glob: "**/timezone/**"
+    dimensions: [XSEC-01]
+  - glob: "**/clock/**"
+    dimensions: [XSEC-01]
+  - glob: "**/i18n/securities/**"
+    dimensions: [XSEC-02]
+  - glob: "**/cross-border/**"
+    dimensions: [XSEC-03]
+  - glob: "**/regulation/**"
+    dimensions: [XSEC-03]
+  - glob: "**/multi-currency/**"
+    dimensions: [XSEC-04]
+  - glob: "**/fx/**"
+    dimensions: [XSEC-04]
+  - glob: "**/holiday/**"
+    dimensions: [XSEC-05]
+  - glob: "**/calendar/**"
+    dimensions: [XSEC-05]
+  - glob: "**/tax/**"
+    dimensions: [XSEC-06]

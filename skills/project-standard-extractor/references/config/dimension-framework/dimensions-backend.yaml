@@ -1,0 +1,207 @@
+# dimensions-backend.yaml
+# 后端端 adapter 扩展维度池：覆盖 Java / Python / Go / Node 四个子领域骨架
+# Schema：./schema.json（layer = extension, end = backend）
+# 来源：origin Per-End Dimension Catalog 后端章节，1:1 落地
+
+layer: extension
+end: backend
+version: v0.1.0
+subdomains:
+  - java
+  - python
+  - go
+  - node
+
+dimensions:
+  EA-Backend-01:
+    name: API 设计与版本化
+    owner_phase: generation
+    core_concerns:
+      - "RESTful / GraphQL / gRPC 选型"
+      - URL 命名
+      - HTTP 状态码
+      - 版本策略
+      - 幂等性
+    must_check_items:
+      - "版本策略（URL / Header / Media Type）"
+      - "契约文档（OpenAPI / Protobuf）"
+      - 幂等 Key 设计
+    activation_signal_hints:
+      - "Controller / Resolver / RPC 服务定义"
+      - "OpenAPI / Protobuf schema 文件"
+      - X-Idempotency-Key 处理
+
+  EA-Backend-02:
+    name: 数据库与持久化
+    owner_phase: generation
+    core_concerns:
+      - "ORM / DAO / Repository 选型"
+      - Migration 规范
+      - 事务边界
+      - 索引
+      - 分库分表
+    must_check_items:
+      - Migration forward-only vs reversible 政策
+      - 事务隔离级别
+      - 慢查询审计
+      - 索引设计原则
+    activation_signal_hints:
+      - "Entity / Mapper / Repository 定义"
+      - "migrations/ 目录"
+      - "@Transactional 用法"
+
+  EA-Backend-03:
+    name: 缓存与一致性
+    owner_phase: generation
+    core_concerns:
+      - 多级缓存
+      - "缓存穿透 / 击穿 / 雪崩"
+      - "Cache-aside / Write-through / Write-behind"
+      - 缓存与 DB 一致性
+    must_check_items:
+      - 缓存 Key 设计
+      - 过期策略
+      - "防击穿（singleflight）"
+      - 双写一致性策略
+    activation_signal_hints:
+      - "Redis / Caffeine 操作"
+      - "@Cacheable 用法"
+      - 缓存中间件依赖
+
+  EA-Backend-04:
+    name: 消息队列与异步
+    owner_phase: generation
+    core_concerns:
+      - MQ 选型
+      - 生产者幂等
+      - "消费者幂等 / 重试 / 死信"
+      - 消息顺序与分区
+    must_check_items:
+      - 生产事务消息
+      - 消费幂等键
+      - 死信处理与回溯
+      - 消费速率控制
+    activation_signal_hints:
+      - "Kafka / RocketMQ / RabbitMQ 依赖"
+      - "@RocketMQMessageListener / @KafkaListener 注解"
+      - "producer/consumer 包目录"
+
+  EA-Backend-05:
+    name: 并发与限流
+    owner_phase: generation
+    core_concerns:
+      - 线程池配置
+      - 锁选择
+      - 限流策略
+      - 熔断与降级
+    must_check_items:
+      - 线程池隔离
+      - 分布式锁选型
+      - "令牌桶 / 漏桶 / Sliding Window"
+      - "Sentinel / Resilience4j 接入"
+    activation_signal_hints:
+      - ThreadPoolExecutor 配置
+      - "@SentinelResource"
+      - RateLimiter
+      - "Redisson / Curator 依赖"
+
+  EA-Backend-06:
+    name: 鉴权与权限粒度
+    owner_phase: review
+    core_concerns:
+      - "认证（JWT / OAuth2 / Session）"
+      - "授权（RBAC / ABAC）"
+      - 网关层 vs 服务层鉴权
+      - Token 刷新
+    must_check_items:
+      - Token 失效策略
+      - 刷新机制
+      - 资源粒度权限
+      - 网关/服务鉴权边界
+    activation_signal_hints:
+      - SecurityFilterChain
+      - "@PreAuthorize"
+      - JWT 解析代码
+      - OAuth2 client 配置
+    cross_dimensions:
+      - D11
+
+  EA-Backend-07:
+    name: 配置与密钥
+    owner_phase: review
+    core_concerns:
+      - 配置中心
+      - 环境隔离
+      - 密钥管理
+      - 配置变更监听
+    must_check_items:
+      - 敏感配置不入代码
+      - 配置版本化
+      - "@RefreshScope 边界"
+      - 密钥旋转
+    activation_signal_hints:
+      - "@ConfigurationProperties"
+      - "Nacos / Apollo / Vault SDK 依赖"
+      - "application-*.yml"
+    cross_dimensions:
+      - D11
+
+  EA-Backend-08:
+    name: 可观测性
+    owner_phase: generation
+    core_concerns:
+      - 日志结构化
+      - 链路追踪
+      - Metrics
+      - 错误上报
+    must_check_items:
+      - MDC 注入
+      - TraceId 贯穿
+      - "Prometheus / Micrometer 指标"
+      - "Sentry / Bugsnag 接入"
+    activation_signal_hints:
+      - "log4j2.xml / logback.xml"
+      - "@NewSpan"
+      - "OpenTelemetry / SkyWalking 依赖"
+      - MeterRegistry 用法
+    cross_dimensions:
+      - D12
+
+  EA-Backend-09:
+    name: 部署与运行时
+    owner_phase: review
+    core_concerns:
+      - 容器化
+      - "K8s（HPA / PDB / 健康检查）"
+      - 优雅启停
+      - 配置注入
+    must_check_items:
+      - Dockerfile 最佳实践
+      - readiness vs liveness 区分
+      - SIGTERM 处理
+      - "ConfigMap / Secret 使用"
+    activation_signal_hints:
+      - Dockerfile
+      - deployment.yaml
+      - "application.yml graceful-shutdown"
+      - SpringApplication.shutdownGracefully
+
+  EA-Backend-10:
+    name: 错误处理与重试
+    owner_phase: generation
+    core_concerns:
+      - 统一异常处理
+      - 业务异常 vs 系统异常分类
+      - 重试策略
+      - 幂等保护
+    must_check_items:
+      - "@ControllerAdvice 统一处理"
+      - 错误码体系
+      - exponential backoff
+      - 幂等注解
+    activation_signal_hints:
+      - "@ExceptionHandler"
+      - "RetryTemplate / Spring Retry / Resilience4j Retry"
+      - 自定义错误码枚举
+    cross_dimensions:
+      - D06

@@ -5,7 +5,7 @@ domain: "app-client"
 sub_domain: "common"
 doc_type: "pending-confirmation"
 version: "v0.1.0"
-status: "archived"
+status: "pending"
 owner: "TBD"
 index_format: "engineering-standards-md-v1"
 indexable: false

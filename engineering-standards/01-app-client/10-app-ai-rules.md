@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-app-ai-rules-archived"
+title: "APP AI Coding Rules（已归档）"
+domain: "app-client"
+sub_domain: "common"
+doc_type: "ai-rules"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: false
+superseded_by: "ai-rules.md"
+tags:
+  - "app-client"
+  - "common"
+  - "ai-rules"
+  - "archived"
+---
+
+> ⚠️ **本文件已归档**：内容由 `ai-rules.md` 取代（standard-{sub_domain}.md 派生汇总视图）。本文件保留只为历史回溯，AI 不应将其作为现行规范引用。
+
 # APP AI Coding Rules
 
 ## 1. 总体身份

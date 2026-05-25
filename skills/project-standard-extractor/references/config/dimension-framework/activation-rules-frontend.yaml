@@ -1,0 +1,99 @@
+# activation-rules-frontend.yaml
+# 前端端 adapter 激活规则；schema = activation-rules.schema.json
+
+end: frontend
+version: v0.1.0
+
+subdomain_signals:
+  h5:
+    - { signal_id: h5-viewport,        type: grep, patterns: ["<meta name=\"viewport\"", "viewport-fit=cover"], include_paths: ["**/*.html"] }
+    - { signal_id: h5-jsbridge,        type: grep, patterns: ["WeixinJSBridge", "JSBridge.invoke"], include_paths: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"] }
+  admin:
+    - { signal_id: admin-routes,       type: grep, patterns: ["admin", "dashboard", "console"], include_paths: ["**/router/**", "**/routes/**"] }
+    - { signal_id: admin-table-deps,   type: dependency, patterns: ["@ant-design/pro-components", "ag-grid", "@tanstack/react-table"] }
+  sdk:
+    - { signal_id: sdk-bundle-cfg,     type: grep, patterns: ["\"main\":", "\"module\":", "\"types\":"], include_paths: ["package.json"] }
+    - { signal_id: sdk-rollup,         type: file_existence, paths: ["rollup.config.*", "tsup.config.*"] }
+
+dimensions:
+  EA-Web-01:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: ssr-frameworks,    type: dependency, patterns: ["next", "nuxt", "remix", "@sveltejs/kit"] }
+      - { signal_id: ssr-directives,    type: grep, patterns: ["getServerSideProps", "generateStaticParams", "use client"], include_paths: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"] }
+
+  EA-Web-02:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: file-router,       type: file_existence, paths: ["app/**", "pages/**", "src/pages/**", "src/app/**"] }
+      - { signal_id: react-router,      type: dependency, patterns: ["react-router", "vue-router", "@tanstack/router"] }
+
+  EA-Web-03:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: state-libs,        type: dependency, patterns: ["redux", "zustand", "jotai", "mobx", "pinia", "vuex"] }
+      - { signal_id: server-state,      type: dependency, patterns: ["@tanstack/react-query", "swr", "@apollo/client"] }
+      - { signal_id: storage-usage,     type: grep, patterns: ["localStorage\\.", "sessionStorage\\."], include_paths: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"] }
+
+  EA-Web-04:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: tsconfig,          type: file_existence, paths: ["tsconfig.json", "tsconfig.*.json"] }
+      - { signal_id: runtime-validation, type: dependency, patterns: ["zod", "yup", "io-ts", "valibot"] }
+
+  EA-Web-05:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: components-dir,    type: file_existence, paths: ["src/components/**", "components/**"] }
+      - { signal_id: storybook,         type: dependency, patterns: ["@storybook/react", "@storybook/vue3"] }
+      - { signal_id: styling-stack,     type: dependency, patterns: ["tailwindcss", "styled-components", "@emotion/react", "sass"] }
+
+  EA-Web-06:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: code-split-syntax, type: grep, patterns: ["React\\.lazy\\(", "dynamic\\(import\\("], include_paths: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"] }
+      - { signal_id: virtualization,    type: dependency, patterns: ["react-window", "react-virtuoso", "@tanstack/virtual"] }
+
+  EA-Web-07:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: bundlers,          type: dependency, patterns: ["vite", "webpack", "rollup", "esbuild", "turbopack"] }
+      - { signal_id: browserslist-cfg,  type: file_existence, paths: [".browserslistrc", "package.json"] }
+
+  EA-Web-08:
+    state_default: candidate
+    combination: weighted
+    threshold: 2
+    rationale: 安全防护需要 ≥2 类信号交叉，单一 sanitize 库不足以判定整体安全设计。
+    signals:
+      - { signal_id: xss-libs,          type: dependency, patterns: ["dompurify", "sanitize-html"], weight: 1 }
+      - { signal_id: csp-meta,          type: grep, patterns: ["Content-Security-Policy", "<meta http-equiv=\"Content-Security-Policy\""], include_paths: ["**/*.html", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"], weight: 2 }
+      - { signal_id: cookie-config,     type: grep, patterns: ["SameSite", "HttpOnly", "Secure"], include_paths: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"], weight: 1 }
+
+  EA-Web-09:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: polyfills,         type: dependency, patterns: ["core-js", "regenerator-runtime", "@babel/preset-env"] }
+      - { signal_id: browserslist-field, type: grep, patterns: ["browserslist"], include_paths: ["package.json", ".browserslistrc"] }
+
+  EA-Web-10:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: monitor-sdks,      type: dependency, patterns: ["@sentry/", "@bugsnag/", "@datadog/browser-rum"] }
+      - { signal_id: web-vitals,        type: grep, patterns: ["reportWebVitals", "web-vitals"], include_paths: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"] }
+
+  EA-Web-11:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: meta-tags,         type: grep, patterns: ["<Head>", "useHead", "next/head"], include_paths: ["**/*.ts", "**/*.tsx", "**/*.vue"] }
+      - { signal_id: sitemap-tools,     type: dependency, patterns: ["next-sitemap", "vite-plugin-sitemap"] }

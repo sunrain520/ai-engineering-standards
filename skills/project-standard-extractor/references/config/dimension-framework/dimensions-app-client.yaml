@@ -1,0 +1,160 @@
+# dimensions-app-client.yaml
+# 客户端端 adapter 扩展维度池：覆盖 KMP shared / Android / iOS 三个子领域骨架
+# Schema：./schema.json（layer = extension, end = app-client）
+# 来源：origin Per-End Dimension Catalog 客户端章节，1:1 落地
+
+layer: extension
+end: app-client
+version: v0.1.0
+subdomains:
+  - kmp-shared
+  - android
+  - ios
+
+dimensions:
+  EA-Client-01:
+    name: 多端共享与跨端架构
+    owner_phase: profile
+    core_concerns:
+      - 共享业务逻辑边界
+      - 跨端代码组织
+      - 平台适配优先级
+    must_check_items:
+      - expect/actual 模式适用范围
+      - 共享 ViewModel / UseCase / Repository 能力清单
+      - 共享层依赖隔离规则
+      - 共享逻辑能力清单与不可共享清单
+    activation_signal_hints:
+      - "shared/ / commonMain/ / iosMain/ / androidMain/ 目录存在"
+      - KMP / Flutter / React Native 依赖声明
+    subdomain_hint: kmp-shared
+
+  EA-Client-02:
+    name: 平台差异处理
+    owner_phase: generation
+    core_concerns:
+      - iOS Sandbox vs Android Scoped Storage
+      - Permission 模型差异
+      - 通知机制差异
+      - 后台执行限制差异
+    must_check_items:
+      - Permission 请求流程与降级 UX
+      - 隐私清单（Info.plist / Privacy Manifest / Android Manifest）
+      - APNs vs FCM 接入
+      - 后台任务策略
+    activation_signal_hints:
+      - Info.plist
+      - AndroidManifest.xml
+      - Permission 请求代码
+      - PrivacyInfo.xcprivacy
+
+  EA-Client-03:
+    name: 生命周期与资源管理
+    owner_phase: generation
+    core_concerns:
+      - Activity / ViewController 生命周期
+      - 后台被杀与内存压力
+      - 进程边界数据持久化
+    must_check_items:
+      - onCreate / onDestroy 配对
+      - viewDidLoad / viewWillDisappear 配对
+      - Application / AppDelegate 边界
+      - 内存预警响应
+    activation_signal_hints:
+      - 生命周期方法定义
+      - "Application / AppDelegate 类"
+      - "onLowMemory / didReceiveMemoryWarning"
+
+  EA-Client-04:
+    name: 多市场与多展业地
+    owner_phase: profile
+    core_concerns:
+      - 国际化资源与翻译流程
+      - 地区合规差异（GDPR / 个保法 / 中东合规）
+      - Feature flag 与 Build variant / Scheme / Flavor
+    must_check_items:
+      - "strings.xml / Localizable.strings 组织"
+      - 地区合规边界声明
+      - feature flag 配置中心
+      - 构建变体管理
+    activation_signal_hints:
+      - "values-*/strings.xml"
+      - "*.lproj/"
+      - "BuildConfig / xcconfig"
+      - feature flag SDK 依赖
+    cross_dimensions:
+      - IND-02-compliance
+
+  EA-Client-05:
+    name: 设备能力与权限
+    owner_phase: generation
+    core_concerns:
+      - 相机 / 定位 / 推送 / 生物识别 / 传感器
+      - Privacy Manifest / Data Safety 合规
+    must_check_items:
+      - 权限请求最小化
+      - 降级 UX
+      - 隐私清单完整性
+      - 生物识别失败处理
+    activation_signal_hints:
+      - 相机 / 定位 / 推送相关 import
+      - "requestPermission 调用"
+      - "LAContext / BiometricPrompt"
+    cross_dimensions:
+      - D11
+      - EA-Client-08
+
+  EA-Client-06:
+    name: 网络与离线
+    owner_phase: generation
+    core_concerns:
+      - 弱网检测、重试策略
+      - 离线缓存
+      - 图片加载策略
+    must_check_items:
+      - 超时配置
+      - 指数退避
+      - 缓存有效期
+      - SSL Pinning
+    activation_signal_hints:
+      - "Retrofit / Alamofire / Ktor Client 配置"
+      - "Coil / Glide / SDWebImage 依赖"
+      - NetworkObserver
+
+  EA-Client-07:
+    name: 启动性能与包体积
+    owner_phase: review
+    core_concerns:
+      - 冷启动 / 热启动指标
+      - 启动任务编排
+      - "包体积优化（ProGuard / R8 / App Thinning / Dynamic Feature）"
+    must_check_items:
+      - 启动任务异步化
+      - Splash 处理
+      - 动态化策略
+      - bytecode shrinker 配置
+    activation_signal_hints:
+      - "Application.onCreate 自定义逻辑"
+      - "ProGuard / R8 配置"
+      - SceneDelegate
+      - Dynamic Feature 模块
+
+  EA-Client-08:
+    name: 本地存储与数据安全
+    owner_phase: review
+    core_concerns:
+      - "Keychain / Keystore / EncryptedSharedPreferences"
+      - 敏感数据生命周期
+      - 本地数据库加密
+    must_check_items:
+      - 敏感数据加密强度
+      - Token 刷新与失效
+      - 日志脱敏
+      - 生物识别绑定
+    activation_signal_hints:
+      - Keychain Item Access 配置
+      - "KeyStore / EncryptedSharedPreferences 用法"
+      - "Room / SQLDelight 加密配置"
+    cross_dimensions:
+      - D11
+      - EA-Client-05

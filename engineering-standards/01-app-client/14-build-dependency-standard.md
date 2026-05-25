@@ -1,3 +1,23 @@
+---
+doc_id: "app-client-build-dependency-standard-archived"
+title: "APP 构建与依赖治理规范（已归档）"
+domain: "app-client"
+sub_domain: "build-governance"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: false
+superseded_by: "standard-build-governance.md"
+tags:
+  - "app-client"
+  - "build-governance"
+  - "archived"
+---
+
+> ⚠️ **本文件已归档**：内容由 `standard-build-governance.md` 取代（采用 inline 元数据 + Developer Guide 风格）。本文件保留只为历史回溯。
+
 # APP 构建与依赖治理规范
 
 > 当前文档是 APP 构建与依赖治理的编号入口。已有 `standard-build-governance.md` 提供单项目 evidence-backed draft 增量，升级 active 前仍需负责人确认。

@@ -1,0 +1,272 @@
+# baseline-dimensions.yaml
+# Layer 1 通用维度池：所有项目（不论端 adapter）必出。无 evidence 时进入 pending-confirmation 或渲染最小 baseline 内容。
+# Schema：./schema.json（layer = common）
+
+layer: common
+end: common
+version: v0.1.0
+
+dimensions:
+  D01:
+    name: 架构概览
+    owner_phase: profile
+    core_concerns:
+      - 项目分层、模块边界、技术选型概览
+      - 关键依赖与架构风格
+      - 服务或模块拆分原则
+    must_check_items:
+      - 顶层模块清单与职责
+      - 跨模块调用边界与禁止依赖方向
+      - 与上下游系统的集成方式
+    activation_signal_hints:
+      - 顶层目录结构与 build 文件
+      - README / docs/architecture 描述
+    default_content:
+      standard_section: "记录项目模块、分层职责与外部依赖；无 evidence 时只保留待确认骨架，不生成强制规则。"
+      pending_message: "缺少可验证架构 evidence，需要负责人确认模块边界和依赖方向。"
+      checklist_items:
+        - 确认顶层模块职责是否清晰
+        - 确认禁止依赖方向是否存在
+
+  D02:
+    name: 目录与命名
+    owner_phase: facts
+    core_concerns:
+      - 目录组织、文件命名、类/函数/常量命名一致性
+      - 模块边界在目录层面的表达
+    must_check_items:
+      - 目录命名风格统一
+      - 文件后缀与模板规范
+      - 测试目录与生产代码目录命名映射规则
+    activation_signal_hints:
+      - 顶层与一级子目录列表
+      - lint / EditorConfig 配置
+    default_content:
+      standard_section: "记录目录和命名约定的待确认入口；没有样本时不得编造具体命名规则。"
+      pending_message: "缺少命名样本，需要负责人确认目录、文件、类名和测试命名约定。"
+      checklist_items:
+        - 确认目录命名风格
+        - 确认测试文件命名映射
+
+  D03:
+    name: 领域模型与职责边界
+    owner_phase: facts
+    core_concerns:
+      - 核心领域对象、服务角色和职责边界
+      - DTO / Entity / Domain Model 的转换边界
+    must_check_items:
+      - 核心实体是否有明确归属层
+      - 跨层对象是否避免泄漏
+      - 服务职责是否单一
+    activation_signal_hints:
+      - domain/model、entity、dto、vo 目录
+      - DDD / bounded context 文档
+    default_content:
+      standard_section: "保留领域模型待确认段，要求后续用实际实体和服务 evidence 填充。"
+      pending_message: "缺少领域模型 evidence，需要负责人确认核心对象和跨层转换边界。"
+      checklist_items:
+        - 确认核心实体列表
+        - 确认 DTO/Entity/Domain Model 转换边界
+
+  D04:
+    name: 接口契约
+    owner_phase: generation
+    core_concerns:
+      - 对外 API、内部接口、事件或协议契约
+      - 请求/响应结构、错误语义和版本兼容
+    must_check_items:
+      - 入参和出参 schema 有来源
+      - 状态码或错误码约定清晰
+      - 版本变更策略可追溯
+    activation_signal_hints:
+      - openapi / swagger / proto / graphql
+      - controller / route / handler 文件
+    default_content:
+      standard_section: "保留接口契约待确认段，提示补充 API、事件或协议 evidence。"
+      pending_message: "缺少接口契约 evidence，需要负责人确认请求/响应、错误码和版本策略。"
+      checklist_items:
+        - 确认接口 schema 来源
+        - 确认错误语义和版本兼容规则
+
+  D05:
+    name: 数据访问与持久化
+    owner_phase: facts
+    core_concerns:
+      - Repository / DAO / Mapper / DataSource 访问边界
+      - 事务、缓存和数据一致性
+    must_check_items:
+      - 持久化入口是否集中
+      - 事务边界是否明确
+      - 缓存和数据库一致性策略是否可追溯
+    activation_signal_hints:
+      - repository / mapper / dao / datasource
+      - migration / schema / entity 文件
+    default_content:
+      standard_section: "保留数据访问待确认段，未见持久化 evidence 时不生成事务或 DAO 强制规则。"
+      pending_message: "缺少数据访问 evidence，需要负责人确认持久化入口、事务边界和缓存策略。"
+      checklist_items:
+        - 确认持久化入口是否集中
+        - 确认事务注解或事务控制位置
+
+  D06:
+    name: 错误处理
+    owner_phase: generation
+    core_concerns:
+      - 异常分类、错误码体系和统一拦截
+      - 失败日志、降级和重试策略
+    must_check_items:
+      - 业务异常与系统异常分层定义
+      - 错误码命名空间与字典维护
+      - 顶层统一异常处理器
+      - 重试与降级区分幂等场景
+    cross_dimensions:
+      - D11
+      - D12
+    default_content:
+      standard_section: "保留错误处理待确认段，要求后续补异常分类、错误码和统一处理 evidence。"
+      pending_message: "缺少错误处理 evidence，需要负责人确认异常分类、错误码和重试降级策略。"
+      checklist_items:
+        - 确认统一异常处理入口
+        - 确认错误码和降级策略
+
+  D07:
+    name: 并发与异步
+    owner_phase: facts
+    core_concerns:
+      - 协程、线程池、任务队列、MQ 和事件驱动边界
+      - 幂等、顺序性和重试语义
+    must_check_items:
+      - 异步入口是否有容量和超时治理
+      - 任务重试是否幂等
+      - 并发资源是否有生命周期管理
+    activation_signal_hints:
+      - coroutine / executor / queue / mq / job
+      - async / await / scheduler
+    default_content:
+      standard_section: "保留并发与异步待确认段，未见 evidence 时不生成线程池、队列或重试强制规则。"
+      pending_message: "缺少并发/异步 evidence，需要负责人确认任务模型、幂等和重试策略。"
+      checklist_items:
+        - 确认异步任务容量和超时治理
+        - 确认重试与幂等策略
+
+  D08:
+    name: 展示层与交互边界
+    owner_phase: generation
+    core_concerns:
+      - UI / Presentation / Controller 展示职责
+      - 状态映射、用户交互和入口编排
+    must_check_items:
+      - 展示层是否只做编排和渲染
+      - 状态映射是否集中
+      - 用户输入是否先校验再下传
+    activation_signal_hints:
+      - controller / viewmodel / fragment / component
+      - presentation / ui / page
+    default_content:
+      standard_section: "保留展示层待确认段，未见 UI 或入口 evidence 时不生成展示层强制规则。"
+      pending_message: "缺少展示层 evidence，需要负责人确认入口编排、状态映射和输入校验。"
+      checklist_items:
+        - 确认展示层职责边界
+        - 确认状态映射位置
+
+  D09:
+    name: 测试策略
+    owner_phase: review
+    core_concerns:
+      - 测试金字塔分布、覆盖率底线、关键路径覆盖
+      - 测试数据准备与隔离策略
+    must_check_items:
+      - 单元测试覆盖率底线
+      - 关键路径集成测试覆盖
+      - fake / mock / contract test 策略
+    activation_signal_hints:
+      - test/ 目录、*.test.* / *.spec.* 文件
+      - jest / pytest / junit / go test / xctest 依赖
+    default_content:
+      standard_section: "保留测试策略待确认段，提示后续补测试目录、命名和关键路径覆盖 evidence。"
+      pending_message: "缺少测试 evidence，需要负责人确认测试分层、覆盖底线和数据隔离策略。"
+      checklist_items:
+        - 确认测试目录和命名规则
+        - 确认关键路径覆盖要求
+
+  D10:
+    name: 性能与容量
+    owner_phase: review
+    core_concerns:
+      - 性能关键路径、容量指标、启动或接口延迟
+      - 资源使用、缓存和限流
+    must_check_items:
+      - 性能指标是否有明确口径
+      - 容量和限流策略是否可追溯
+      - 性能测试或监控是否覆盖关键路径
+    activation_signal_hints:
+      - benchmark / load-test / profiler
+      - cache / rate-limit / startup
+    default_content:
+      standard_section: "保留性能容量待确认段，未见实测数据时不得声称达成性能目标。"
+      pending_message: "缺少性能 evidence，需要负责人确认指标口径、容量策略和实测记录。"
+      checklist_items:
+        - 确认性能指标是否有实测
+        - 确认限流或容量策略
+
+  D11:
+    name: 安全与合规
+    owner_phase: review
+    core_concerns:
+      - 输入校验、认证授权、敏感数据传输与存储
+      - 合规边界和供应链安全
+    must_check_items:
+      - 用户输入边界统一校验
+      - 鉴权与权限粒度
+      - 敏感数据传输 TLS 与存储加密
+      - 密钥/凭据不入仓库
+    cross_dimensions:
+      - D06
+      - D12
+    default_content:
+      standard_section: "保留安全合规待确认段，未见 security evidence 时只列 owner 待确认问题。"
+      pending_message: "缺少安全合规 evidence，需要负责人确认鉴权、权限、密钥和隐私策略。"
+      checklist_items:
+        - 确认认证授权边界
+        - 确认敏感数据和密钥治理
+
+  D12:
+    name: 可观测性
+    owner_phase: generation
+    core_concerns:
+      - 日志结构化与脱敏、链路追踪、指标体系
+      - 错误上报、告警阈值与响应
+    must_check_items:
+      - 日志结构化格式与字段命名约定
+      - TraceId / RequestId 贯穿链路
+      - 关键指标采集
+      - 告警分级与降噪策略
+    cross_dimensions:
+      - D06
+      - D11
+    default_content:
+      standard_section: "保留可观测性待确认段，提示后续补日志、指标、链路和告警 evidence。"
+      pending_message: "缺少可观测性 evidence，需要负责人确认日志、指标、Trace 和告警策略。"
+      checklist_items:
+        - 确认结构化日志字段
+        - 确认 TraceId 和告警规则
+
+  D13:
+    name: 构建依赖与发布
+    owner_phase: profile
+    core_concerns:
+      - 构建脚本、依赖治理、CI/CD 和发布流程
+      - 锁文件、版本约束和环境一致性
+    must_check_items:
+      - 构建入口和依赖管理文件明确
+      - 锁文件或版本约束可追溯
+      - CI/CD 发布步骤和回滚策略有记录
+    activation_signal_hints:
+      - build.gradle / pom.xml / package.json / go.mod
+      - Dockerfile / Jenkinsfile / GitHub Actions
+    default_content:
+      standard_section: "保留构建依赖待确认段，未见构建 evidence 时不生成依赖或发布强制规则。"
+      pending_message: "缺少构建发布 evidence，需要负责人确认构建入口、锁文件和发布回滚策略。"
+      checklist_items:
+        - 确认构建入口和依赖锁定方式
+        - 确认 CI/CD 与回滚策略

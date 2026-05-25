@@ -1,3 +1,43 @@
+---
+doc_id: "app-client-kmp-shared-layer-standard-archived"
+title: "KMP 共享层开发规范（已归档）"
+domain: "app-client"
+sub_domain: "kmp-shared"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: false
+superseded_by: "standard-kmp-shared.md"
+tags:
+  - "app-client"
+  - "kmp-shared"
+  - "archived"
+---
+
+> ⚠️ **本文件已归档**：内容由 `standard-kmp-shared.md` 取代（采用 inline 元数据 + Developer Guide 风格）。本文件保留只为历史回溯，AI 不应将其作为现行规范引用。
+
+---
+doc_id: "app-client-kmp-shared-layer-standard-archived"
+title: "KMP 共享层开发规范（已归档）"
+domain: "app-client"
+sub_domain: "kmp-shared"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: false
+superseded_by: "standard-kmp-shared.md"
+tags:
+  - "app-client"
+  - "kmp-shared"
+  - "archived"
+---
+
+> ⚠️ **本文件已归档**：内容由 `standard-kmp-shared.md` 取代（采用 inline 元数据 + Developer Guide 风格）。本文件保留只为历史回溯，AI 不应将其作为现行规范引用。
+
 # KMP 共享层开发规范
 
 ## 1. 规范定位

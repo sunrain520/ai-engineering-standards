@@ -1,0 +1,77 @@
+{
+  "$comment": "activation-report.v1 模板。机器字段统一使用 schema + dimensions[]；不得使用旧数组别名或 schema_version。",
+  "schema": "activation-report.v1",
+  "run_id": "<YYYYMMDD-HHMMSS-domain>",
+  "timestamp": "<ISO8601>",
+  "project_paths": [
+    "<absolute path to project root>"
+  ],
+  "last_commit": {
+    "sha": "<git rev-parse HEAD>",
+    "iso_date": "<git log -1 --format=%cI>",
+    "branch": "<git rev-parse --abbrev-ref HEAD>"
+  },
+  "scope": {
+    "dev_domains": ["app-client"],
+    "sub_domains": ["kmp-shared"],
+    "industry_domains": []
+  },
+  "gitnexus_readiness": {
+    "available": false,
+    "graph_facts_path": null,
+    "graph_mtime_iso": null,
+    "stale_days": null,
+    "fallback_used": true,
+    "state": "unavailable"
+  },
+  "dimensions": [
+    {
+      "$comment": "dimensions[] 是唯一主数组；所有生产者和消费者都必须优先使用本数组。",
+      "dimension_id": "EA-Client-02",
+      "name": "跨平台共享层",
+      "layer": "end:app-client",
+      "sub_domain": "kmp-shared",
+      "state": "activated",
+      "rationale": "weighted threshold=2 命中 commonMain glob 与 kotlin-multiplatform dependency",
+      "signals_evaluated": [
+        {"id": "kmp-source-set", "type": "file_existence", "source": "file_existence", "hit": true, "weight": 1},
+        {"id": "kmp-gradle-plugin", "type": "dependency", "source": "dependency", "hit": true, "weight": 1}
+      ],
+      "evidence_paths": [
+        "shared/src/commonMain/",
+        "shared/build.gradle.kts"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.82,
+      "depth_indicator": "deep",
+      "skeleton_section": "assets/skeletons/app-client/kmp-shared-skeleton.md"
+    }
+  ],
+  "summary": {
+    "total_dimensions": 1,
+    "baseline_count": 0,
+    "activated_count": 1,
+    "candidate_count": 0,
+    "pending_count": 0,
+    "shallow_count": 0
+  },
+  "evolution": {
+    "previous_report_path": null,
+    "previous_run_id": null,
+    "previous_timestamp": null,
+    "transitions": [],
+    "stable_count": 0,
+    "transitioned_count": 0
+  },
+  "cross_project": {
+    "enabled": false,
+    "project_index": null,
+    "project_count": null,
+    "unified_map_ref": null,
+    "divergence_doc_ref": null
+  },
+  "open_questions": [],
+  "stop_conditions_hit": [],
+  "warnings": [],
+  "limitations": []
+}

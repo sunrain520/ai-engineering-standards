@@ -1,0 +1,328 @@
+# dimensions-industry-securities.yaml
+# 证券子领域维度池（公司主营，独立 industry 子文件）：SEC-01~10（核心 10 维）+ XSEC-01~06（跨境扩展 6 维），共 16 维
+# Schema：./schema.json（layer = industry, end = industry-securities）
+# 来源：origin Per-End Dimension Catalog 证券章节，1:1 落地
+# 业务线子方向（不在维度层切分，而在骨架文件内分节呈现）：经纪 / 自营 / 资管 / 投行 / 量化 / 期权期货 / 融资融券 / 固定收益
+
+layer: industry
+end: industry-securities
+version: v0.1.0
+subdomains:
+  - core-securities
+  - cross-border  # 港股通 / 美股通 / 港美股 / QDII
+
+dimensions:
+  SEC-01:
+    name: 行情系统
+    owner_phase: generation
+    core_concerns:
+      - "高频实时数据接入（Level 1 / Level 2 / Tick）"
+      - 订阅管理
+      - 压缩与延迟
+      - 行情切片快照
+      - "TCP/UDP 协议选型"
+      - 行情合规与延迟披露
+    must_check_items:
+      - 行情订阅与解订生命周期
+      - 行情压缩与下行带宽控制
+      - 延迟监控与披露
+      - 行情合规边界（实时 / 延迟 / 授权）
+    activation_signal_hints:
+      - "market-data / quote / level2 模块名"
+      - 行情网关 SDK 依赖
+
+  SEC-02:
+    name: 交易系统
+    owner_phase: generation
+    core_concerns:
+      - "订单生命周期（接收 → 风控 → 撮合 → 回报）"
+      - "订单类型（限价 / 市价 / 算法单 / 条件单 / FOK / IOC）"
+      - 订单状态机
+      - 回报推送
+      - 错单处理
+    must_check_items:
+      - 订单状态机完备（含异常状态）
+      - 订单类型支持范围与 fallback
+      - 回报通道可靠性（重传 / 顺序）
+      - 错单处理与对客 / 对监管路径
+    activation_signal_hints:
+      - "order / trading / match 模块名"
+      - 订单状态机类
+      - "FIX / CTP / 交易所网关 SDK"
+
+  SEC-03:
+    name: 盘前与实时风控
+    owner_phase: review
+    core_concerns:
+      - 自成交防护
+      - 频繁报撤拦截
+      - 单只标的限额
+      - 单账户限额
+      - 合规规则引擎
+      - 异常交易识别
+      - "反洗钱（AML）"
+    must_check_items:
+      - 风控规则版本化与灰度
+      - 风控延迟预算（盘前 vs 实时）
+      - 异常交易识别上报路径
+      - AML 规则与跨境差异
+    activation_signal_hints:
+      - "risk-control / aml 模块名"
+      - 风控规则引擎依赖
+    cross_dimensions:
+      - D11
+      - IND-02
+
+  SEC-04:
+    name: 清算与结算
+    owner_phase: generation
+    core_concerns:
+      - "T+0 / T+1 / T+2 模式"
+      - 净额轧差
+      - 对账机制
+      - 资金交收
+      - 过户处理
+      - 错单纠正
+    must_check_items:
+      - 清算批次与时点设计
+      - 对账差异容忍与告警
+      - 错单纠正流程与审计
+      - 跨境结算时区差异处理
+    activation_signal_hints:
+      - "clearing / settlement / dtcc / ccass 模块"
+    cross_dimensions:
+      - XSEC-06
+
+  SEC-05:
+    name: 账户与权限
+    owner_phase: review
+    core_concerns:
+      - 资金账户 / 证券账户 / 衍生品账户隔离
+      - "业务权限模型（融资融券 / 期权交易权限 / 港股通 / 北交所）"
+      - "KYC 与适当性管理"
+    must_check_items:
+      - 账户隔离与资金安全
+      - 权限开通的准入条件审核
+      - "适当性问卷与风险等级匹配"
+      - KYC 资料留存
+    activation_signal_hints:
+      - "account / kyc / suitability 模块"
+    cross_dimensions:
+      - D11
+      - IND-03
+      - XSEC-03
+
+  SEC-06:
+    name: 监管报送与审计
+    owner_phase: review
+    core_concerns:
+      - "报送格式（监管 XML / CSV / FIX 接口）"
+      - "报送时效（T+0 / T+1）"
+      - 留痕审计
+      - "合规存证（不可篡改）"
+      - 监管标签注入
+    must_check_items:
+      - 报送任务调度与失败重试
+      - 留痕审计字段完整性
+      - "存证不可篡改（hash / WORM 介质）"
+      - 监管标签注入贯穿全链路
+    activation_signal_hints:
+      - "regulatory / report / audit 模块"
+      - 监管报送任务定义
+    cross_dimensions:
+      - IND-04
+      - XSEC-03
+
+  SEC-07:
+    name: 时序与交易日历
+    owner_phase: generation
+    core_concerns:
+      - "交易时段（集合竞价 / 连续竞价 / 收盘集合）"
+      - 节假日与停牌处理
+      - 交易日历驱动的业务逻辑
+      - 夜盘 / 港股通时差
+    must_check_items:
+      - 交易日历类的全局唯一来源
+      - 节假日与停牌数据更新流程
+      - 交易时段切换的业务边界
+      - 跨时区时序处理
+    activation_signal_hints:
+      - 交易日历类
+      - "trading-calendar / session 命名"
+    cross_dimensions:
+      - XSEC-01
+
+  SEC-08:
+    name: 接入协议
+    owner_phase: generation
+    core_concerns:
+      - FIX 协议
+      - "CTP API（期货）"
+      - 行情网关
+      - 券商内部协议
+      - "低延迟优化（内核旁路 / RDMA / 共享内存）"
+      - 协议版本兼容
+    must_check_items:
+      - 协议版本兼容矩阵
+      - 链路可靠性（重连 / 心跳 / 断线恢复）
+      - 低延迟链路与一般链路的边界
+      - 协议授权与计费
+    activation_signal_hints:
+      - "FIX SDK / CTP SDK / 交易所网关 SDK"
+
+  SEC-09:
+    name: 金融工程与定价
+    owner_phase: generation
+    core_concerns:
+      - "定价模型（BS / 二叉树 / 蒙特卡洛）"
+      - "希腊字母（Delta / Gamma / Vega / Theta）"
+      - "VaR / 压力测试"
+      - 组合管理
+      - 收益归因
+    must_check_items:
+      - 定价模型的版本化与可回放
+      - "希腊字母计算精度与时延"
+      - 压力测试场景集
+      - 收益归因报表口径
+    activation_signal_hints:
+      - "pricing / greeks / valuation 模块"
+      - 数值计算依赖
+
+  SEC-10:
+    name: 灾备与稳定性
+    owner_phase: review
+    core_concerns:
+      - 双中心 / 异地多活
+      - 毫秒级切换
+      - 交易系统 SLA
+      - 降级开关
+      - 断线重连
+      - 限速保护
+    must_check_items:
+      - "RTO / RPO 指标与演练"
+      - 降级开关的灰度与回滚
+      - 限速保护与熔断
+      - 主备切换的数据一致性
+    activation_signal_hints:
+      - "dr / failover / multi-region 命名"
+      - 灾备演练脚本
+    cross_dimensions:
+      - D12
+
+  XSEC-01:
+    name: 跨时区与交易时段
+    owner_phase: generation
+    core_concerns:
+      - 美股盘前 / 盘中 / 盘后时段
+      - 夏令时与冬令时切换
+      - 港股交易时段
+      - 跨时段订单生命周期
+      - 隔夜挂单处理
+      - "跨时区时间字段标准化（UTC 存储 + 时区转换显示）"
+    must_check_items:
+      - 时区切换不丢单 / 不重单
+      - 隔夜挂单的状态机
+      - "时间字段统一 UTC 存储"
+      - 夏令时切换日的边界用例
+    activation_signal_hints:
+      - "ZoneId.of(\"America/New_York\")"
+      - "ZoneId.of(\"Asia/Hong_Kong\")"
+      - 夏令时切换处理代码
+
+  XSEC-02:
+    name: 多币种与外汇
+    owner_phase: generation
+    core_concerns:
+      - "USD / HKD / CNY 多币种账户"
+      - 汇率风险敞口
+      - 外汇结售汇
+      - 跨币种 PnL 计算
+      - "汇率定价基准（中间价 / 实时价 / 银行牌价）"
+    must_check_items:
+      - 多币种账户隔离
+      - 汇率快照口径
+      - 跨币种 PnL 一致性
+      - 结售汇额度控制
+    activation_signal_hints:
+      - "fx / currency / exchange-rate 模块"
+      - 外汇汇率服务依赖
+
+  XSEC-03:
+    name: 跨境合规与额度
+    owner_phase: review
+    core_concerns:
+      - "QDII / 港股通 / 北上资金 / 美股通额度管理"
+      - 外管局申报
+      - 跨境数据流转合规
+      - "投资者适当性（港股通开通条件、美股 W-8BEN 表填写）"
+    must_check_items:
+      - 额度实时校验
+      - 外管局申报数据准确性
+      - 跨境数据出境合规
+      - W-8BEN / KYC 跨境扩展
+    activation_signal_hints:
+      - "qdii / northbound / southbound / w-8ben 模块"
+      - 跨境额度服务
+    cross_dimensions:
+      - IND-02
+      - SEC-05
+
+  XSEC-04:
+    name: 跨境行情源
+    owner_phase: generation
+    core_concerns:
+      - HKEx / NASDAQ / NYSE 直连或转发
+      - "不同延迟级别（实时 / 15 分钟延迟 / 1 分钟延迟）"
+      - "第三方行情商（彭博 / Refinitiv / WIND）接入"
+      - 行情授权与计费
+      - 行情合规与展示限制
+    must_check_items:
+      - 行情授权与计费对账
+      - 跨境行情源切换路径
+      - 行情合规展示
+      - 第三方依赖故障演练
+    activation_signal_hints:
+      - "HKEx / NASDAQ / NYSE / Bloomberg / Refinitiv 接入代码"
+    cross_dimensions:
+      - SEC-01
+
+  XSEC-05:
+    name: 交易规则差异
+    owner_phase: generation
+    core_concerns:
+      - 港股 T+0 撤单 vs A 股 T+1
+      - "Lot size（手数）差异"
+      - "美股盘前盘后交易（4:00–9:30 / 16:00–20:00 ET）"
+      - "Limit-on-close 等特殊订单类型"
+      - "最小报价单位（tick size）"
+      - 停牌与熔断规则差异
+      - 做空与融券规则差异
+    must_check_items:
+      - 不同市场撤单规则
+      - 手数 / tick size 校验
+      - 特殊订单类型支持矩阵
+      - 停牌 / 熔断处置
+    activation_signal_hints:
+      - "us-stock / hk-stock 交易规则模块"
+
+  XSEC-06:
+    name: 跨境结算与税务
+    owner_phase: review
+    core_concerns:
+      - T+2 国际结算惯例
+      - 外汇交收链路
+      - "美股股息预扣税（30% 默认 / 协议优惠）"
+      - 港股印花税
+      - "跨境清算路径（DTCC / CCASS / 中国结算）"
+      - "税务报告（1042-S / 1099-DIV）"
+    must_check_items:
+      - 税务报告生成与对账
+      - 股息预扣税口径
+      - 跨境清算路径选择
+      - 税务对客披露
+    activation_signal_hints:
+      - "1042-s / 1099-div / withholding-tax 模块"
+      - "DTCC / CCASS 清算接入"
+    cross_dimensions:
+      - SEC-04
+      - IND-02

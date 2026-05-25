@@ -40,18 +40,7 @@ apps:kaz-app / 原生宿主
 
 ## P1 KMP 业务能力必须保持 UseCase -> Repository 的依赖方向
 
-```yaml
-status: draft
-level: P1
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -83,18 +72,7 @@ superseded_by: null
 
 ## P1 KMP Presenter 应以状态流驱动页面而不是直接操作原生 UI
 
-```yaml
-status: draft
-level: P1
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -125,18 +103,7 @@ superseded_by: null
 
 ## P2 KMP 模块矩阵应按 core / business / app 分层维护
 
-```yaml
-status: draft
-level: P2
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: low
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -164,18 +131,7 @@ superseded_by: null
 
 ## P2 KMP 桥接 object 统一封装 Service 访问，Android 侧不直接持有 Service 实例
 
-```yaml
-status: draft
-level: P2
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -216,18 +172,7 @@ object WatchListKmp {
 
 ## P2 KMP Presenter 的 EffectFlow 用于一次性副作用，不用于持久状态
 
-```yaml
-status: draft
-level: P2
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: low
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 

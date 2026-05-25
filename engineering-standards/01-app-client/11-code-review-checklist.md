@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-code-review-checklist-archived"
+title: "APP Code Review Checklist（已归档）"
+domain: "app-client"
+sub_domain: "common"
+doc_type: "review-checklist"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: false
+superseded_by: "review-checklist.md"
+tags:
+  - "app-client"
+  - "common"
+  - "review-checklist"
+  - "archived"
+---
+
+> ⚠️ **本文件已归档**：内容由 `review-checklist.md` 取代（standard-{sub_domain}.md 派生汇总视图）。本文件保留只为历史回溯，reviewer 应使用 `review-checklist.md`。
+
 # APP Code Review Checklist
 
 ## 1. 架构合规

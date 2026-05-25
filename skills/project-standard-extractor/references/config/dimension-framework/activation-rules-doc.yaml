@@ -1,0 +1,141 @@
+end: doc
+version: v0.1.0
+
+subdomain_signals:
+  wiki-export:
+    - signal_id: doc-wiki-frontmatter
+      type: doc-content
+      weight: 1
+      patterns:
+        - "frontmatter:source=wiki"
+        - "frontmatter:source=wiki-export"
+        - "frontmatter:source=confluence"
+        - "frontmatter:source=confluence-export"
+
+dimensions:
+  EA-Doc-Glossary:
+    state_default: candidate
+    combination: any
+    signals:
+      - signal_id: doc-glossary-file
+        type: doc-content
+        weight: 2
+        patterns:
+          - "**/glossary*.md"
+          - "**/terms*.md"
+          - "**/ubiquitous-language*.md"
+      - signal_id: doc-glossary-heading
+        type: doc-content
+        weight: 1
+        patterns:
+          - "heading:^#\\s*(术语表|Glossary|Ubiquitous Language|Business Terms)"
+      - signal_id: doc-glossary-wiki
+        type: doc-content
+        weight: 2
+        patterns:
+          - "wiki-export:**/glossary*.md"
+          - "wiki-export:**/术语*.md"
+
+  EA-Doc-DomainModel:
+    state_default: candidate
+    combination: any
+    signals:
+      - signal_id: doc-domain-model-file
+        type: doc-content
+        weight: 2
+        patterns:
+          - "**/domain-model*.md"
+          - "**/ddd*.md"
+          - "**/bounded-context*.md"
+      - signal_id: doc-architecture-file
+        type: doc-content
+        weight: 1
+        patterns:
+          - "**/architecture*.md"
+          - "**/arch*.md"
+      - signal_id: doc-domain-heading
+        type: doc-content
+        weight: 1
+        patterns:
+          - "heading:^#\\s*(领域模型|Bounded Context|Domain Model|上下文映射|Context Map)"
+
+  EA-Doc-Standard:
+    state_default: candidate
+    combination: any
+    signals:
+      - signal_id: doc-contributing-md
+        type: doc-content
+        weight: 2
+        patterns:
+          - "**/CONTRIBUTING.md"
+          - "**/CONTRIBUTING.rst"
+      - signal_id: doc-style-guide
+        type: doc-content
+        weight: 2
+        patterns:
+          - "**/STYLE.md"
+          - "**/STYLE_GUIDE.md"
+          - "**/style-guide.md"
+          - "**/coding-standards.md"
+      - signal_id: doc-convention-dir
+        type: doc-content
+        weight: 1
+        patterns:
+          - "**/docs/standard*.md"
+          - "**/docs/conventions*.md"
+          - "**/docs/guidelines*.md"
+          - "**/docs/development*.md"
+
+  EA-Doc-API:
+    state_default: candidate
+    combination: any
+    signals:
+      - signal_id: doc-openapi-yaml
+        type: doc-content
+        weight: 2
+        patterns:
+          - "**/openapi*.yaml"
+          - "**/openapi*.json"
+      - signal_id: doc-swagger-yaml
+        type: doc-content
+        weight: 2
+        patterns:
+          - "**/swagger*.yaml"
+          - "**/swagger*.json"
+      - signal_id: doc-graphql-schema
+        type: doc-content
+        weight: 2
+        patterns:
+          - "**/*.graphql"
+          - "**/schema.graphql"
+      - signal_id: doc-openapi-field
+        type: doc-content
+        weight: 1
+        patterns:
+          - "top-level:openapi"
+          - "top-level:swagger"
+          - "top-level:paths"
+
+  EA-Doc-Decision:
+    state_default: baseline
+    combination: any
+    rationale: "ADR/RFC 属于高风险治理维度；无文档时保留 baseline/pending 确认入口。"
+    signals:
+      - signal_id: doc-adr-dir
+        type: doc-content
+        weight: 2
+        patterns:
+          - "**/docs/adr/*.md"
+          - "**/docs/decisions/*.md"
+          - "**/.adr/*.md"
+      - signal_id: doc-rfc-dir
+        type: doc-content
+        weight: 2
+        patterns:
+          - "**/docs/rfc/*.md"
+          - "**/rfc/*.md"
+      - signal_id: doc-adr-heading
+        type: doc-content
+        weight: 1
+        patterns:
+          - "heading:^# (ADR|RFC|Decision)-\\d+"

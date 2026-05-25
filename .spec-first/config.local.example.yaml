@@ -1,0 +1,3 @@
+# Spec-First -- local project config
+# Copy to .spec-first/config.local.yaml in your project root.
+# All settings are optional. Invalid values are ignored or fall back per setting.

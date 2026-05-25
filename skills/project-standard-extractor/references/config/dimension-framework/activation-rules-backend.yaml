@@ -1,0 +1,110 @@
+# activation-rules-backend.yaml
+# 后端端 adapter 激活规则；schema = activation-rules.schema.json
+# 三态默认：baseline 维度引用自 baseline-dimensions.yaml；其他维度 state_default=candidate，命中后变 activated。
+# 高风险维度（鉴权/MQ/风控）使用 weighted + threshold 减少误判。
+
+end: backend
+version: v0.1.0
+
+subdomain_signals:
+  java:
+    - { signal_id: java-pom,           type: file_existence, paths: ["**/pom.xml"] }
+    - { signal_id: java-gradle,        type: file_existence, paths: ["**/build.gradle", "**/build.gradle.kts"] }
+    - { signal_id: java-source,        type: file_existence, paths: ["**/src/main/java/**", "**/src/main/kotlin/**"] }
+  python:
+    - { signal_id: py-requirements,    type: file_existence, paths: ["**/requirements.txt", "**/Pipfile", "**/pyproject.toml"] }
+    - { signal_id: py-source,          type: file_existence, paths: ["**/*.py"] }
+  go:
+    - { signal_id: go-mod,             type: file_existence, paths: ["**/go.mod"] }
+    - { signal_id: go-source,          type: file_existence, paths: ["**/*.go"] }
+  node:
+    - { signal_id: node-package,       type: file_existence, paths: ["**/package.json"] }
+    - { signal_id: node-server-deps,   type: dependency,     patterns: ["express", "koa", "fastify", "@nestjs/core", "hapi"] }
+
+dimensions:
+  EA-Backend-01:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: api-controller,    type: grep, patterns: ["@RestController", "@Controller", "@RequestMapping", "@GetMapping", "@PostMapping"], include_paths: ["**/*.java", "**/*.kt"] }
+      - { signal_id: api-fastapi,       type: grep, patterns: ["@app\\.(get|post|put|delete)", "APIRouter\\("], include_paths: ["**/*.py"] }
+      - { signal_id: api-grpc-proto,    type: file_existence, paths: ["**/*.proto"] }
+      - { signal_id: api-openapi,       type: file_existence, paths: ["**/openapi.yaml", "**/openapi.json", "**/swagger.yaml", "**/swagger.json"] }
+      - { signal_id: api-node-router,   type: grep, patterns: ["app\\.(get|post|put|delete)\\(", "router\\.(get|post|put|delete)\\(", "@(Get|Post|Put|Delete)\\("], include_paths: ["**/*.ts", "**/*.js"] }
+
+  EA-Backend-02:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: orm-libs,          type: dependency, patterns: ["spring-data-jpa", "mybatis", "hibernate", "sqlalchemy", "django", "gorm", "ent.", "typeorm", "prisma", "sequelize"] }
+      - { signal_id: migrations-dir,    type: file_existence, paths: ["**/migrations/**", "**/db/changelog/**", "**/flyway/**", "**/liquibase/**"] }
+      - { signal_id: transactional-anno, type: grep, patterns: ["@Transactional", "BEGIN TRANSACTION", "transaction.atomic"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts"] }
+
+  EA-Backend-03:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: cache-libs,        type: dependency, patterns: ["spring-data-redis", "lettuce", "jedis", "redis-py", "go-redis", "ioredis", "caffeine"] }
+      - { signal_id: cache-anno,        type: grep, patterns: ["@Cacheable", "@CachePut", "@CacheEvict"], include_paths: ["**/*.java", "**/*.kt"] }
+      - { signal_id: cache-key-usage,   type: grep, patterns: ["redisTemplate\\.opsFor", "cache.set\\(", "cache.get\\("], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+
+  EA-Backend-04:
+    state_default: candidate
+    combination: weighted
+    threshold: 2
+    rationale: MQ 维度涉及生产/消费/死信多链路，单一依赖（仅 jar 包）不足以判定真实接入；要求依赖 + 调用证据交叉。
+    signals:
+      - { signal_id: mq-deps,           type: dependency, patterns: ["rocketmq-spring-boot-starter", "spring-kafka", "kafka-clients", "rabbitmq", "amqp-client", "pulsar-client", "sarama", "kafkajs", "amqplib"], weight: 1 }
+      - { signal_id: mq-listener-anno,  type: grep, patterns: ["@RocketMQMessageListener", "@KafkaListener", "@RabbitListener", "@StreamListener"], include_paths: ["**/*.java", "**/*.kt"], weight: 2 }
+      - { signal_id: mq-producer-call,  type: grep, patterns: ["KafkaTemplate", "RocketMQTemplate", "rabbitTemplate", "kafka\\.send\\(", "producer\\.send\\("], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"], weight: 1 }
+
+  EA-Backend-05:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: thread-pool,       type: grep, patterns: ["ThreadPoolExecutor", "ForkJoinPool", "asyncio.gather", "errgroup"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: rate-limit-deps,   type: dependency, patterns: ["sentinel-core", "resilience4j", "redisson", "curator", "bucket4j", "ratelimiter"] }
+      - { signal_id: rate-limit-anno,   type: grep, patterns: ["@SentinelResource", "@RateLimiter", "@CircuitBreaker"], include_paths: ["**/*.java", "**/*.kt"] }
+
+  EA-Backend-06:
+    state_default: candidate
+    combination: weighted
+    threshold: 2
+    rationale: 鉴权属高风险维度，要求依赖 + 业务代码命中；单一 starter 依赖可能仅默认配置未启用。
+    signals:
+      - { signal_id: auth-deps,         type: dependency, patterns: ["spring-security", "spring-boot-starter-security", "spring-security-oauth2", "djoser", "django-rest-framework-simplejwt", "passport", "@nestjs/jwt", "@nestjs/passport"], weight: 1 }
+      - { signal_id: auth-config,       type: grep, patterns: ["SecurityFilterChain", "WebSecurityConfigurerAdapter", "@PreAuthorize", "@RolesAllowed", "JwtAuthenticationFilter"], include_paths: ["**/*.java", "**/*.kt"], weight: 2 }
+      - { signal_id: jwt-handling,      type: grep, patterns: ["JwtBuilder", "Jwts\\.parser", "verify\\(token", "jwt\\.decode\\("], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"], weight: 1 }
+
+  EA-Backend-07:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: config-deps,       type: dependency, patterns: ["nacos", "apollo-client", "consul", "spring-cloud-vault", "vault", "spring-cloud-config-client"] }
+      - { signal_id: config-files,      type: file_existence, paths: ["**/application.yml", "**/application-*.yml", "**/application.properties", "**/references/config/*.yaml", "**/.env.*"] }
+      - { signal_id: config-anno,       type: grep, patterns: ["@ConfigurationProperties", "@RefreshScope", "@Value\\("], include_paths: ["**/*.java", "**/*.kt"] }
+
+  EA-Backend-08:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: log-config,        type: file_existence, paths: ["**/log4j2.xml", "**/logback.xml", "**/logback-spring.xml", "**/log4j2.yml"] }
+      - { signal_id: tracing-deps,      type: dependency, patterns: ["opentelemetry", "skywalking", "spring-cloud-sleuth", "zipkin", "jaeger-client"] }
+      - { signal_id: metrics-deps,      type: dependency, patterns: ["micrometer", "prometheus", "@opentelemetry/", "prom-client"] }
+      - { signal_id: error-tracking,    type: dependency, patterns: ["sentry", "@sentry/", "bugsnag"] }
+
+  EA-Backend-09:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: dockerfile,        type: file_existence, paths: ["**/Dockerfile", "**/Dockerfile.*"] }
+      - { signal_id: k8s-manifests,     type: file_existence, paths: ["**/deployment.yaml", "**/k8s/**", "**/charts/**/values.yaml"] }
+      - { signal_id: graceful-shutdown, type: grep, patterns: ["graceful-shutdown", "shutdownGracefully", "preStop", "SIGTERM"], include_paths: ["**/*.yml", "**/*.yaml", "**/*.java", "**/*.kt", "**/*.go", "**/*.ts"] }
+
+  EA-Backend-10:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: exception-handler, type: grep, patterns: ["@ControllerAdvice", "@ExceptionHandler", "@RestControllerAdvice"], include_paths: ["**/*.java", "**/*.kt"] }
+      - { signal_id: retry-deps,        type: dependency, patterns: ["spring-retry", "resilience4j-retry", "tenacity", "retry"] }
+      - { signal_id: error-code-enum,   type: grep, patterns: ["enum.*ErrorCode", "class.*BusinessException"], include_paths: ["**/*.java", "**/*.kt"] }

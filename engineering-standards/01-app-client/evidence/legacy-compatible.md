@@ -1,8 +1,9 @@
 ---
-doc_id: "app-client-module-boundary-evidence-legacy"
-title: "APP Module Boundary Legacy Compatible Examples"
+doc_id: "app-client-evidence-legacy"
+title: "APP Legacy Compatible Examples"
 domain: "app-client"
-sub_domain: "module-boundary"
+sub_domains:
+  - "android"
 doc_type: "evidence-legacy"
 version: "v0.1.0"
 status: "draft"
@@ -10,16 +11,19 @@ owner: "TBD"
 index_format: "engineering-standards-md-v1"
 indexable: true
 run_id: "20260522-100947-app-client"
-source_batch: "app-client-module-boundary-contract-layer"
+source_batches:
+  - "app-client-android-core-ui-state"
+  - "app-client-android-trade-route-provider"
+  - "app-client-android-trade-account-page-composition"
 tags:
   - "app-client"
-  - "module-boundary"
+  - "evidence"
   - "legacy-compatible"
 ---
 
-# APP Module Boundary Legacy Compatible Examples
+# APP Legacy Compatible Examples
 
-本 batch 未产生历史兼容条目。
+下列条目记录跨多个 batch 的历史兼容写法，AI 不应复制扩散，但兼容期内允许保留。
 
 ## LEG-APP-1: core-ui-kit 直接依赖聚合 KMP 入口
 

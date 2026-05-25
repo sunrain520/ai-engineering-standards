@@ -23,18 +23,7 @@ tags:
 
 ## P1 跨域协作必须通过 contract 稳定边界
 
-```yaml
-status: active
-level: P1
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: APP 架构负责人
-last_reviewed: "2026-05-22"
-recommended_action: promote-to-active
-conflicts_with: []
-superseded_by: null
-```
+> level: P1 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: APP 架构负责人 · last_reviewed: 2026-05-22 · recommended_action: promote-to-active
 
 ### 适用范围
 
@@ -80,18 +69,7 @@ superseded_by: null
 
 ## P2 contract 模块应保持依赖轻量
 
-```yaml
-status: active
-level: P2
-source_kind: owner-confirmed
-evidence_tier: single-project
-risk_tag: low
-owner: APP 架构负责人
-last_reviewed: "2026-05-22"
-recommended_action: promote-to-active
-conflicts_with: []
-superseded_by: null
-```
+> level: P2 · status: active · source_kind: owner-confirmed · evidence_tier: single-project · risk_tag: low · owner: APP 架构负责人 · last_reviewed: 2026-05-22 · recommended_action: promote-to-active
 
 ### 适用范围
 

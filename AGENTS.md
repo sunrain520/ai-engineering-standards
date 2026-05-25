@@ -20,15 +20,18 @@
 - 本 block 只做轻量 workflow entry context router；完整路由策略在 `skills/using-spec-first/SKILL.md`
 - substantial work 前先判断是否进入公开 spec-first workflow；轻量问答和窄事实查询可直接回答；已在 workflow 或 bounded subagent 中时不重新分流
 - 按当前意图选择一个入口；不要默认进入 `spec-brainstorm`，不要自动串联多个 workflow；用户询问下一步时，用 `using-spec-first` guide mode 推荐一个入口、一个理由、一个动作
-- 父级多仓 workspace：只读代码问题可用 `workspace-graph-targets.v1` advisory facts；写入、修复、测试、review autofix 或 commit 前必须有明确 `target_repo` / per-child scope
+- 父级多仓 workspace：只读代码问题可用 `workspace-graph-targets.v1` advisory facts 和 `workspace-gitnexus-readiness.v1` 的 group-ready / bounded-fallback 提示；写入、修复、测试、review autofix 或 commit 前必须有明确 `target_repo` / per-child scope
 - Runtime context 默认排除 `.spec-first/audits/**` 和 generated mirrors（`.claude/**`、`.codex/**`、`.agents/skills/**`）；只有 setup/update/runtime-drift/audit 等明确运行时任务按需读取
 - Codex workflow 入口使用 `$spec-*`
 - 不要把 `using-spec-first` 写成 `/spec:*` 或 command-backed workflow；不要直接暴露 internal-only skills，例如 `git-worktree`
 - Codex：进入公开 `$spec-*` 前可 best-effort 运行 `spec-first startup-reminder --codex`；失败/空输出不阻塞，只提示 `$spec-update`，bounded subagents、leaf reviewers、worker agents 不运行
 - Codex：公开 `$spec-*` 调用即授权该 workflow 文档化的只读 reviewer/researcher phase；`$spec-doc-review` 默认多 persona dispatch，仅 report-only/no-agents、dispatch/runtime 缺失或安全边界不满足时降级
-- 常见入口锚点：环境/MCP→`$spec-mcp-setup`；graph readiness→`$spec-graph-bootstrap`；项目规范/胶水→`$spec-standards`；更新/runtime 修复→`$spec-update`；bug/失败→`$spec-debug`；代码/文档评审→`$spec-code-review`/`$spec-doc-review`；需求/计划/任务/执行→`$spec-brainstorm`/`$spec-plan`/`spec-write-tasks`/`$spec-work`；可度量优化→`$spec-optimize`
+- 常见入口锚点：环境/MCP→`$spec-mcp-setup`；graph readiness→`$spec-graph-bootstrap`；更新/runtime 修复→`$spec-update`；bug/失败→`$spec-debug`；代码/文档评审→`$spec-code-review`/`$spec-doc-review`；需求/计划/任务/执行→`$spec-brainstorm`/`$spec-plan`/`spec-write-tasks`/`$spec-work`；可度量优化→`$spec-optimize`
 <!-- spec-first:bootstrap:end -->
 
+## 项目知识库
+
+- `docs/solutions/` 累积过去问题解决方案与最佳实践（bug、workflow pattern、architecture/design pattern 等），按 `problem_type` 分类目录组织，文件含 YAML frontmatter（`module`、`tags`、`problem_type`、`component`、`severity`），相关于在已记录领域实现或调试时
 <!-- spec-first:coding-guidelines:start -->
 ## 编码执行准则
 
@@ -100,3 +103,11 @@ LLM 经常默默选择一种解释然后执行。这个原则强制明确推理�
 - 不确定的 optional 参数不要传空字符串、空数组或占位值。
 - 宿主文件读取工具读取文本文件时，只传文件路径和必要的范围参数；`pages` 等分页参数只用于真实 PDF/分页文档且不能是 `""`。
 <!-- spec-first:coding-guidelines:end -->
+
+<!-- gitnexus:start -->
+# GitNexus — Code Intelligence
+
+本项目已配置 GitNexus 图谱支持，仓库标识：**ai-engineering-standards**。
+
+代码查询、影响分析、代码理解类任务，**必须先**读取 `.spec-first/graph/graph-facts.json`，确认 `capabilities.query_global_graph` 为 true 且 `provider_summary.ready_primary_providers` 包含 `gitnexus`；可用时**使用 GitNexus 作为首选工具**，不可用时 fallback 到 grep/Read 并说明降级原因。GitNexus 结果与源码或测试冲突时，优先采用已验证事实。
+<!-- gitnexus:end -->

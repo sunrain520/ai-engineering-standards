@@ -1,0 +1,210 @@
+# activation-rules-industry.yaml
+# 行业 adapter 激活规则：行业通用层 IND-* + 证券子领域 SEC-* / XSEC-*；schema = activation-rules.schema.json
+# 证券为公司主营子领域，独立于其他行业子领域，与 dimensions-industry-securities.yaml 一一对应。
+# 高风险维度（SEC-03 风控 / SEC-06 监管 / XSEC-01 时区 / XSEC-03 跨境合规）使用 weighted + threshold。
+
+end: industry
+version: v0.1.0
+
+subdomain_signals:
+  finance-nonsec:
+    - { signal_id: fin-payment-keys,   type: grep, patterns: ["balance", "amount", "refund", "payment", "withdraw"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+  ecommerce:
+    - { signal_id: ecom-keys,          type: grep, patterns: ["sku", "cart", "checkout", "order_item", "shipping"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+  education:
+    - { signal_id: edu-keys,           type: grep, patterns: ["course", "enrollment", "lesson", "student"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+  healthcare:
+    - { signal_id: hc-keys,            type: grep, patterns: ["patient", "prescription", "diagnosis", "phi", "ehr"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+  goventerprise:
+    - { signal_id: gov-keys,           type: grep, patterns: ["citizen", "approval", "filing", "gov-cloud", "等保"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+  saas:
+    - { signal_id: saas-keys,          type: grep, patterns: ["tenant", "workspace", "subscription", "billing", "seat"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+  core-securities:
+    - { signal_id: sec-trading,        type: grep, patterns: ["order", "trade", "match", "quote", "broker", "exchange"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+    - { signal_id: sec-fix-deps,       type: dependency, patterns: ["quickfixj", "ctp", "fix-protocol", "tdx-api"] }
+  cross-border:
+    - { signal_id: xsec-keys,          type: grep, patterns: ["qdii", "northbound", "southbound", "hkex", "nasdaq", "w-?8ben"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+    - { signal_id: xsec-timezone,      type: grep, patterns: ["America/New_York", "Asia/Hong_Kong", "ZoneId\\.of"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+
+dimensions:
+  IND-01:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: high-risk-modules, type: file_existence, paths: ["**/payment/**", "**/order/**", "**/risk/**", "**/account/**", "**/wallet/**"] }
+      - { signal_id: high-risk-keys,    type: grep, patterns: ["balance", "amount", "refund", "consent", "kyc"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+
+  IND-02:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: privacy-policy,    type: file_existence, paths: ["**/privacy*.md", "**/PRIVACY*.md", "**/legal/**"] }
+      - { signal_id: consent-code,      type: grep, patterns: ["consent", "gdpr", "ccpa", "personalDataProtection"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+      - { signal_id: compliance-deps,   type: dependency, patterns: ["onetrust", "trustarc", "iubenda"] }
+
+  IND-03:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: sensitive-anno,    type: grep, patterns: ["@Sensitive", "@Encrypted", "@PII", "@Pci"], include_paths: ["**/*.java", "**/*.kt"] }
+      - { signal_id: encrypt-libs,      type: dependency, patterns: ["jasypt", "bouncycastle", "cryptography", "tink"] }
+      - { signal_id: mask-funcs,        type: grep, patterns: ["maskPhone", "maskIdCard", "desensitize", "anonymize"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+
+  IND-04:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: audit-tables,      type: grep, patterns: ["audit_log", "audit_trail", "operation_log"], include_paths: ["**/*.sql", "**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+      - { signal_id: audit-anno,        type: grep, patterns: ["@Audit", "@Auditable", "@Loggable"], include_paths: ["**/*.java", "**/*.kt"] }
+
+  IND-05:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: domain-dir,        type: file_existence, paths: ["**/domain/**", "**/ddd/**"] }
+      - { signal_id: acl-naming,        type: grep, patterns: ["AntiCorruption", "anti_corruption", "acl_translator"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+      - { signal_id: glossary-file,     type: file_existence, paths: ["**/glossary*.md", "**/术语*.md", "**/domain-terms*.md"] }
+
+  IND-06:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: distributed-tx,    type: dependency, patterns: ["seata", "narayana", "atomikos", "saga"] }
+      - { signal_id: reconcile-naming,  type: grep, patterns: ["reconcile", "reconciliation", "compensation", "对账"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.ts", "**/*.go"] }
+
+  SEC-01:
+    state_default: candidate
+    combination: any
+    subdomain: core-securities
+    signals:
+      - { signal_id: market-data-naming, type: grep, patterns: ["MarketData", "Quote", "Level2", "Tick", "snapshot"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: market-data-deps,   type: dependency, patterns: ["tdx-api", "tdf-sdk", "wind-api", "level2-sdk"] }
+
+  SEC-02:
+    state_default: candidate
+    combination: any
+    subdomain: core-securities
+    signals:
+      - { signal_id: order-state,       type: grep, patterns: ["OrderStatus", "OrderState", "FOK", "IOC", "GTC", "limit_order", "market_order"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: trading-gateway,   type: dependency, patterns: ["quickfixj", "ctp-api", "fix-protocol"] }
+
+  SEC-03:
+    state_default: candidate
+    combination: weighted
+    threshold: 2
+    subdomain: core-securities
+    rationale: 风控为证券高风险维度，要求规则引擎依赖 + 业务实现交叉，避免仅 starter jar 即激活。
+    signals:
+      - { signal_id: risk-rule-engine,  type: dependency, patterns: ["drools", "easy-rules", "openrules"], weight: 1 }
+      - { signal_id: risk-naming,       type: grep, patterns: ["RiskControl", "PreTradeRisk", "selfTrade", "AntiWashTrade", "AML"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"], weight: 2 }
+      - { signal_id: risk-modules,      type: file_existence, paths: ["**/risk/**", "**/aml/**", "**/risk-control/**"], weight: 1 }
+
+  SEC-04:
+    state_default: candidate
+    combination: any
+    subdomain: core-securities
+    signals:
+      - { signal_id: clearing-naming,   type: grep, patterns: ["clearing", "settlement", "CCASS", "DTCC", "T\\+1", "T\\+2"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: clearing-modules,  type: file_existence, paths: ["**/clearing/**", "**/settlement/**"] }
+
+  SEC-05:
+    state_default: candidate
+    combination: any
+    subdomain: core-securities
+    signals:
+      - { signal_id: account-naming,    type: grep, patterns: ["KYC", "Suitability", "MarginAccount", "OptionAccount", "northbound"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: kyc-modules,       type: file_existence, paths: ["**/kyc/**", "**/account/**", "**/suitability/**"] }
+
+  SEC-06:
+    state_default: candidate
+    combination: weighted
+    threshold: 2
+    rationale: 监管报送涉及不可篡改存证与时效约束，单一 audit 字段不足以覆盖；要求模块 + 报送任务 + 标签注入交叉。
+    signals:
+      - { signal_id: regulatory-modules, type: file_existence, paths: ["**/regulatory/**", "**/report/**", "**/compliance-report/**"], weight: 1 }
+      - { signal_id: report-task,        type: grep, patterns: ["RegulatoryReport", "submitToRegulator", "ReportingJob", "WORM"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"], weight: 2 }
+      - { signal_id: regulatory-tag,     type: grep, patterns: ["@Regulated", "@AuditTrail", "regulatoryTag"], include_paths: ["**/*.java", "**/*.kt"], weight: 1 }
+
+  SEC-07:
+    state_default: candidate
+    combination: any
+    subdomain: core-securities
+    signals:
+      - { signal_id: trading-calendar,  type: grep, patterns: ["TradingCalendar", "TradingSession", "trading_day", "is_trading_day"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: holiday-naming,    type: grep, patterns: ["holiday", "session", "preMarket", "afterHours"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+
+  SEC-08:
+    state_default: candidate
+    combination: any
+    subdomain: core-securities
+    signals:
+      - { signal_id: protocol-deps,     type: dependency, patterns: ["quickfixj", "ctp-api", "tdx-api", "fix-protocol"] }
+      - { signal_id: low-latency-naming, type: grep, patterns: ["RDMA", "kernel-bypass", "shared-memory", "zero-copy"], include_paths: ["**/*.java", "**/*.kt", "**/*.cpp", "**/*.go"] }
+
+  SEC-09:
+    state_default: candidate
+    combination: any
+    subdomain: core-securities
+    signals:
+      - { signal_id: pricing-naming,    type: grep, patterns: ["BlackScholes", "MonteCarlo", "Greeks", "Delta", "Gamma", "Vega", "VaR"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.cpp"] }
+      - { signal_id: numerics-deps,     type: dependency, patterns: ["quantlib", "numpy", "scipy", "commons-math3", "apache-commons-math"] }
+
+  SEC-10:
+    state_default: candidate
+    combination: any
+    subdomain: core-securities
+    signals:
+      - { signal_id: dr-naming,         type: grep, patterns: ["DisasterRecovery", "Failover", "MultiRegion", "ActiveActive", "切换"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: dr-modules,        type: file_existence, paths: ["**/dr/**", "**/failover/**", "**/multi-region/**"] }
+
+  XSEC-01:
+    state_default: candidate
+    combination: weighted
+    threshold: 2
+    rationale: 跨时区维度需 ZoneId 使用 + 隔夜挂单状态机交叉，单一 ZoneId 调用可能仅展示用，未触及交易状态机。
+    signals:
+      - { signal_id: zone-id-usage,     type: grep, patterns: ["ZoneId\\.of\\(\"America/New_York\"\\)", "ZoneId\\.of\\(\"Asia/Hong_Kong\"\\)", "America/New_York", "Asia/Hong_Kong"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"], weight: 1 }
+      - { signal_id: dst-handling,      type: grep, patterns: ["daylight saving", "DaylightSavings", "夏令时", "summer time"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"], weight: 1 }
+      - { signal_id: overnight-order,   type: grep, patterns: ["GTC", "overnight", "preMarket", "afterHours", "extendedHours"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"], weight: 2 }
+
+  XSEC-02:
+    state_default: candidate
+    combination: any
+    subdomain: cross-border
+    signals:
+      - { signal_id: fx-naming,         type: grep, patterns: ["FxRate", "ExchangeRate", "Currency", "USD", "HKD", "settlement_fx"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: fx-modules,        type: file_existence, paths: ["**/fx/**", "**/currency/**", "**/exchange-rate/**"] }
+
+  XSEC-03:
+    state_default: candidate
+    combination: weighted
+    threshold: 2
+    rationale: 跨境合规涉及监管申报与额度，单一关键词易误命中（如 W-8BEN 文档），要求模块 + 业务代码交叉。
+    signals:
+      - { signal_id: cross-border-modules, type: file_existence, paths: ["**/qdii/**", "**/northbound/**", "**/southbound/**", "**/cross-border/**"], weight: 2 }
+      - { signal_id: w8ben-naming,         type: grep, patterns: ["W-?8BEN", "W-?8", "外管局", "FXReporting"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"], weight: 1 }
+      - { signal_id: quota-naming,         type: grep, patterns: ["Quota", "northboundQuota", "southboundQuota", "投资额度"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"], weight: 1 }
+
+  XSEC-04:
+    state_default: candidate
+    combination: any
+    subdomain: cross-border
+    signals:
+      - { signal_id: market-source-naming, type: grep, patterns: ["HKEx", "NASDAQ", "NYSE", "Bloomberg", "Refinitiv", "Reuters"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: market-source-deps,   type: dependency, patterns: ["bloomberg-blpapi", "refinitiv-eikon", "wind-api"] }
+
+  XSEC-05:
+    state_default: candidate
+    combination: any
+    subdomain: cross-border
+    signals:
+      - { signal_id: market-rule-naming,   type: grep, patterns: ["lotSize", "tickSize", "limitOnClose", "shortSelling", "marginTrading"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: market-rule-modules,  type: file_existence, paths: ["**/us-stock/**", "**/hk-stock/**", "**/cn-stock/**"] }
+
+  XSEC-06:
+    state_default: candidate
+    combination: any
+    subdomain: cross-border
+    signals:
+      - { signal_id: tax-naming,           type: grep, patterns: ["1042-?S", "1099-?DIV", "withholdingTax", "stampDuty", "印花税"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }
+      - { signal_id: clearing-cross-border, type: grep, patterns: ["DTCC", "CCASS", "中国结算"], include_paths: ["**/*.java", "**/*.kt", "**/*.py", "**/*.go"] }

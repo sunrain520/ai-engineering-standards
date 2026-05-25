@@ -42,18 +42,7 @@ app / feature / core modules
 
 ## P1 本地工程替换必须集中在根 settings 治理
 
-```yaml
-status: draft
-level: P1
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -82,18 +71,7 @@ superseded_by: null
 
 ## P2 快速构建开关只能跳过校验任务，不能改变产物语义
 
-```yaml
-status: draft
-level: P2
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 

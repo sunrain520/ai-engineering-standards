@@ -1,0 +1,656 @@
+{
+  "$comment": "U18 证券子领域 PoC 维度激活报告。schema=activation-report.v1。evidence_tier=synthetic-poc，全部 evidence 路径为 mock，仅用于验证 16 维骨架与三态激活机制。任何规则升级 active 前必须基于真实代码重萃。",
+  "schema": "activation-report.v1",
+  "run_id": "20260525-030800-industry",
+  "timestamp": "2026-05-25T03:08:00Z",
+  "project_paths": [
+    "/mock/demo-broker-platform"
+  ],
+  "last_commit": {
+    "sha": "synthetic-poc",
+    "iso_date": "2026-05-25T03:08:00Z",
+    "branch": "poc-mock"
+  },
+  "scope": {
+    "dev_domains": [
+      "industry"
+    ],
+    "sub_domains": [
+      "securities",
+      "core-securities",
+      "cross-border"
+    ],
+    "industry_domains": [
+      "securities"
+    ]
+  },
+  "gitnexus_readiness": {
+    "available": false,
+    "graph_facts_path": null,
+    "graph_mtime_iso": null,
+    "stale_days": null,
+    "fallback_used": true,
+    "state": "unavailable"
+  },
+  "dimensions": [
+    {
+      "dimension_id": "SEC-01",
+      "name": "行情系统",
+      "layer": "industry:securities",
+      "sub_domain": "core-securities",
+      "state": "activated",
+      "rationale": "market-data-naming + level2-sdk 双命中，订阅生命周期清晰",
+      "signals_evaluated": [
+        {
+          "id": "market-data-naming",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "market-data-deps",
+          "type": "dependency",
+          "hit": true,
+          "weight": 1,
+          "source": "dependency"
+        }
+      ],
+      "evidence_paths": [
+        "server/market-data/Level2Snapshot.java",
+        "pom.xml#level2-sdk"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.78,
+      "depth_indicator": "deep",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#sec-01"
+    },
+    {
+      "dimension_id": "SEC-02",
+      "name": "交易系统",
+      "layer": "industry:securities",
+      "sub_domain": "core-securities",
+      "state": "activated",
+      "rationale": "OrderStatus 枚举 + quickfixj 依赖双命中，状态机 6 终态完整",
+      "signals_evaluated": [
+        {
+          "id": "order-state",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "trading-gateway",
+          "type": "dependency",
+          "hit": true,
+          "weight": 1,
+          "source": "dependency"
+        }
+      ],
+      "evidence_paths": [
+        "server/trading/OrderStatusMachine.java",
+        "build.gradle#quickfixj-core"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.85,
+      "depth_indicator": "deep",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#sec-02"
+    },
+    {
+      "dimension_id": "SEC-03",
+      "name": "盘前与实时风控",
+      "layer": "industry:securities",
+      "sub_domain": "core-securities",
+      "state": "baseline",
+      "rationale": "weighted threshold=2 不达：仅 risk-modules 命中 weight=1；高风险维度 baseline 兜底",
+      "signals_evaluated": [
+        {
+          "id": "risk-rule-engine",
+          "type": "dependency",
+          "hit": false,
+          "weight": 1,
+          "source": "dependency"
+        },
+        {
+          "id": "risk-naming",
+          "type": "grep",
+          "hit": false,
+          "weight": 2,
+          "source": "grep"
+        },
+        {
+          "id": "risk-modules",
+          "type": "file_existence",
+          "hit": true,
+          "weight": 1,
+          "source": "file_existence"
+        }
+      ],
+      "evidence_paths": [
+        "server/risk-control/PreTradeRiskService.java"
+      ],
+      "evidence_count": 1,
+      "depth_score": 0.32,
+      "depth_indicator": "shallow",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#sec-03",
+      "owner_confirmations": [
+        {
+          "owner": "TBD",
+          "confirmed_at": null,
+          "decision": "deferred",
+          "evidence_ref": "pending-confirmation.md#sec-03"
+        }
+      ]
+    },
+    {
+      "dimension_id": "SEC-04",
+      "name": "清算与结算",
+      "layer": "industry:securities",
+      "sub_domain": "core-securities",
+      "state": "activated",
+      "rationale": "clearing-naming（CCASS/T+1）+ clearing-modules 双命中",
+      "signals_evaluated": [
+        {
+          "id": "clearing-naming",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "clearing-modules",
+          "type": "file_existence",
+          "hit": true,
+          "weight": 1,
+          "source": "file_existence"
+        }
+      ],
+      "evidence_paths": [
+        "server/clearing/CcassReconciliation.java",
+        "server/clearing/T1SettlementJob.java"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.71,
+      "depth_indicator": "deep",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#sec-04"
+    },
+    {
+      "dimension_id": "SEC-05",
+      "name": "账户与权限",
+      "layer": "industry:securities",
+      "sub_domain": "core-securities",
+      "state": "activated",
+      "rationale": "KYC/Suitability/MarginAccount 命名 + kyc 模块双命中",
+      "signals_evaluated": [
+        {
+          "id": "account-naming",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "kyc-modules",
+          "type": "file_existence",
+          "hit": true,
+          "weight": 1,
+          "source": "file_existence"
+        }
+      ],
+      "evidence_paths": [
+        "server/account/kyc/SuitabilityAssessment.java",
+        "server/account/MarginAccountService.java"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.76,
+      "depth_indicator": "deep",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#sec-05"
+    },
+    {
+      "dimension_id": "SEC-06",
+      "name": "监管报送与审计",
+      "layer": "industry:securities",
+      "sub_domain": "core-securities",
+      "state": "baseline",
+      "rationale": "weighted threshold=2 达成（regulatory-modules+report-task+regulatory-tag 总 weight=4）；高风险 baseline 强制章节",
+      "signals_evaluated": [
+        {
+          "id": "regulatory-modules",
+          "type": "file_existence",
+          "hit": true,
+          "weight": 1,
+          "source": "file_existence"
+        },
+        {
+          "id": "report-task",
+          "type": "grep",
+          "hit": true,
+          "weight": 2,
+          "source": "grep"
+        },
+        {
+          "id": "regulatory-tag",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        }
+      ],
+      "evidence_paths": [
+        "server/regulatory/RegulatoryReportingJob.java",
+        "server/regulatory/AuditTrailFilter.java"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.82,
+      "depth_indicator": "deep",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#sec-06"
+    },
+    {
+      "dimension_id": "SEC-07",
+      "name": "时序与交易日历",
+      "layer": "industry:securities",
+      "sub_domain": "core-securities",
+      "state": "activated",
+      "rationale": "TradingCalendar Singleton + holiday/preMarket/afterHours 命名双命中",
+      "signals_evaluated": [
+        {
+          "id": "trading-calendar",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "holiday-naming",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        }
+      ],
+      "evidence_paths": [
+        "server/trading-calendar/TradingCalendarService.java",
+        "server/trading-calendar/holiday.json"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.69,
+      "depth_indicator": "deep",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#sec-07"
+    },
+    {
+      "dimension_id": "SEC-08",
+      "name": "接入协议",
+      "layer": "industry:securities",
+      "sub_domain": "core-securities",
+      "state": "activated",
+      "rationale": "quickfixj-core 依赖命中；low-latency-naming miss（项目暂未做 RDMA/kernel-bypass）",
+      "signals_evaluated": [
+        {
+          "id": "protocol-deps",
+          "type": "dependency",
+          "hit": true,
+          "weight": 1,
+          "source": "dependency"
+        },
+        {
+          "id": "low-latency-naming",
+          "type": "grep",
+          "hit": false,
+          "weight": 1,
+          "source": "grep"
+        }
+      ],
+      "evidence_paths": [
+        "pom.xml#quickfixj-core",
+        "server/gateway-fix/FixGateway.java"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.65,
+      "depth_indicator": "deep",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#sec-08"
+    },
+    {
+      "dimension_id": "SEC-09",
+      "name": "金融工程与定价",
+      "layer": "industry:securities",
+      "sub_domain": "core-securities",
+      "state": "candidate",
+      "rationale": "经纪业务系统不做自营定价；pricing-naming 与 numerics-deps 全 miss",
+      "signals_evaluated": [
+        {
+          "id": "pricing-naming",
+          "type": "grep",
+          "hit": false,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "numerics-deps",
+          "type": "dependency",
+          "hit": false,
+          "weight": 1,
+          "source": "dependency"
+        }
+      ],
+      "evidence_paths": [],
+      "evidence_count": 0,
+      "depth_score": 0.0,
+      "depth_indicator": "-",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#sec-09",
+      "candidate_hint": {
+        "trigger_when": "新增 **/pricing/** 或 **/greeks/** 模块，或引入 quantlib/commons-math3 依赖",
+        "suggested_owner_question": "是否计划做自营定价/期权做市/衍生品业务？"
+      }
+    },
+    {
+      "dimension_id": "SEC-10",
+      "name": "灾备与稳定性",
+      "layer": "industry:securities",
+      "sub_domain": "core-securities",
+      "state": "baseline",
+      "rationale": "dr-naming + dr-modules 双命中，但无演练脚本/chaos engineering 配置；高风险 baseline 兜底 + pending-confirmation",
+      "signals_evaluated": [
+        {
+          "id": "dr-naming",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "dr-modules",
+          "type": "file_existence",
+          "hit": true,
+          "weight": 1,
+          "source": "file_existence"
+        }
+      ],
+      "evidence_paths": [
+        "server/disaster-recovery/FailoverController.java"
+      ],
+      "evidence_count": 1,
+      "depth_score": 0.45,
+      "depth_indicator": "shallow",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#sec-10",
+      "owner_confirmations": [
+        {
+          "owner": "TBD",
+          "confirmed_at": null,
+          "decision": "deferred",
+          "evidence_ref": "pending-confirmation.md#sec-10"
+        }
+      ]
+    },
+    {
+      "dimension_id": "XSEC-01",
+      "name": "跨时区与交易时段",
+      "layer": "industry:securities",
+      "sub_domain": "cross-border",
+      "state": "baseline",
+      "rationale": "weighted threshold=2 不达：仅 zone-id-usage 命中 weight=1；高风险 baseline 兜底",
+      "signals_evaluated": [
+        {
+          "id": "zone-id-usage",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "dst-handling",
+          "type": "grep",
+          "hit": false,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "overnight-order",
+          "type": "grep",
+          "hit": false,
+          "weight": 2,
+          "source": "grep"
+        }
+      ],
+      "evidence_paths": [
+        "app/hybrid/HKStockTradingPage.tsx"
+      ],
+      "evidence_count": 1,
+      "depth_score": 0.30,
+      "depth_indicator": "shallow",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#xsec-01",
+      "owner_confirmations": [
+        {
+          "owner": "TBD",
+          "confirmed_at": null,
+          "decision": "deferred",
+          "evidence_ref": "pending-confirmation.md#xsec-01"
+        }
+      ]
+    },
+    {
+      "dimension_id": "XSEC-02",
+      "name": "多币种与外汇",
+      "layer": "industry:securities",
+      "sub_domain": "cross-border",
+      "state": "activated",
+      "rationale": "FxRate/Currency 命名 + fx 模块双命中",
+      "signals_evaluated": [
+        {
+          "id": "fx-naming",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "fx-modules",
+          "type": "file_existence",
+          "hit": true,
+          "weight": 1,
+          "source": "file_existence"
+        }
+      ],
+      "evidence_paths": [
+        "server/fx/FxRateService.java",
+        "server/fx/Currency.java"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.74,
+      "depth_indicator": "deep",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#xsec-02"
+    },
+    {
+      "dimension_id": "XSEC-03",
+      "name": "跨境合规与额度",
+      "layer": "industry:securities",
+      "sub_domain": "cross-border",
+      "state": "baseline",
+      "rationale": "weighted threshold=2 达成（cross-border-modules weight=2）；高风险 baseline 强制章节，W-8BEN 业务代码 miss 标 owner 待确认",
+      "signals_evaluated": [
+        {
+          "id": "cross-border-modules",
+          "type": "file_existence",
+          "hit": true,
+          "weight": 2,
+          "source": "file_existence"
+        },
+        {
+          "id": "w8ben-naming",
+          "type": "grep",
+          "hit": false,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "quota-naming",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        }
+      ],
+      "evidence_paths": [
+        "server/cross-border/qdii/QdiiQuotaService.java",
+        "server/cross-border/northbound/NorthboundQuotaValidator.java"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.62,
+      "depth_indicator": "deep",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#xsec-03",
+      "owner_confirmations": [
+        {
+          "owner": "TBD",
+          "confirmed_at": null,
+          "decision": "deferred",
+          "evidence_ref": "pending-confirmation.md#xsec-03-w8ben"
+        }
+      ]
+    },
+    {
+      "dimension_id": "XSEC-04",
+      "name": "跨境行情源",
+      "layer": "industry:securities",
+      "sub_domain": "cross-border",
+      "state": "candidate",
+      "rationale": "仅命中 HKEx 关键词 1 处（注释中），未引入海外行情商 SDK",
+      "signals_evaluated": [
+        {
+          "id": "market-source-naming",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "market-source-deps",
+          "type": "dependency",
+          "hit": false,
+          "weight": 1,
+          "source": "dependency"
+        }
+      ],
+      "evidence_paths": [
+        "app/hybrid/HKStockMarketDataSource.kt"
+      ],
+      "evidence_count": 1,
+      "depth_score": 0.18,
+      "depth_indicator": "shallow",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#xsec-04",
+      "candidate_hint": {
+        "trigger_when": "接入 NASDAQ/NYSE 直连或 Bloomberg/Refinitiv/Wind 数据源（grep 或依赖命中）",
+        "suggested_owner_question": "是否计划自建海外行情接入？"
+      }
+    },
+    {
+      "dimension_id": "XSEC-05",
+      "name": "交易规则差异",
+      "layer": "industry:securities",
+      "sub_domain": "cross-border",
+      "state": "activated",
+      "rationale": "lotSize/tickSize/marginTrading 命名 + us-stock/hk-stock 模块双命中",
+      "signals_evaluated": [
+        {
+          "id": "market-rule-naming",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "market-rule-modules",
+          "type": "file_existence",
+          "hit": true,
+          "weight": 1,
+          "source": "file_existence"
+        }
+      ],
+      "evidence_paths": [
+        "server/us-stock/UsTradingRules.java",
+        "server/hk-stock/HkLotSizeValidator.java"
+      ],
+      "evidence_count": 2,
+      "depth_score": 0.70,
+      "depth_indicator": "deep",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#xsec-05"
+    },
+    {
+      "dimension_id": "XSEC-06",
+      "name": "跨境结算与税务",
+      "layer": "industry:securities",
+      "sub_domain": "cross-border",
+      "state": "candidate",
+      "rationale": "仅印花税命中 1 处（港股相关），美股 1042-S/1099-DIV 与 DTCC 全 miss",
+      "signals_evaluated": [
+        {
+          "id": "tax-naming",
+          "type": "grep",
+          "hit": true,
+          "weight": 1,
+          "source": "grep"
+        },
+        {
+          "id": "clearing-cross-border",
+          "type": "grep",
+          "hit": false,
+          "weight": 1,
+          "source": "grep"
+        }
+      ],
+      "evidence_paths": [
+        "server/hk-stock/HkStampDutyCalculator.java"
+      ],
+      "evidence_count": 1,
+      "depth_score": 0.22,
+      "depth_indicator": "shallow",
+      "skeleton_section": "templates/skeletons/industry/securities-skeleton.md#xsec-06",
+      "candidate_hint": {
+        "trigger_when": "新增 1042-S/1099-DIV 美股税务报告或 DTCC/中国结算跨境清算路径",
+        "suggested_owner_question": "美股税务报告是否产品化？"
+      }
+    }
+  ],
+  "summary": {
+    "total_dimensions": 16,
+    "baseline_count": 5,
+    "activated_count": 8,
+    "candidate_count": 3,
+    "pending_count": 0,
+    "shallow_count": 0
+  },
+  "evolution": {
+    "previous_report_path": null,
+    "previous_run_id": null,
+    "previous_timestamp": null,
+    "transitions": [],
+    "stable_count": 0,
+    "transitioned_count": 0
+  },
+  "cross_project": {
+    "enabled": false,
+    "project_index": null,
+    "project_count": null,
+    "unified_map_ref": null,
+    "divergence_doc_ref": null
+  },
+  "open_questions": [
+    "SEC-03 风控规则是否计划用规则引擎？还是继续硬编码？（owner 待确认）",
+    "SEC-09 是否计划做自营定价/期权做市？（candidate → activated 升级条件）",
+    "SEC-10 DR 演练频率与机制？（baseline + pending-confirmation）",
+    "XSEC-01 美股 GTC 隔夜挂单是否纳入产品？（owner 待确认）",
+    "XSEC-03 W-8BEN 申报代码是否在产品 roadmap？（owner 待确认）",
+    "XSEC-04 是否计划自建海外行情接入？（candidate）",
+    "XSEC-06 美股税务报告（1042-S/1099-DIV）是否产品化？（candidate）"
+  ],
+  "stop_conditions_hit": [],
+  "warnings": [
+    "evidence_tier=synthetic-poc：全部 evidence 路径为 mock，不能替代真实证券系统代码萃取",
+    "GitNexus 不可用：fallback 至 grep + file_existence，可能漏命中部分跨文件信号",
+    "SEC-03 / XSEC-01 weighted 不达阈值，落 baseline 但 evidence 仅 weight=1，owner 必须显式确认"
+  ],
+  "limitations": [
+    "PoC 不验证 candidate → activated 的自动升级流程（需要项目代码演进 evidence）",
+    "PoC 不覆盖跨项目 unified-activation-map 场景（cross_project.enabled=false）",
+    "PoC 不验证增量模式（evolution.transitions 为空）"
+  ]
+}

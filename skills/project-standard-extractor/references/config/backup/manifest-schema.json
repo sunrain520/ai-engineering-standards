@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "project-standard-extractor/references/config/backup/manifest-schema.json",
+  "title": "backup-manifest.v1",
+  "description": "schema=backup-manifest.v1。校验 .local-backups/<domain>/<UTC-ts>/manifest.json。所有 force-rebuild / restore / pin / unpin / list 操作必须按本 schema 读写或只读。",
+  "type": "object",
+  "required": [
+    "schema",
+    "backup_id",
+    "created_at",
+    "domain",
+    "source_paths",
+    "git_head",
+    "operator",
+    "pin",
+    "exclude_patterns",
+    "stats"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "backup-manifest.v1"
+    },
+    "backup_id": {
+      "type": "string",
+      "description": "UTC timestamp basic ISO（无标点）形式：YYYYMMDDTHHMMSSZ。与 .local-backups/<domain>/<backup_id>/ 目录名一致。",
+      "pattern": "^[0-9]{8}T[0-9]{6}Z$"
+    },
+    "created_at": {
+      "type": "string",
+      "description": "ISO8601 UTC,例 2026-05-25T04:55:00Z",
+      "format": "date-time"
+    },
+    "domain": {
+      "type": "string",
+      "description": "engineering-standards 下端目录名,例 01-app-client",
+      "pattern": "^[0-9]{2}-[a-z0-9-]+$"
+    },
+    "source_paths": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "description": "源目录绝对路径或仓库相对路径"
+      }
+    },
+    "git_head": {
+      "type": "object",
+      "required": ["sha", "branch", "iso_date", "is_git_repo"],
+      "properties": {
+        "sha": { "type": ["string", "null"] },
+        "branch": { "type": ["string", "null"] },
+        "iso_date": { "type": ["string", "null"] },
+        "is_git_repo": { "type": "boolean" },
+        "is_shallow": { "type": "boolean" },
+        "porcelain_at_backup": { "type": "string", "description": "backup 时刻 git status --porcelain 输出（应为空字符串）" }
+      },
+      "additionalProperties": false
+    },
+    "mode_args": {
+      "type": "object",
+      "description": "记录调用本次 force-rebuild / restore 时的 SKILL 调用上下文,用于事后追溯。",
+      "properties": {
+        "output_action": {
+          "type": "string",
+          "enum": ["force-rebuild", "restore", "pin", "unpin", "list"]
+        },
+        "extraction_mode": {
+          "type": "string",
+          "enum": ["profile-first", "batch-extraction", "focused-module", "full"]
+        },
+        "run_mode": { "type": "string", "enum": ["interactive"] },
+        "restore_from": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "dimension_activation_report_summary": {
+      "type": ["object", "null"],
+      "description": "force-rebuild 备份阶段抓取的旧 evidence/dimension-activation-report.json 计数摘要。restore 模式可缺省。",
+      "properties": {
+        "baseline_count": { "type": "integer", "minimum": 0 },
+        "activated_count": { "type": "integer", "minimum": 0 },
+        "candidate_count": { "type": "integer", "minimum": 0 },
+        "pending_count": { "type": "integer", "minimum": 0 },
+        "shallow_count": { "type": "integer", "minimum": 0 },
+        "partial_activated_count": { "type": "integer", "minimum": 0 },
+        "previous_run_id": { "type": ["string", "null"] },
+        "previous_timestamp": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "operator": {
+      "type": "string",
+      "description": "host developer profile（.claude/.codex spec-first .developer 文件）；缺失时不得写入 manifest"
+    },
+    "pin": {
+      "type": "boolean",
+      "description": "是否固定保留。--keep=N 清理跳过 pin=true。"
+    },
+    "exclude_patterns": {
+      "type": "array",
+      "description": "本次 cp -a 时的排除模式（默认 evidence/raw-* / temp/ / .git）",
+      "items": { "type": "string" }
+    },
+    "stats": {
+      "type": "object",
+      "required": ["file_count", "byte_count", "sha256_fingerprint"],
+      "properties": {
+        "file_count": { "type": "integer", "minimum": 0 },
+        "byte_count": { "type": "integer", "minimum": 0 },
+        "sha256_fingerprint": {
+          "type": "string",
+          "description": "对源目录 sorted file list + content 计算的 sha256（dry-run + safeguard 3 复检使用）",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "in_progress_lock": {
+      "type": ["object", "null"],
+      "description": "treat-as-active 标记。force-rebuild 备份阶段写入,success path / 回滚后必须删除。其他 mode 启动时检测残留 → 提示。",
+      "properties": {
+        "run_id": { "type": "string" },
+        "expected_changelog_anchor": { "type": "string" },
+        "started_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "rollback": {
+      "type": ["object", "null"],
+      "description": "若本备份对应的 force-rebuild 进入 failure path,记录回滚信息。success path 留 null。",
+      "required": ["rolled_back_at", "failure_reason", "failure_log_path", "validation_failure"],
+      "properties": {
+        "rolled_back_at": { "type": "string", "format": "date-time" },
+        "failure_reason": {
+          "type": "string",
+          "enum": [
+            "VALIDATE_SCRIPT_FAILED",
+            "VALIDATE_SCRIPT_RUNTIME_ERROR",
+            "MERGE_COORDINATOR_FAILED",
+            "QUALITY_GATE_BLOCKED",
+            "CHANGELOG_APPEND_FAILED",
+            "BREAKING_CONFLICT_INTRODUCED",
+            "BACKUP_INTEGRITY_FAILED",
+            "ATOMIC_RENAME_FAILED"
+          ]
+        },
+        "failure_log_path": {
+          "type": "string",
+          "description": "force-rebuild-failure.v1 magic header 的 failure.log 相对路径"
+        },
+        "validation_failure": {
+          "type": "string",
+          "description": "失败信号的 line-level 短描述,例 'quality_gate_decisions[].status: blocked' 或 'check (a) char_ratio=32% < 60%'"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

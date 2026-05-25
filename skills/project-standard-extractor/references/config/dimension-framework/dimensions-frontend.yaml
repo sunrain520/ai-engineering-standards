@@ -1,0 +1,200 @@
+# dimensions-frontend.yaml
+# 前端端 adapter 扩展维度池：覆盖 H5（移动 Web）/ Admin（中后台）/ SDK（前端 SDK）三个子领域骨架
+# Schema：./schema.json（layer = extension, end = frontend）
+# 来源：origin Per-End Dimension Catalog 前端章节，1:1 落地
+
+layer: extension
+end: frontend
+version: v0.1.0
+subdomains:
+  - h5
+  - admin
+  - sdk
+
+dimensions:
+  EA-Web-01:
+    name: 渲染策略
+    owner_phase: profile
+    core_concerns:
+      - "SSR / CSR / ISR / SSG 选择"
+      - Hydration 处理
+      - 首屏指标
+    must_check_items:
+      - Hydration mismatch 防护
+      - SEO 关键页面渲染策略
+      - "FCP / LCP 预算"
+    activation_signal_hints:
+      - "getServerSideProps / generateStaticParams / use client 指令"
+      - "next / nuxt / remix 依赖"
+
+  EA-Web-02:
+    name: 路由与导航
+    owner_phase: generation
+    core_concerns:
+      - 文件路由 vs 配置式路由
+      - Layout 嵌套
+      - Route Guard
+      - Deep Link
+    must_check_items:
+      - 嵌套路由 Layout 复用
+      - 路由级权限拦截
+      - URL 设计规范
+    activation_signal_hints:
+      - "app/ 或 pages/ 目录"
+      - router.config
+      - "<Route> / <Routes> 用法"
+
+  EA-Web-03:
+    name: 状态管理
+    owner_phase: generation
+    core_concerns:
+      - "全局 / Server / URL / Component 状态边界"
+      - 状态库选型
+      - 状态持久化
+    must_check_items:
+      - "Server state 由 React Query / SWR / TanStack Query 管理"
+      - URL state 不重复存全局
+      - 持久化敏感度判定
+    activation_signal_hints:
+      - "Redux / Zustand / Jotai / Pinia / Vuex 依赖"
+      - "useQuery / useSWR 用法"
+      - "localStorage / sessionStorage 调用"
+
+  EA-Web-04:
+    name: 类型系统
+    owner_phase: review
+    core_concerns:
+      - TS 严格度
+      - Type 导出策略
+      - 运行时校验
+      - 范型规范
+    must_check_items:
+      - "strict / noImplicitAny / strictNullChecks 开启"
+      - "API 类型与运行时校验（Zod / Yup）配套"
+      - 范型命名规范
+    activation_signal_hints:
+      - tsconfig.json strict 配置
+      - "export type 用法"
+      - "Zod / Yup / io-ts 依赖"
+
+  EA-Web-05:
+    name: 组件设计与样式体系
+    owner_phase: generation
+    core_concerns:
+      - "Atomic Design / Container-Presenter"
+      - 组件复用度
+      - 样式方案
+      - 主题系统
+    must_check_items:
+      - 基础组件 / 业务组件分层
+      - Headless UI 边界
+      - 主题变量
+      - 响应式断点
+    activation_signal_hints:
+      - components/ 子目录结构
+      - Storybook 配置
+      - "Tailwind / CSS-in-JS / Sass / CSS Modules 依赖"
+
+  EA-Web-06:
+    name: 性能与加载
+    owner_phase: review
+    core_concerns:
+      - Code Splitting
+      - 懒加载
+      - 虚拟列表
+      - 缓存策略
+    must_check_items:
+      - 路由级懒加载
+      - 长列表虚拟化
+      - "HTTP / SW / React Cache 层级"
+      - Bundle 预算
+    activation_signal_hints:
+      - "dynamic(import()) / React.lazy 用法"
+      - IntersectionObserver
+      - "react-window / react-virtuoso 依赖"
+
+  EA-Web-07:
+    name: 包体积与构建
+    owner_phase: review
+    core_concerns:
+      - Tree shaking
+      - 第三方库选型
+      - 资源 CDN
+      - 构建配置
+    must_check_items:
+      - 依赖体积审计
+      - "lodash → lodash-es 替换"
+      - 字体优化
+      - 构建工具配置
+    activation_signal_hints:
+      - package.json 依赖项
+      - "vite.config / webpack.config"
+      - browserslist
+
+  EA-Web-08:
+    name: 安全防护
+    owner_phase: review
+    core_concerns:
+      - "XSS / CSRF / CSP"
+      - Token 存储位置
+    must_check_items:
+      - dangerouslySetInnerHTML 使用边界
+      - "CSRF Token 或 SameSite Cookie"
+      - CSP header
+      - "Token 存储（HttpOnly Cookie vs localStorage）"
+    activation_signal_hints:
+      - "DOMPurify / sanitize-html 依赖"
+      - Cookie 配置代码
+      - CSP meta 标签
+    cross_dimensions:
+      - D11
+
+  EA-Web-09:
+    name: 兼容性与降级
+    owner_phase: review
+    core_concerns:
+      - 浏览器矩阵
+      - polyfill
+      - 降级策略
+    must_check_items:
+      - browserslist 明确
+      - "@babel/preset-env 配置"
+      - 能力检测降级路径
+    activation_signal_hints:
+      - browserslist 字段
+      - polyfill 引用
+      - core-js 依赖
+
+  EA-Web-10:
+    name: 监控与可观测性
+    owner_phase: generation
+    core_concerns:
+      - 错误上报
+      - Web Vitals
+      - 用户行为埋点
+    must_check_items:
+      - "Sentry / Bugsnag 接入"
+      - reportWebVitals 上报
+      - 埋点规范
+    activation_signal_hints:
+      - "Sentry / Bugsnag / DataDog RUM SDK 依赖"
+      - reportWebVitals 调用
+      - analytics 代码
+    cross_dimensions:
+      - D12
+
+  EA-Web-11:
+    name: SEO 与元信息
+    owner_phase: generation
+    core_concerns:
+      - Meta 标签
+      - 结构化数据
+      - sitemap
+    must_check_items:
+      - "Open Graph / Twitter Card"
+      - JSON-LD
+      - canonical URL
+    activation_signal_hints:
+      - "<Head> 用法"
+      - "next-sitemap / 等效 sitemap 工具"
+      - schema.org JSON-LD 标记

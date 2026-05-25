@@ -1,0 +1,89 @@
+# activation-rules-app-client.yaml
+# 客户端端 adapter 激活规则；schema = activation-rules.schema.json
+# 三态默认：baseline 维度引用自 baseline-dimensions.yaml（state_default=baseline，无 signals 亦必出 pending）；
+# 其他维度 state_default=candidate，命中后变 activated。
+
+end: app-client
+version: v0.1.0
+
+subdomain_signals:
+  kmp-shared:
+    - { signal_id: kmp-shared-dir,    type: file_existence, paths: ["shared/**", "**/commonMain/**"] }
+    - { signal_id: kmp-dependency,    type: dependency,     patterns: ["org.jetbrains.kotlin.multiplatform", "kotlinx.coroutines"] }
+  android:
+    - { signal_id: android-manifest,  type: file_existence, paths: ["**/AndroidManifest.xml"] }
+    - { signal_id: android-build,     type: file_existence, paths: ["**/build.gradle", "**/build.gradle.kts"] }
+  ios:
+    - { signal_id: ios-info-plist,    type: file_existence, paths: ["**/Info.plist"] }
+    - { signal_id: ios-pbx,           type: file_existence, paths: ["**/*.xcodeproj/project.pbxproj"] }
+
+dimensions:
+  EA-Client-01:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: kmp-shared-dir,        type: file_existence, paths: ["shared/**", "**/commonMain/**"] }
+      - { signal_id: rn-flutter-deps,       type: dependency,     patterns: ["react-native", "flutter"] }
+
+  EA-Client-02:
+    state_default: candidate
+    combination: weighted
+    threshold: 2
+    rationale: 平台差异维度涉及 iOS+Android 双端时才有意义；单端弱信号（仅一个 manifest 命中）应保持 candidate。
+    signals:
+      - { signal_id: ios-info-plist,        type: file_existence, paths: ["**/Info.plist"], weight: 1 }
+      - { signal_id: android-manifest,      type: file_existence, paths: ["**/AndroidManifest.xml"], weight: 1 }
+      - { signal_id: ios-privacy-manifest,  type: file_existence, paths: ["**/PrivacyInfo.xcprivacy"], weight: 1 }
+
+  EA-Client-03:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: lifecycle-android,     type: grep, patterns: ["onCreate", "onDestroy", "onLowMemory"], include_paths: ["**/*.kt", "**/*.java"] }
+      - { signal_id: lifecycle-ios,         type: grep, patterns: ["viewDidLoad", "viewWillDisappear", "didReceiveMemoryWarning"], include_paths: ["**/*.swift"] }
+
+  EA-Client-04:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: i18n-android,          type: file_existence, paths: ["**/values-*/strings.xml"] }
+      - { signal_id: i18n-ios,              type: file_existence, paths: ["**/*.lproj/**"] }
+      - { signal_id: build-flavor,          type: grep, patterns: ["productFlavors", "buildVariants", "xcconfig"], include_paths: ["**/*.gradle", "**/*.gradle.kts", "**/*.xcconfig"] }
+      - { signal_id: feature-flag-deps,     type: dependency, patterns: ["launchdarkly", "growthbook", "firebase-config"] }
+
+  EA-Client-05:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: permission-request,    type: grep, patterns: ["requestPermission", "ActivityCompat.requestPermissions", "AVCaptureDevice.requestAccess"], include_paths: ["**/*.kt", "**/*.java", "**/*.swift"] }
+      - { signal_id: biometric-import,      type: grep, patterns: ["LAContext", "BiometricPrompt", "FingerprintManager"], include_paths: ["**/*.kt", "**/*.java", "**/*.swift"] }
+      - { signal_id: location-camera-deps,  type: dependency, patterns: ["play-services-location", "AVFoundation", "CoreLocation"] }
+
+  EA-Client-06:
+    state_default: candidate
+    combination: any
+    signals:
+      - { signal_id: http-clients,          type: dependency, patterns: ["retrofit", "ktor-client", "alamofire", "okhttp"] }
+      - { signal_id: image-loaders,         type: dependency, patterns: ["coil", "glide", "sd-webimage", "kingfisher"] }
+      - { signal_id: ssl-pinning,           type: grep, patterns: ["CertificatePinner", "URLSessionDelegate", "SSLPinning"], include_paths: ["**/*.kt", "**/*.java", "**/*.swift"] }
+
+  EA-Client-07:
+    state_default: candidate
+    combination: weighted
+    threshold: 2
+    rationale: 启动性能维度需要多项信号佐证（启动逻辑 + 包体积工具），单一信号易误命中。
+    signals:
+      - { signal_id: app-onCreate-impl,     type: grep, patterns: ["class.*Application", "Application\\(\\)"], include_paths: ["**/*.kt", "**/*.java"], weight: 1 }
+      - { signal_id: r8-proguard,           type: file_existence, paths: ["**/proguard-rules.pro", "**/r8-rules.pro"], weight: 2 }
+      - { signal_id: ios-app-thinning,      type: file_existence, paths: ["**/SceneDelegate.swift", "**/AppDelegate.swift"], weight: 1 }
+      - { signal_id: dynamic-feature,       type: grep, patterns: ["DynamicFeature", "play-feature-delivery"], include_paths: ["**/*.gradle", "**/*.gradle.kts"], weight: 2 }
+
+  EA-Client-08:
+    state_default: candidate
+    combination: weighted
+    threshold: 2
+    rationale: 本地存储与数据安全为高风险维度，要求至少 2 类 signal 命中以降低误判。
+    signals:
+      - { signal_id: keychain-keystore,     type: grep, patterns: ["KeyStore", "Keychain", "EncryptedSharedPreferences"], include_paths: ["**/*.kt", "**/*.java", "**/*.swift"], weight: 2 }
+      - { signal_id: room-encrypted,        type: dependency, patterns: ["sqlcipher", "room-ktx"], weight: 1 }
+      - { signal_id: keychain-config,       type: file_existence, paths: ["**/*.entitlements"], weight: 1 }

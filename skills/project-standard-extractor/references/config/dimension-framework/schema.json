@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/xiaobu/ai-engineering-standards/skills/project-standard-extractor/references/config/dimension-framework/schema.json",
+  "title": "Dimension Pool Schema",
+  "description": "维度池 fixture 的 JSON Schema，约束 baseline-dimensions.yaml、dimensions-{end}.yaml 与 dimensions-doc.yaml 的字段命名、类型与必填项；激活规则（signals/combination/threshold/state_default）由 activation-rules-{end}.yaml 承载。",
+  "type": "object",
+  "required": ["layer", "dimensions"],
+  "additionalProperties": false,
+  "properties": {
+    "layer": {
+      "type": "string",
+      "enum": ["common", "extension", "industry", "doc"],
+      "description": "维度所属分层：common = baseline 跨端共有；extension = 客户端/前端/后端三端扩展；industry = 行业（含证券子领域）；doc = EA-Doc 文档源维度。"
+    },
+    "end": {
+      "type": "string",
+      "enum": ["common", "app-client", "frontend", "backend", "industry", "industry-securities", "doc"],
+      "description": "扩展维度归属的端 adapter；common 表示跨端 baseline。"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "维度池语义化版本号，跟随仓库 milestone。"
+    },
+    "subdomains": {
+      "type": "array",
+      "description": "该端的子领域骨架命名清单（仅作为目录约定参考，不参与 activation 判定）。",
+      "items": { "type": "string" }
+    },
+    "dimensions": {
+      "type": "object",
+      "description": "维度池字典，key 为 dimension_id（如 D01 / EA-Client-01 / SEC-01 / EA-Doc-Glossary）。",
+      "minProperties": 1,
+      "patternProperties": {
+        "^(D(0[1-9]|1[0-3])|[A-Z][A-Za-z0-9]+(-[A-Z0-9a-z]+)+)$": {
+          "type": "object",
+          "required": ["name", "core_concerns", "must_check_items", "owner_phase"],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "维度中文名，与骨架文件章节标题一一对应。"
+            },
+            "core_concerns": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 },
+              "description": "维度核心关切清单；每项一行陈述。"
+            },
+            "must_check_items": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 },
+              "description": "维度必检子项清单；6-agent 管道在 generation/review 阶段逐项核对。"
+            },
+            "owner_phase": {
+              "type": "string",
+              "enum": ["intake", "facts", "profile", "generation", "review", "merge"],
+              "description": "主要承接该维度核对的 agent phase；多 phase 协作时填写最终输出 phase。"
+            },
+            "activation_signal_hints": {
+              "type": "array",
+              "description": "激活 signal 提示（仅参考，正式 signal 配置在 activation-rules-{end}.yaml）。",
+              "items": { "type": "string" }
+            },
+            "subdomain_hint": {
+              "type": "string",
+              "description": "可选；指明该维度是否仅在某子领域出现（如 SwiftUI / KMP shared）。"
+            },
+            "cross_dimensions": {
+              "type": "array",
+              "description": "可选；与本维度强相关的其他 dimension_id，便于 review-and-quality-gate 阶段做交叉检查。",
+              "items": { "type": "string" }
+            },
+            "default_content": {
+              "type": "object",
+              "description": "可选；baseline 无 evidence 时 generation 可直接渲染的最小内容。",
+              "required": ["standard_section", "pending_message", "checklist_items"],
+              "additionalProperties": false,
+              "properties": {
+                "standard_section": { "type": "string", "minLength": 1 },
+                "pending_message": { "type": "string", "minLength": 1 },
+                "checklist_items": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string", "minLength": 1 }
+                }
+              }
+            },
+            "evidence_artifact": {
+              "type": "string",
+              "description": "可选；EA-Doc 维度生成的知识副产物路径。"
+            },
+            "high_risk_fallback": {
+              "type": "string",
+              "enum": ["baseline", "pending-confirmation", "candidate"],
+              "description": "可选；高风险维度在信号不足时的兜底状态。"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "layer": { "const": "common" } } },
+      "then": {
+        "required": ["dimensions"],
+        "properties": {
+          "dimensions": {
+            "allOf": [
+              {
+                "required": ["D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10", "D11", "D12", "D13"],
+                "patternProperties": {
+                  "^D(0[1-9]|1[0-3])$": {
+                    "required": ["default_content"]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "description": "baseline 层强制覆盖 Layer 1 通用维度 D01-D13；每个 common 维度必须提供 default_content，保证零 activated 输入时 generation 不崩溃。"
+      }
+    }
+  ]
+}

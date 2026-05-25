@@ -40,18 +40,7 @@ app-kaz
 
 ## P1 App 壳初始化必须区分宿主进程与子进程
 
-```yaml
-status: draft
-level: P1
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: high
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -79,18 +68,7 @@ superseded_by: null
 
 ## P1 页面基类选择必须匹配页面状态复杂度
 
-```yaml
-status: draft
-level: P1
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -122,18 +100,7 @@ superseded_by: null
 
 ## P2 交易共享能力应收敛到 trade-core 等 feature-core 模块
 
-```yaml
-status: draft
-level: P2
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -162,18 +129,7 @@ superseded_by: null
 
 ## P2 账户容器页应只编排页面结构和导航消费
 
-```yaml
-status: draft
-level: P2
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -205,18 +161,7 @@ superseded_by: null
 
 ## P1 KMP 桥接层必须通过 Presenter/UseCase 工厂方法获取，不直接构造 Service
 
-```yaml
-status: draft
-level: P1
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: high
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -265,18 +210,7 @@ private val watchlistService = WatchlistService(GlobalScope) // 禁止
 
 ## P1 宿主 Fragment 只做结构编排，子页状态不上浮到宿主
 
-```yaml
-status: draft
-level: P1
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -320,18 +254,7 @@ return WatchListPageFragment().apply {
 
 ## P2 StateMapper 负责 KMP UiState → Android Vo 的单向映射
 
-```yaml
-status: draft
-level: P2
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: low
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -382,18 +305,7 @@ fun onResult(state: AccountCondOrderUiState) {
 
 ## P2 ViewBinding 使用 nullable backing field 模式，onDestroyView 中置 null
 
-```yaml
-status: draft
-level: P2
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 
@@ -435,18 +347,7 @@ override fun onDestroyView() {
 
 ## P2 EventBus 注册/注销必须成对，在 onAttach/onDetach 或 onCreate/onDestroy 中完成
 
-```yaml
-status: draft
-level: P2
-source_kind: extracted
-evidence_tier: single-project
-risk_tag: medium
-owner: TBD
-last_reviewed: "2026-05-22"
-recommended_action: keep-draft
-conflicts_with: []
-superseded_by: null
-```
+> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
 ### 适用范围
 

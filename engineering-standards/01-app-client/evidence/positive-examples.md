@@ -1,8 +1,12 @@
 ---
-doc_id: "app-client-module-boundary-evidence-positive"
-title: "APP Module Boundary Positive Examples"
+doc_id: "app-client-evidence-positive"
+title: "APP Positive Examples"
 domain: "app-client"
-sub_domain: "module-boundary"
+sub_domains:
+  - "module-boundary"
+  - "android"
+  - "kmp-shared"
+  - "build-governance"
 doc_type: "evidence-positive"
 version: "v0.1.0"
 status: "draft"
@@ -10,14 +14,19 @@ owner: "TBD"
 index_format: "engineering-standards-md-v1"
 indexable: true
 run_id: "20260522-100947-app-client"
-source_batch: "app-client-module-boundary-contract-layer"
+source_batches:
+  - "app-client-module-boundary-contract-layer"
+  - "app-client-android-app-shell-bootstrap"
+  - "app-client-android-core-ui-state"
+  - "app-client-kmp-shared-trade-order-clean-architecture"
+  - "app-client-build-governance-gradle-versioning"
 tags:
   - "app-client"
-  - "module-boundary"
+  - "evidence"
   - "positive-example"
 ---
 
-# APP Module Boundary Positive Examples
+# APP Positive Examples
 
 ## POS-APP-1: contract 模块不依赖 feature 实现模块
 

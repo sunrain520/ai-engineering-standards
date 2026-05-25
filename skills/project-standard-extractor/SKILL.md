@@ -1,146 +1,97 @@
 ---
 name: project-standard-extractor
-description: 从真实项目代码路径中萃取团队级研发规范，输出可直接复用的 Markdown 规范文档。给代码路径，自动分析并生成像 02-android-standard.md 这样的规范文档。
+description: 从真实项目代码路径中萃取团队级研发规范，输出 standard-{sub_domain}.md、ai-rules.md、review-checklist.md 等可复用文档。Use when: user provides project_paths and asks to extract/generate engineering standards, coding conventions, AI rules, or review checklists from an existing codebase. Do not trigger for: code review, single-file explanation, or querying existing standards.
 ---
 
 # Project Standard Extractor
 
-当此 Skill 被调用时，立即执行以下步骤，不询问用户任何问题（除非路径不可读）。
+本 Skill 是 Spec-Driven Development 的源头工具：从存量代码反向还原结构化团队规范，供 AI 后续编码时复用。本文件只保留入口协议、硬边界和导航；细节按需读取 `references/`。
 
----
+## Phase 2 Status: BLOCKED
+
+Phase 2 Dimension Framework 当前处于 `blocked / repair-in-progress`。在 `activation-report.v1`、baseline-only generation、主 workflow handoff 和 final eval 全部通过前，以下路径不得作为可运行能力执行或宣传：
+
+- Phase 2 default append / `extraction_mode=full`
+- 跨项目 `unified-activation-map`
+- EA-Doc 文档源萃取 runtime
+- 证券 synthetic PoC 作为 evidence
+- `force-rebuild` / `restore` / `pin` / `unpin` / `list` runtime
+
+稳定可用路径仍是 Phase 1：`profile-first` 生成 project profile / extraction map / batch plan，随后由用户选择 batch 进入受控的 batch-extraction。
+
+## 调用协议
+
+```yaml
+project_paths:                # 必填，至少 1 个本地可读绝对路径
+  - /path/to/project-a
+output_dir: ""                # 可选，默认 engineering-standards/{domain}/
+extraction_mode: ""           # 可选，留空由 intake 推断；profile-first | batch-extraction | focused-module | diff | full
+output_action: append         # append | force-rebuild | restore | pin | unpin | list；非 append 目前均为 blocked/design-only
+selected_batch:
+  batch_id: ""                # 仅 batch-extraction 模式必填
+domain: ""                    # output_action ∈ {force-rebuild, restore, pin, unpin, list} 必填
+restore_from: ""              # output_action ∈ {restore, pin, unpin} 必填，UTC-ts(YYYYMMDDTHHMMSSZ)
+keep: 10                      # force-rebuild 的 --keep=N 自动清理阈值
+run_mode: auto                # auto | interactive；force-rebuild 强制 interactive
+```
+
+调用时只要提供 `project_paths`，其余字段由 `references/agents/intake-and-scope.md` 推断。
+
+**互斥规则**：
+
+- R91：`output_action != append` 与 `extraction_mode = diff` 互斥。
+- R92：`output_action != append` 与 `len(project_paths) > 1` 互斥。
+- 违规抛 `INCOMPATIBLE_OUTPUT_ACTION`，intake-and-scope 做二层防御。
 
 ## 执行步骤
 
-### Step 1 — 解析输入
+1. 输入校验：无可读路径抛 `NO_VALID_PROJECT_PATHS`；全部命中敏感策略抛 `ALL_PATHS_SENSITIVE`。
+2. 普通调用只走 Phase 1 稳定路径：`profile-first` 生成 project profile / extraction map / batch plan；未提供 `selected_batch.batch_id` 时到此停止并提示用户选 batch。
+3. 已选 batch 时进入受控 `batch-extraction`，只处理该 batch 的 evidence / draft rules / review summary；不得启动 Phase 2 `dimension-activator` 管道。
+4. 仅当任务明确是 Phase 2 repair validation 时，才按 `references/workflow.md` 的 blocked 管道读取 `dimension-activator` 等契约。
 
-从用户消息中提取：
-- `project_paths`：一个或多个本地项目路径（必填）
-- `output_dir`：输出目录（可选，默认 `engineering-standards/{domain}/`）
-- `domain`：研发域（可选，留空则自动推断）
+```text
+intake-and-scope
+  -> profile-and-batch-planner
+  -> stop-for-batch-selection
+  -> selected-batch-only extraction
+```
 
-路径不可读时停止并说明原因，其余情况直接继续。
+## 维度激活态
 
----
+Phase 2 repair validation 中，`dimension-activator` 是唯一激活态权威源；下游 facts / generation / review / merge 全程透传 `activation-report`，不得本地重算。详细铁律见 `references/workflow.md#8-激活态铁律`。
 
-### Step 2 — 扫描项目结构（轻量，≤3层）
-
-只读以下内容，不读业务源码：
-- 根目录 manifest（`package.json`、`pom.xml`、`build.gradle.kts`、`go.mod`、`Cargo.toml` 等）
-- 顶层目录名
-- `README.md` 前 30 行
-- `.gitignore`（了解构建产物边界）
-
-从扫描结果推断：
-- `domain`（app-client / frontend / backend / pc-client / industry / testing / security）
-- `sub_domain` 列表（android / kmp-shared / ios / react / java-spring / golang 等）
-- 技术栈信号
-
----
-
-### Step 3 — 为每个 sub_domain 读取代表性代码文件
-
-按以下优先级选取文件（每个 sub_domain 读 15-25 个文件）：
-
-| 优先级 | 说明 | 典型文件 |
-| --- | --- | --- |
-| P0 入口层 | 最顶层使用模式 | Fragment/ViewController/Controller/Page/Handler |
-| P1 核心层 | 核心业务逻辑 | ViewModel/Reactor/Service/UseCase |
-| P2 数据层 | 数据访问和契约 | Repository/Mapper/DTO/Store/Schema |
-| P3 反例 | 已知反范式代码 | 任何明显违反架构的文件 |
-| P4 配置 | 技术栈声明 | build.gradle/package.json/tsconfig |
-
-各领域代表性文件参考：
-
-| domain/sub_domain | P0 | P1 | P2 |
+| state | 触发条件 | 写入位置 | recommended_action |
 | --- | --- | --- | --- |
-| app-client/android | Fragment, Activity | ViewModel, BaseVM | Repository, DTO, Mapper |
-| app-client/kmp-shared | UseCase | Presenter, RepositoryImpl | DomainModel, Mapper |
-| app-client/ios | ViewController | Reactor | State, Action |
-| frontend/react | Page, Route | Component, Hook | Store, API Client, Type |
-| backend/java-spring | Controller | Service | Repository, Mapper, DTO |
-| backend/golang | Handler/Router | Service | Repository, Model |
-| pc-client/electron | Main Process 入口 | IPC Handler | Preload, Renderer |
-
-排除：`build/`、`dist/`、`node_modules/`、`Pods/`、`target/`、`.git/`、密钥/凭据文件。
-
----
-
-### Step 4 — 分析代码，理解架构
-
-读完代码后，在内部回答：
-
-1. **这个 sub_domain 的分层结构是什么？** 有哪些角色，依赖方向如何？
-2. **团队真实遵循的规律是什么？** 哪些模式在多个文件中重复出现？
-3. **有哪些明显的反范式？** 哪些写法被避开或应该被禁止？
-4. **技术栈是什么？** 用了哪些框架和库？
-
----
-
-### Step 5 — 为每个 sub_domain 生成规范文档
-
-按 `templates/standard-template.md` 的结构写 `standard-{sub_domain}.md`：
-
-**文档结构**（参考 `02-android-standard.md`、`01-kmp-shared-layer-standard.md`）：
-
-```
-Front Matter（YAML，见模板）
-# {Sub-domain} 开发规范
-## 1. 技术栈与工程约束
-## 2. 分层职责（ASCII图 + 责任矩阵表格）
-## 3. {角色A} 规范（强制规则 / 推荐规则 / 禁止事项 / 正例代码 / 反例代码）
-## 4. {角色B} 规范
-...
-## N. 目录与命名规范（如有 evidence）
-## N+1. AI 生成规则
-## N+2. Review 检查项
-```
-
-**写作要求**：
-- 代码示例直接内联（正例+反例），基于真实读取的代码，路径脱敏
-- 强制规则用 numbered list，禁止事项用 bullet
-- 每条规则说明**怎么做**，不只是"应该"
-- 节数由代码 evidence 决定，没有 evidence 的节不写
-- 不写行业通用常识，只写团队代码中真实体现的规律
-
-**Front Matter 状态**：`status: active`（直接可用）
-
----
-
-### Step 6 — 生成 AI Rules 和 Review Checklist
-
-从各 `standard-{sub_domain}.md` 的 AI 生成规则和 Review 检查项节汇总：
-
-- `ai-rules.md`：所有 sub_domain 的 AI 约束汇总
-- `review-checklist.md`：所有 sub_domain 的检查项汇总
-
-格式参考 `10-app-ai-rules.md`、`11-code-review-checklist.md`。
-
----
-
-### Step 7 — 输出完成摘要
-
-列出：
-- 生成的文件列表
-- 每份文档覆盖的 sub_domain 和主要章节
-- 没有足够 evidence 跳过的内容（如有）
-- 建议用户补充的内容（如有）
-
----
+| `baseline` | Layer 1 通用维度默认列入 | standard 或 pending-confirmation | keep-draft |
+| `activated` | 信号命中且深度核验达标 | standard + evidence + ai-rules + review-checklist | promote-to-active |
+| `pending-confirmation` | 信号弱命中或 weighted 未过阈值 | 仅 pending-confirmation | move-to-pending |
+| `shallow` | 已激活但 evidence / depth_score 不足 | standard + ai-rules 双侧 low-coverage 标注 | keep-draft-low-coverage |
+| `candidate` | 维度存在但本期未命中 | overview §9 未激活维度地图 | defer |
 
 ## 强制边界
 
-1. 规范正文不写具体项目路径，路径只用于读取代码，不出现在输出文档中。
-2. 不读取密钥、token、生产凭据、`.env` 文件原值。
-3. 没有代码 evidence 的规则不写进文档（写进摘要的"建议补充"）。
-4. 输出文档 `status: draft`；`active` 只能由领域负责人确认后手动升级。
-5. 不覆盖已有文档，已存在的 `standard-{sub_domain}.md` 追加缺失章节。
+| # | 约束 |
+| --- | --- |
+| 1 | 规范正文不写具体项目路径，路径只用于读取代码 evidence。 |
+| 2 | 不读取密钥、token、生产凭据、`.env` 文件原值。 |
+| 3 | 没有代码 evidence 的规则只能写入 `pending-confirmation.md`。 |
+| 4 | 输出文档保持 `status: draft`；`active` 只能由领域负责人手动升级。 |
+| 5 | 不覆盖已有 `active` 或 `draft`；相近写 `merge-suggestions.md`，冲突写 `conflicts.md`。 |
+| 6 | 规则节元数据使用 inline blockquote 行，不使用整块 yaml。 |
+| 7 | 激活态只由 `dimension-activator` 判定；下游重算抛 `STATE_RECOMPUTATION_FORBIDDEN`。 |
+| 8 | GitNexus readiness 只消费宿主项目 `.spec-first/graph/graph-facts.json`，不可用时降级 fallback signal。 |
+| 9 | `output_action ∈ {force-rebuild, restore, pin, unpin, list}` 必须显式指定 `domain`。 |
+| 10 | `output_action = force-rebuild` 必须 interactive，并要求用户字面输入 `confirm <domain>`。 |
 
----
+## 关键引用
 
-## 输出文件
-
-写入 `output_dir`（默认 `engineering-standards/{domain}/`）：
-
-- `standard-{sub_domain}.md` — 每个 sub_domain 一份完整规范
-- `ai-rules.md` — AI 编码规则汇总
-- `review-checklist.md` — Review 检查项汇总
+| 想了解 | 看这里 |
+| --- | --- |
+| 完整 workflow 与状态机 | `references/workflow.md` |
+| 各阶段 agent 契约 | `references/agents/{stage}.md` |
+| 生成格式与骨架 | `assets/standard-template.md` + `assets/skeletons/` + `references/agents/generation.md` |
+| 维度池 / 激活规则 / 信号库 | `references/config/dimension-framework/` + `references/prompts/signal-library/` |
+| 质量门禁 | `references/quality-gate.md` |
+| Backup / Force Rebuild / Restore | `references/agents/backup-manager.md` + `references/prompts/orchestrator/force-rebuild/` + `scripts/backup.sh` |
+| Phase 1 / Phase 2 示例 | `references/examples/` |

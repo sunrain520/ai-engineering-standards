@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/xiaobu/ai-engineering-standards/skills/project-standard-extractor/references/config/dimension-framework/activation-rules.schema.json",
+  "title": "Activation Rules Schema",
+  "description": "per-端 activation-rules-{end}.yaml 通用 schema：将 dimension 与具体 signal 关联，定义 combination 逻辑（any/all/weighted）与阈值。",
+  "type": "object",
+  "required": ["end", "version", "dimensions"],
+  "additionalProperties": false,
+  "properties": {
+    "end": {
+      "type": "string",
+      "enum": ["app-client", "frontend", "backend", "industry", "doc"],
+      "description": "本规则文件归属的端 adapter；行业规则文件统一为 industry，证券子领域内嵌于 industry 文件；EA-Doc 文档源规则使用 doc。"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "subdomain_signals": {
+      "type": "object",
+      "description": "可选；为子领域 dispatch 提供识别 signal（KMP/Android/iOS、H5/Admin/SDK 等）。",
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "$ref": "#/definitions/signal" }
+      }
+    },
+    "dimensions": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^(D(0[1-9]|1[0-3])|[A-Z][A-Za-z0-9]+(-[A-Z0-9a-z]+)+)$": {
+          "type": "object",
+          "required": ["state_default"],
+          "additionalProperties": false,
+          "properties": {
+            "state_default": {
+              "type": "string",
+              "enum": ["baseline", "candidate"]
+            },
+            "combination": {
+              "type": "string",
+              "enum": ["any", "all", "weighted"],
+              "description": "signal 聚合逻辑；baseline 维度若无 signals 可省略此字段。"
+            },
+            "threshold": {
+              "type": ["integer", "null"],
+              "minimum": 1,
+              "description": "weighted 组合下的命中权重阈值；any/all 可置 null。"
+            },
+            "signals": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/signal" }
+            },
+            "subdomain": {
+              "type": "string",
+              "description": "可选；该维度若仅在某子领域出现可声明（如 kmp-shared / ios / securities）。"
+            },
+            "rationale": {
+              "type": "string",
+              "description": "可选；为 review/审计记录该规则的设计理由（high-risk 维度必填）。"
+            }
+          },
+          "allOf": [
+            {
+              "if": { "properties": { "combination": { "const": "weighted" } }, "required": ["combination"] },
+              "then": { "required": ["threshold", "signals"], "properties": { "threshold": { "type": "integer" } } }
+            },
+            {
+              "if": { "properties": { "combination": { "enum": ["any", "all"] } }, "required": ["combination"] },
+              "then": { "required": ["signals"] }
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "signal": {
+      "type": "object",
+      "required": ["signal_id", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "signal_id": { "type": "string", "minLength": 1 },
+        "type": {
+          "type": "string",
+          "enum": ["grep", "ast", "file_existence", "dependency", "gitnexus", "doc-content"]
+        },
+        "weight": { "type": "integer", "minimum": 1, "default": 1 },
+        "patterns": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "paths": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "include_paths": { "type": "array", "items": { "type": "string" } },
+        "exclude_paths": { "type": "array", "items": { "type": "string" } },
+        "manifests": { "type": "array", "items": { "type": "string" } },
+        "language": {
+          "type": "string",
+          "enum": ["kotlin", "swift", "java", "typescript", "javascript", "python", "go", "rust"]
+        },
+        "ast_pattern": { "type": "string" },
+        "case_insensitive": { "type": "boolean" },
+        "match_mode": { "type": "string", "enum": ["any", "all"] },
+        "exact": { "type": "boolean" },
+        "match_scope": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } },
+        "fact_query": { "type": "string" },
+        "expected": { "type": "array", "items": { "type": "string" } },
+        "fallback": {
+          "type": "object",
+          "required": ["type", "patterns"],
+          "additionalProperties": false,
+          "properties": {
+            "type": { "type": "string", "enum": ["grep", "file_existence"] },
+            "patterns": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    }
+  }
+}

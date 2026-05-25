@@ -1,0 +1,59 @@
+# depth-indicator.yaml
+# 维度深度指标：每个 activated 维度在最终 standard 文件中应满足的最低产出深度
+# 由 review-and-quality-gate / coverage-reviewer 在 R53 双门禁阶段引用
+# 来源：Phase 2 plan U1 §Approach（baseline 默认值）
+
+version: v0.1.0
+
+baseline:
+  min_rules_per_dimension: 3
+  min_evidence_per_rule: 1
+  min_code_examples: 2
+  min_positive_negative_pair: 1
+  description: |
+    每个被激活（state = activated 或 baseline pending → activated）的维度最少必须包含：
+    - 3 条 rules（每条引用 1+ evidence、含正/反例至少 1 对）
+    - 维度章节内至少出现 2 个代码示例（含语言标记的 fenced code block）
+    - 至少 1 对正反例（positive ✅ / negative ❌）
+
+# 端 / 行业可在此覆盖更严格的深度门槛；缺省 fallback 至 baseline
+overrides:
+  app-client: {}
+  frontend: {}
+  backend: {}
+  industry: {}
+  industry-securities:
+    SEC-03:
+      min_rules_per_dimension: 5
+      min_evidence_per_rule: 2
+      reason: 实时风控为高风险维度，要求更深产出
+    SEC-06:
+      min_rules_per_dimension: 5
+      min_evidence_per_rule: 2
+      reason: 监管报送涉及合规与不可篡改要求
+    XSEC-03:
+      min_rules_per_dimension: 4
+      min_evidence_per_rule: 2
+      reason: 跨境合规额度涉及外管 / 监管申报
+
+# pending（baseline 维度无 evidence 时）态产物的最低占位要求
+pending_placeholder:
+  min_rules_per_dimension: 1
+  min_evidence_per_rule: 0
+  must_include_pending_marker: true
+  description: |
+    baseline 维度即使无 evidence 也必须出章节，标记为 pending
+    并附 must_check_items 清单，由 owner 后续补齐 evidence。
+
+# candidate（未激活维度地图）产物的最低要求
+candidate_map_entry:
+  must_include:
+    - dimension_id
+    - name
+    - core_concerns
+    - must_check_items
+    - reason_not_activated
+    - signals_evaluated
+  description: |
+    候选维度（未激活）只在 dimension-coverage-map.md 中以索引形式呈现，
+    不在 standard-*.md 中产出章节。

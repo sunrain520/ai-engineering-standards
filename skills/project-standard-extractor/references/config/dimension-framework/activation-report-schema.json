@@ -1,0 +1,209 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/xiaobu/ai-engineering-standards/skills/project-standard-extractor/references/config/dimension-framework/activation-report-schema.json",
+  "title": "Activation Report v1",
+  "type": "object",
+  "required": ["schema", "run_id", "timestamp", "last_commit", "scope", "gitnexus_readiness", "dimensions", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "$comment": { "type": "string" },
+    "schema": { "const": "activation-report.v1" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "string", "minLength": 1 },
+    "project_paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "last_commit": {
+      "type": "object",
+      "required": ["sha", "iso_date", "branch"],
+      "additionalProperties": false,
+      "properties": {
+        "sha": { "type": "string", "minLength": 1 },
+        "iso_date": { "type": "string", "minLength": 1 },
+        "branch": { "type": "string", "minLength": 1 }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": ["dev_domains", "sub_domains", "industry_domains"],
+      "additionalProperties": false,
+      "properties": {
+        "dev_domains": { "type": "array", "items": { "type": "string" } },
+        "sub_domains": { "type": "array", "items": { "type": "string" } },
+        "industry_domains": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "gitnexus_readiness": {
+      "type": "object",
+      "required": ["available", "fallback_used", "state"],
+      "additionalProperties": false,
+      "properties": {
+        "available": { "type": "boolean" },
+        "graph_facts_path": { "type": ["string", "null"] },
+        "graph_mtime_iso": { "type": ["string", "null"] },
+        "stale_days": { "type": ["number", "null"] },
+        "fallback_used": { "type": "boolean" },
+        "state": {
+          "type": "string",
+          "enum": ["available", "unavailable", "stale", "blocked", "dirty-advisory", "query-failed"]
+        }
+      }
+    },
+    "dimensions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/dimension" }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_dimensions", "baseline_count", "activated_count", "candidate_count", "pending_count", "shallow_count"],
+      "additionalProperties": false,
+      "properties": {
+        "total_dimensions": { "type": "integer", "minimum": 0 },
+        "baseline_count": { "type": "integer", "minimum": 0 },
+        "activated_count": { "type": "integer", "minimum": 0 },
+        "candidate_count": { "type": "integer", "minimum": 0 },
+        "pending_count": { "type": "integer", "minimum": 0 },
+        "shallow_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "evolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "previous_report_path": { "type": ["string", "null"] },
+        "previous_run_id": { "type": ["string", "null"] },
+        "previous_timestamp": { "type": ["string", "null"] },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["dimension_id", "from_state", "to_state", "transition_reason"],
+            "additionalProperties": false,
+            "properties": {
+              "dimension_id": { "type": "string", "minLength": 1 },
+              "from_state": { "$ref": "#/definitions/state" },
+              "to_state": { "$ref": "#/definitions/state" },
+              "transition_reason": { "type": "string", "minLength": 1 },
+              "evidence_diff": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "stable_count": { "type": "integer", "minimum": 0 },
+        "transitioned_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "cross_project": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "project_index": { "type": ["integer", "null"], "minimum": 0 },
+        "project_count": { "type": ["integer", "null"], "minimum": 0 },
+        "unified_map_ref": { "type": ["string", "null"] },
+        "divergence_doc_ref": { "type": ["string", "null"] }
+      }
+    },
+    "open_questions": { "type": "array", "items": { "type": "string" } },
+    "stop_conditions_hit": { "type": "array", "items": { "type": "string" } },
+    "warnings": { "type": "array", "items": { "type": "string" } },
+    "limitations": { "type": "array", "items": { "type": "string" } }
+  },
+  "definitions": {
+    "state": {
+      "type": "string",
+      "enum": ["baseline", "activated", "candidate", "pending-confirmation", "shallow"]
+    },
+    "dimension": {
+      "type": "object",
+      "required": ["dimension_id", "name", "layer", "state", "rationale", "signals_evaluated", "evidence_paths", "evidence_count", "depth_score", "depth_indicator", "skeleton_section"],
+      "additionalProperties": false,
+      "properties": {
+        "$comment": { "type": "string" },
+        "dimension_id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "layer": { "type": "string", "minLength": 1 },
+        "sub_domain": { "type": ["string", "null"] },
+        "state": { "$ref": "#/definitions/state" },
+        "rationale": { "type": "string", "minLength": 1 },
+        "signals_evaluated": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "type", "source", "hit", "weight"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "type": { "type": "string", "minLength": 1 },
+              "source": {
+                "type": "string",
+                "enum": ["grep", "ast", "file_existence", "dependency", "gitnexus", "doc-content"]
+              },
+              "hit": { "type": "boolean" },
+              "weight": { "type": "integer", "minimum": 0 },
+              "evidence_paths": { "type": "array", "items": { "type": "string" } },
+              "evidence": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/evidence" }
+              },
+              "fallback": {
+                "type": ["string", "null"],
+                "enum": ["grep", "ast", "file_existence", "dependency", "doc-content", null]
+              },
+              "limitations": {
+                "type": ["string", "array", "null"],
+                "items": { "type": "string" }
+              },
+              "evidence_truncated": { "type": "boolean" }
+            }
+          }
+        },
+        "evidence_paths": { "type": "array", "items": { "type": "string" } },
+        "evidence_count": { "type": "integer", "minimum": 0 },
+        "depth_score": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "depth_indicator": { "type": "string", "enum": ["deep", "shallow", "-"] },
+        "skeleton_section": { "type": ["string", "null"] },
+        "candidate_hint": {
+          "type": "object",
+          "required": ["trigger_when", "suggested_owner_question"],
+          "additionalProperties": false,
+          "properties": {
+            "trigger_when": { "type": "string", "minLength": 1 },
+            "suggested_owner_question": { "type": "string", "minLength": 1 }
+          }
+        },
+        "owner_confirmations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["owner", "confirmed_at", "decision", "evidence_ref"],
+            "additionalProperties": false,
+            "properties": {
+              "owner": { "type": "string", "minLength": 1 },
+              "confirmed_at": { "type": ["string", "null"] },
+              "decision": { "type": "string", "enum": ["confirmed", "rejected", "deferred"] },
+              "evidence_ref": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+        "type": "object",
+        "required": ["file_path", "source"],
+        "additionalProperties": false,
+        "properties": {
+          "file_path": { "type": "string", "minLength": 1 },
+          "line": { "type": ["integer", "null"], "minimum": 1 },
+          "snippet": { "type": "string" },
+          "source": {
+            "type": "string",
+            "enum": ["grep", "ast", "file_existence", "dependency", "gitnexus", "doc-content"]
+          },
+          "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }

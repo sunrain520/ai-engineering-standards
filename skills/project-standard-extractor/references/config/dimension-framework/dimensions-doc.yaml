@@ -1,0 +1,119 @@
+layer: doc
+end: doc
+version: v0.1.0
+subdomains:
+  - glossary
+  - domain-model
+  - dev-standard
+  - api-contract
+  - decision
+
+dimensions:
+  EA-Doc-Glossary:
+    name: 业务术语表 / Ubiquitous Language
+    owner_phase: generation
+    subdomain_hint: glossary
+    core_concerns:
+      - 业务核心术语定义清晰
+      - 跨团队 / 跨服务术语一致
+      - AI 编码时采用团队术语而非通用描述
+    must_check_items:
+      - 术语表文件存在且含至少 5 条业务术语
+      - 每条术语有清晰定义和来源 file_path
+      - 术语与代码标识符一致
+    activation_signal_hints:
+      - docs/glossary*.md
+      - docs/terms*.md
+      - docs/ubiquitous-language*.md
+      - heading 含 glossary / ubiquitous language
+    evidence_artifact: evidence/knowledge/glossary.md
+    cross_dimensions:
+      - EA-Doc-DomainModel
+      - EA-Doc-Standard
+
+  EA-Doc-DomainModel:
+    name: 领域模型 / 实体关系 / Bounded Context
+    owner_phase: generation
+    subdomain_hint: domain-model
+    core_concerns:
+      - 核心实体边界清晰
+      - Bounded Context 映射有文档
+      - 实体关系图或文字描述存在
+    must_check_items:
+      - 文档含核心实体定义
+      - Bounded Context 边界在文档中可查
+      - 跨上下文通信契约有说明
+    activation_signal_hints:
+      - docs/domain-model*.md
+      - docs/architecture*.md
+      - docs/ddd*.md
+      - heading 含 domain model / bounded context
+    evidence_artifact: evidence/knowledge/domain-model.md
+    cross_dimensions:
+      - EA-Doc-Glossary
+      - EA-Doc-Decision
+
+  EA-Doc-Standard:
+    name: 团队开发规范 / Convention / Style Guide
+    owner_phase: generation
+    subdomain_hint: dev-standard
+    core_concerns:
+      - 团队编码规范有书面记录
+      - 贡献指南存在
+      - 命名 / 分支 / PR / commit 规范有说明
+    must_check_items:
+      - CONTRIBUTING.md 或等价规范文档存在
+      - 含命名规范 / 分支规范 / commit 格式
+      - 规范文档与 AI 规范产物互引无冲突
+    activation_signal_hints:
+      - CONTRIBUTING.md
+      - STYLE.md / STYLE_GUIDE.md
+      - docs/standard*.md
+      - docs/conventions*.md
+    evidence_artifact: ""
+    cross_dimensions:
+      - EA-Doc-Glossary
+
+  EA-Doc-API:
+    name: API 契约 / OpenAPI / Swagger / GraphQL Schema
+    owner_phase: generation
+    subdomain_hint: api-contract
+    core_concerns:
+      - API 端点有 OpenAPI / Swagger 等机器可读文档
+      - 请求 / 响应 schema 有定义
+      - 版本变更有说明
+    must_check_items:
+      - openapi.yaml / swagger.yaml 或等价文件存在
+      - paths 字段列出主要端点
+      - 响应 schema 有 200 / 4xx / 5xx 说明
+    activation_signal_hints:
+      - "openapi*.{yaml,json}"
+      - "swagger*.{yaml,json}"
+      - "*.graphql"
+      - "schema.graphql"
+      - top-level openapi / swagger / paths 字段
+    evidence_artifact: evidence/knowledge/api-contract.md
+    cross_dimensions:
+      - EA-Doc-Standard
+
+  EA-Doc-Decision:
+    name: ADR / RFC / 设计决策记录
+    owner_phase: generation
+    subdomain_hint: decision
+    high_risk_fallback: baseline
+    core_concerns:
+      - 重要技术 / 架构决策有 ADR/RFC 记录
+      - 每条决策含状态
+      - 决策来源与背景可追溯
+    must_check_items:
+      - docs/adr/ 或 docs/decisions/ 目录存在，且含至少 1 条 ADR
+      - 每条 ADR 含标题、状态、背景、决策、后果
+    activation_signal_hints:
+      - docs/adr/*.md
+      - docs/decisions/*.md
+      - docs/rfc/*.md
+      - heading 含 ADR / RFC / Decision
+    evidence_artifact: evidence/knowledge/decisions-summary.md
+    cross_dimensions:
+      - EA-Doc-DomainModel
+      - EA-Doc-Standard
