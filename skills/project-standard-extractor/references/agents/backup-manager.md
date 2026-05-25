@@ -50,7 +50,7 @@ inputs:
   config_refs:
     - references/config/backup/manifest-schema.json
     - assets/backup-manifest-template.json
-    - scripts/backup.sh
+    - tools/maintainer/project-standard-extractor/backup.sh
 ```
 
 ---
@@ -60,12 +60,12 @@ inputs:
 ```yaml
 outputs:
   action_taken: backup-and-rename | restored | pinned | unpinned | listed | rolled-back | rolled-back-after-changelog-fail | rejected
-  backup_path: ".local-backups/01-app-client/20260525T045000Z/"   # 相对仓库根
-  manifest_path: ".local-backups/01-app-client/20260525T045000Z/manifest.json"
+  backup_path: "tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T045000Z/"   # 相对仓库根
+  manifest_path: "tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T045000Z/manifest.json"
   retained_count: 5                              # --keep=N 清理后剩余 backup 数
   success: true | false
   failure_reason: ""                             # success=false 时填,枚举见下方失败模式表
-  log_path: ".local-backups/01-app-client/20260525T045000Z/failure.log"  # 仅 failure path
+  log_path: "tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T045000Z/failure.log"  # 仅 failure path
   awaiting_user_confirmation: false              # safeguard 2 后等用户输入时 = true
   dry_run_preview:                               # 仅 awaiting_user_confirmation=true 时
     files_to_overwrite: []
@@ -87,7 +87,7 @@ outputs:
 
 ### Step 1 — 取 domain lock
 
-- `mkdir skills/project-standard-extractor/.local-backups/<domain>/.lock`(原子操作,依赖 OS mkdir 互斥)
+- `mkdir tools/maintainer/project-standard-extractor/.local-backups/<domain>/.lock`(原子操作,依赖 OS mkdir 互斥)
 - 失败(目录已存在)→ 拒绝,`failure_reason: ANOTHER_FORCE_REBUILD_IN_PROGRESS`
 - 后续任何路径都通过 `trap` / 显式释放(`rmdir .lock`)
 
@@ -97,17 +97,17 @@ outputs:
 - 确认非 shallow clone:`[ -f .git/shallow ]`,存在 → `failure_reason: SHALLOW_CLONE_REJECTED`
 - 收窄到 domain:`git status --porcelain --ignored=no engineering-standards/<domain>/`
 - 输出非空 → `failure_reason: WORKTREE_DIRTY`,把 porcelain 输出附在 log
-- `.local-backups/` 不参与校验(`--ignored=no` + 路径前缀已收窄到 `engineering-standards/<domain>/`)
+- `tools/maintainer/project-standard-extractor/.local-backups/` 不参与校验(`--ignored=no` + 路径前缀已收窄到 `engineering-standards/<domain>/`)
 
 ### Step 3 — safeguard 2: dry-run 预览
 
-- 调用 `scripts/backup.sh --dry-run --domain=<domain>` 计算:
+- 调用 `tools/maintainer/project-standard-extractor/backup.sh --dry-run --domain=<domain>` 计算:
   - sha256 fingerprint:对源目录 `find engineering-standards/<domain> -type f -not -path '*/evidence/raw-*' -not -path '*/temp/*' -not -path '*/.git/*' | LC_ALL=C sort | xargs -I{} (echo {}; cat {}) | shasum -a 256` (脚本兼容 BSD/GNU)
   - file_count / byte_count
   - exclude_patterns 实际生效清单
-  - backup target path = `.local-backups/<domain>/<UTC-ts>/`(`<UTC-ts>` = `date -u +%Y%m%dT%H%M%SZ`)
+  - backup target path = `tools/maintainer/project-standard-extractor/.local-backups/<domain>/<UTC-ts>/`(`<UTC-ts>` = `date -u +%Y%m%dT%H%M%SZ`)
 - 加载 dimension_activation_report_summary(从 `engineering-standards/<domain>/evidence/dimension-activation-report.json` 读),写入预览
-- `git check-ignore skills/project-standard-extractor/.local-backups/test`,非命中 → 在 dry-run 输出加黄色提示(skill 不自动改 `.gitignore`)
+- `git check-ignore tools/maintainer/project-standard-extractor/.local-backups/test`,非命中 → 在 dry-run 输出加黄色提示(skill 不自动改 `.gitignore`)
 - 输出 `awaiting_user_confirmation: true`,把以上字段全部写到 `dry_run_preview`,提示用户输入 `confirm <domain>`
 - **把 sha256 fingerprint + porcelain snapshot 保存到本 run 内存(不落盘)**
 
@@ -123,8 +123,8 @@ outputs:
 
 ### Step 5 — 创建 backup 目录
 
-- `mkdir -p skills/project-standard-extractor/.local-backups/<domain>/<UTC-ts>/`
-- `cd` 到仓库根,调用 `scripts/backup.sh --domain=<domain> --target=<backup_dir>`
+- `mkdir -p tools/maintainer/project-standard-extractor/.local-backups/<domain>/<UTC-ts>/`
+- `cd` 到仓库根,调用 `tools/maintainer/project-standard-extractor/backup.sh --domain=<domain> --target=<backup_dir>`
 - 脚本默认排除 `evidence/raw-*` / `temp/` / `.git`,把实际排除清单回传
 
 ### Step 6 — 写 manifest.json
@@ -152,7 +152,7 @@ outputs:
 ### Step 8 — `--keep=N` 自动清理
 
 - 默认 `N=10`,可由 `mode_args.keep` 覆盖
-- 列出 `skills/project-standard-extractor/.local-backups/<domain>/`(排除 `.lock/` 和 `.broken-<ts>` 目录)
+- 列出 `tools/maintainer/project-standard-extractor/.local-backups/<domain>/`(排除 `.lock/` 和 `.broken-<ts>` 目录)
 - 用 `find ... -mindepth 1 -maxdepth 1 -type d -name '[0-9]*'` + `LC_ALL=C sort` 按 backup_id 字典序(等价于 UTC 时间序)
 - 逐项读 `manifest.json.pin`(老备份缺字段 → 视为 `pin: false`,**向后兼容**;详见 §pin 字段缺失兼容)
 - **`pin: true` 的备份永不计入 N**:把所有 `pin: false` / 缺 pin 字段的 backup 排序后,只保留最近 N 份,删除其余
@@ -184,12 +184,12 @@ outputs:
 phase 2 default `full` 管道在 merge-coordinator 移交后,本 agent 调:
 
 ```bash
-scripts/force-rebuild-validate.sh \
+tools/maintainer/project-standard-extractor/force-rebuild-validate.sh \
   --domain="<domain>" \
   --backup-dir="<absolute backup dir>"
 ```
 
-**校验脚本输出契约**(stdout JSON,详见 `scripts/force-rebuild-validate.sh`):
+**校验脚本输出契约**(stdout JSON,详见 `tools/maintainer/project-standard-extractor/force-rebuild-validate.sh`):
 
 - 退出码 `0` + `{"valid": true, "checks": {...}}` → 进入 step 10a success path
 - 退出码 `1` + `{"valid": false, "checks": {...}, "failure": {"check": "<name>", "expected": "...", "actual": "..."}}` → 进入 step 10b failure path
@@ -242,9 +242,9 @@ scripts/force-rebuild-validate.sh \
 
 #### restore(`output_action=restore --restore=<ts>`)
 1. 取 domain lock(同 step 1)
-2. 校验 `.local-backups/<domain>/<ts>/manifest.json` 存在 + ajv valid + `manifest.json.sha256` 匹配 + `manifest.domain == domain` + `manifest.backup_id == <ts>`;否则拒绝
+2. 校验 `tools/maintainer/project-standard-extractor/.local-backups/<domain>/<ts>/manifest.json` 存在 + ajv valid + `manifest.json.sha256` 匹配 + `manifest.domain == domain` + `manifest.backup_id == <ts>`;否则拒绝
 3. **不产生新 backup**(I3 invariant)
-4. 调 `scripts/backup.sh --restore --domain=<domain> --source=.local-backups/<domain>/<ts>/`;脚本从 `<backup_dir>/payload` 恢复并排除 metadata
+4. 调 `tools/maintainer/project-standard-extractor/backup.sh --restore --domain=<domain> --source=tools/maintainer/project-standard-extractor/.local-backups/<domain>/<ts>/`;脚本从 `<backup_dir>/payload` 恢复并排除 metadata
 5. 脚本内部独占 atomic rename:`<domain>` → `<domain>.pre-restore-<now>`,并校验 restore source 与恢复后目录的 `file_count / byte_count / sha256_fingerprint` 均等于 manifest.stats;失败 → 脚本反向 atomic rename
 6. 脚本校验成功后删除内部 `.pre-restore-<now>`
 7. 调用 changelog-append helper 追加恢复条目
@@ -252,7 +252,7 @@ scripts/force-rebuild-validate.sh \
 
 #### pin(`output_action=pin --restore=<ts>`)
 1. 取 domain lock
-2. 找到 `.local-backups/<domain>/<ts>/manifest.json`(不存在 → 拒绝 `RESTORE_MANIFEST_INVALID`)
+2. 找到 `tools/maintainer/project-standard-extractor/.local-backups/<domain>/<ts>/manifest.json`(不存在 → 拒绝 `RESTORE_MANIFEST_INVALID`)
 3. 把 `pin` 改 true(老 manifest 缺 `pin` 字段时自动补全);写回前 ajv valid 校验
 4. atomic 写回(tmp file + mv);重算 `manifest.json.sha256`
 5. **不**追加 CHANGELOG(pin / unpin 不算 source 变更)
@@ -260,7 +260,7 @@ scripts/force-rebuild-validate.sh \
 
 #### unpin(`output_action=unpin --restore=<ts>`)
 1. 取 domain lock
-2. 找到 `.local-backups/<domain>/<ts>/manifest.json`(不存在 → 拒绝 `RESTORE_MANIFEST_INVALID`)
+2. 找到 `tools/maintainer/project-standard-extractor/.local-backups/<domain>/<ts>/manifest.json`(不存在 → 拒绝 `RESTORE_MANIFEST_INVALID`)
 3. 把 `pin` 改 false(老 manifest 缺 `pin` 字段时直接写 false);写回前 ajv valid 校验
 4. atomic 写回(tmp file + mv);重算 `manifest.json.sha256`
 5. **不**追加 CHANGELOG
@@ -268,7 +268,7 @@ scripts/force-rebuild-validate.sh \
 
 #### list(`output_action=list`)
 1. **不取 lock**(只读操作);**不**追加 CHANGELOG
-2. 调用 `scripts/backup.sh --list --domain=<domain>` 列出 `.local-backups/<domain>/` 下所有 backup
+2. 调用 `tools/maintainer/project-standard-extractor/backup.sh --list --domain=<domain>` 列出 `tools/maintainer/project-standard-extractor/.local-backups/<domain>/` 下所有 backup
 3. 输出契约(JSON 数组,字典序按 `backup_id` 排序):
    ```json
    [
@@ -353,7 +353,7 @@ scripts/force-rebuild-validate.sh \
 - [ ] **`output_action ≠ append` 与 `extraction_mode = diff` / 多 projects 互斥**:本 agent 启动前 intake-and-scope 已在 SKILL 调用协议层校验过,本 agent 再做一次双层防御
 - [ ] **non-interactive context 拒绝**:host 没有 AskUserQuestion / request_user_input → 立即拒 force-rebuild,不进入 step 2
 - [ ] **`.gitignore` 检测**:dry-run 输出黄色提示;skill 不自动改用户 `.gitignore`
-- [ ] **`in_progress_lock` 残留检测**:任意 mode 启动时检查 `.local-backups/<domain>/*/manifest.json.in_progress_lock != null` → 提示"上次 force-rebuild 未完成"
+- [ ] **`in_progress_lock` 残留检测**:任意 mode 启动时检查 `tools/maintainer/project-standard-extractor/.local-backups/<domain>/*/manifest.json.in_progress_lock != null` → 提示"上次 force-rebuild 未完成"
 - [ ] **CHANGELOG 追加由 U24 helper 统一**:本 agent step 10a 调用 helper,不在本 agent 内拼接字符串
 
 ---
@@ -363,11 +363,11 @@ scripts/force-rebuild-validate.sh \
 | 想了解 | 看这里 |
 | --- | --- |
 | safeguard / atomic rename / 回滚的 plan 级 Approach 表述 | `docs/plans/2026-05-24-001-feat-skill-phase-2-dimension-framework-plan.md §U23` |
-| force-rebuild 与 SKILL 调用协议的关系 | `SKILL.md §调用协议 + §强制边界 #9 #10` |
-| 重生管道(phase 2 default `full`)与 4 项确定性校验 | U24 + `scripts/force-rebuild-validate.sh` |
+| force-rebuild 与公开入口的关系 | `SKILL.md §Maintainer References` + `references/workflow.md#maintainer--repair-only` |
+| 重生管道(phase 2 default `full`)与 4 项确定性校验 | U24 + `tools/maintainer/project-standard-extractor/force-rebuild-validate.sh` |
 | CHANGELOG 追加 helper(U21 / U24 共用) | `references/prompts/orchestrator/force-rebuild/changelog-append.md` |
 | force-rebuild 主 prompt 与 backup-manager prompt | `references/prompts/orchestrator/force-rebuild/force-rebuild.md` + `references/prompts/orchestrator/force-rebuild/backup-manager.md` |
 | backup 目录布局 / 排除模式 / `.gitignore` 检测 | `references/config/backup/manifest-schema.json` |
 | manifest.json 字段定义 | `references/config/backup/manifest-schema.json`(schema=`backup-manifest.v1`) |
 | manifest 写入模板 | `assets/backup-manifest-template.json` |
-| 跨平台 cp / mv / find / sha256 命令 | `scripts/backup.sh` + `scripts/backup.sh` |
+| 跨平台 cp / mv / find / sha256 命令 | `tools/maintainer/project-standard-extractor/backup.sh` |

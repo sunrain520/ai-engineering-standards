@@ -125,7 +125,7 @@ scope_summary:
 
 - `merge-coordinator.merge_summary.final_status ∈ {failed, partial}` → 触发 step 10b 回滚(force-rebuild 严格模式)
 - `review-and-quality-gate.quality_gate_decisions[].status` 出现 `blocked` 或 `conflict` → 即便其他 check pass 也走 step 10b
-- `scripts/force-rebuild-validate.sh` exit code 非 0 → 按 stdout JSON 的 `failure.check` 字段写 manifest.rollback,走 step 10b
+- `tools/maintainer/project-standard-extractor/force-rebuild-validate.sh` exit code 非 0 → 按 stdout JSON 的 `failure.check` 字段写 manifest.rollback,走 step 10b
 - `references/prompts/orchestrator/force-rebuild/changelog-append.md` helper 返回 `success: false` → 走 step 10a 末段特例回滚(用 backup_dir 重建)
 
 intake-and-scope 不直接执行回滚,只做信号路由;具体回滚动作由 backup-manager step 10a/10b 内部实现。
@@ -141,8 +141,8 @@ scope_summary:
   operator: "<host developer profile>"  # 由 .claude/spec-first/.developer 或 .codex/spec-first/.developer 读
   backup_manager_handoff:               # output_action ≠ append 时填
     awaiting_user_confirmation: false
-    backup_path: ".local-backups/01-app-client/20260525T045000Z/"
-    manifest_path: ".local-backups/01-app-client/20260525T045000Z/manifest.json"
+    backup_path: "tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T045000Z/"
+    manifest_path: "tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T045000Z/manifest.json"
 ```
 
 ### Step 5 — 敏感文件策略

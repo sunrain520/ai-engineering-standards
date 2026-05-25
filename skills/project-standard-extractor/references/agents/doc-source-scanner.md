@@ -126,4 +126,4 @@ batch_facts:
 
 ## 与 force-rebuild 协同
 
-`evidence/knowledge/` 子目录纳入 `scripts/backup.sh` 的备份范围（已在 exclude_patterns 中只排除 `evidence/raw-*`，knowledge/ 子目录被包含在 cp -a 范围内）。
+`evidence/knowledge/` 子目录纳入 `tools/maintainer/project-standard-extractor/backup.sh` 的备份范围（已在 exclude_patterns 中只排除 `evidence/raw-*`，knowledge/ 子目录被包含在 cp -a 范围内）。

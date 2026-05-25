@@ -3,7 +3,7 @@
 # 由 U24 Step 10 调用,4 项校验全部通过 → success path;任一失败 → backup-manager 触发 atomic rollback
 #
 # 用法:
-#   scripts/force-rebuild-validate.sh --domain=<domain> --backup-dir=<backup_dir>
+#   tools/maintainer/project-standard-extractor/force-rebuild-validate.sh --domain=<domain> --backup-dir=<backup_dir>
 #
 # 输出: stdout JSON
 #   { "valid": true,  "checks": { ... } }            # 全过

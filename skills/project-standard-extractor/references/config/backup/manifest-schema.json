@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "project-standard-extractor/references/config/backup/manifest-schema.json",
   "title": "backup-manifest.v1",
-  "description": "schema=backup-manifest.v1。校验 .local-backups/<domain>/<UTC-ts>/manifest.json。所有 force-rebuild / restore / pin / unpin / list 操作必须按本 schema 读写或只读。",
+  "description": "schema=backup-manifest.v1。校验 tools/maintainer/project-standard-extractor/.local-backups/<domain>/<UTC-ts>/manifest.json。所有 force-rebuild / restore / pin / unpin / list 操作必须按本 schema 读写或只读。",
   "type": "object",
   "required": [
     "schema",
@@ -24,7 +24,7 @@
     },
     "backup_id": {
       "type": "string",
-      "description": "UTC timestamp basic ISO（无标点）形式：YYYYMMDDTHHMMSSZ。与 .local-backups/<domain>/<backup_id>/ 目录名一致。",
+      "description": "UTC timestamp basic ISO（无标点）形式：YYYYMMDDTHHMMSSZ。与 tools/maintainer/project-standard-extractor/.local-backups/<domain>/<backup_id>/ 目录名一致。",
       "pattern": "^[0-9]{8}T[0-9]{6}Z$"
     },
     "created_at": {

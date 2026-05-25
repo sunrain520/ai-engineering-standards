@@ -227,15 +227,15 @@ force-rebuild 执行：备份 → 重生 → 校验 + 4 项确定性 check。
 **Then**
 
 - `evidence/knowledge/` 目录纳入备份范围（`backup.sh --domain=01-app-client` 的 cp -a 包含 knowledge/）
-- `scripts/backup.sh --dry-run --domain=01-app-client` 输出的 `file_count` 包含 knowledge/*.md
+- `tools/maintainer/project-standard-extractor/backup.sh --dry-run --domain=01-app-client` 输出的 `file_count` 包含 knowledge/*.md
 - 重生后 `evidence/knowledge/glossary.md` 存在（重跑 doc-source-scanner 重新产出）
 - sha256 fingerprint 一致（重生产物字节级与备份相同 schema）
 
 **回归断言**
 
 ```bash
-scripts/backup.sh --dry-run --domain=01-app-client | jq '.file_count' | awk '$1>=1{print "OK"}'
-[ -f .local-backups/01-app-client/*/knowledge/glossary.md ] || echo "WARN: knowledge not in backup"
+tools/maintainer/project-standard-extractor/backup.sh --dry-run --domain=01-app-client | jq '.file_count' | awk '$1>=1{print "OK"}'
+[ -f tools/maintainer/project-standard-extractor/.local-backups/01-app-client/*/knowledge/glossary.md ] || echo "WARN: knowledge not in backup"
 ```
 
 ---

@@ -33,7 +33,7 @@ tags: ["industry", "finance"]
 ```text
 {module}/
 ├── payment/
-├── wallet/
+├── balance-account/
 ├── refund/
 ├── risk/
 └── reconciliation/
@@ -44,7 +44,7 @@ tags: ["industry", "finance"]
 | 层级 | 职责 | 禁止 |
 | --- | --- | --- |
 | payment | 收单 / 通道路由 | 钱包余额变更 |
-| wallet | 余额账户 | 渠道直连 |
+| balance-account | 余额账户 | 渠道直连 |
 | risk | 反欺诈 / 限额 | 业务路由 |
 | reconciliation | 对账 / 差错 | 实时交易 |
 
@@ -79,7 +79,7 @@ tags: ["industry", "finance"]
 
 ## 9. 错误模型 [{{activation_state_section_9}}]
 
-- `PAYMENT_FAILED_*` / `RISK_BLOCKED_*` / `WALLET_INSUFFICIENT_*`
+- `PAYMENT_FAILED_*` / `RISK_BLOCKED_*` / `BALANCE_INSUFFICIENT_*`
 - 通道错误统一映射至业务错误码,保留通道原始码于 `extra`
 
 ## 10. AI 生成要求 [{{activation_state_section_10}}]

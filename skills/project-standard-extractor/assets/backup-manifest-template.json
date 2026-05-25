@@ -1,5 +1,5 @@
 {
-  "$comment": "backup-manifest 写入模板。schema=backup-manifest.v1。生产文件由 scripts/backup.sh 生成,backup-manager 在 success/failure path 中追加 in_progress_lock / rollback 段。所有字段必须按 references/config/backup/manifest-schema.json 校验。",
+  "$comment": "backup-manifest 写入模板。schema=backup-manifest.v1。生产文件由 tools/maintainer/project-standard-extractor/backup.sh 生成,backup-manager 在 success/failure path 中追加 in_progress_lock / rollback 段。所有字段必须按 references/config/backup/manifest-schema.json 校验。",
   "schema": "backup-manifest.v1",
   "backup_id": "<UTC-ts: YYYYMMDDTHHMMSSZ>",
   "created_at": "<ISO8601 UTC>",

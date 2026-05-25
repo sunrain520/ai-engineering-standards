@@ -52,6 +52,12 @@
 {
   "schema": "activation-report.v1",
   "run_id": "<YYYYMMDD-HHMMSS-domain>",
+  "timestamp": "2026-05-25T00:00:00Z",
+  "last_commit": {
+    "sha": "<git-sha-or-unknown>",
+    "iso_date": "2026-05-25T00:00:00Z",
+    "branch": "<branch>"
+  },
   "scope": {
     "dev_domains": ["app-client"],
     "sub_domains": ["kmp-shared", "android", "ios", "hybrid-bridge"],
@@ -74,7 +80,9 @@
       "rationale": "baseline 不参与激活判定",
       "signals_evaluated": [],
       "evidence_paths": [],
+      "evidence_count": 0,
       "depth_score": null,
+      "depth_indicator": "-",
       "skeleton_section": null
     },
     {
@@ -88,7 +96,9 @@
         {"id": "kmp-gradle-plugin", "type": "dependency", "source": "dependency", "hit": true, "weight": 1}
       ],
       "evidence_paths": ["shared/src/commonMain/", "shared/build.gradle.kts"],
+      "evidence_count": 2,
       "depth_score": 0.82,
+      "depth_indicator": "deep",
       "skeleton_section": "assets/skeletons/app-client/kmp-shared-skeleton.md"
     },
     {
@@ -102,7 +112,9 @@
         {"id": "ios-keychain-import", "type": "grep", "source": "grep", "hit": false, "weight": 1}
       ],
       "evidence_paths": ["app/src/main/.../KeystoreBridge.kt"],
+      "evidence_count": 1,
       "depth_score": 0.45,
+      "depth_indicator": "-",
       "skeleton_section": null
     },
     {
@@ -113,7 +125,9 @@
       "rationale": "无任何 signal 命中",
       "signals_evaluated": [],
       "evidence_paths": [],
+      "evidence_count": 0,
       "depth_score": 0.0,
+      "depth_indicator": "-",
       "skeleton_section": null,
       "candidate_hint": {
         "trigger_when": "出现 baseline-profiler / Macrobenchmark / Startup library import",
@@ -126,7 +140,7 @@
     "baseline_count": 6,
     "activated_count": 1,
     "pending_count": 1,
-    "candidate_count": 0,
+    "candidate_count": 1,
     "shallow_count": 0
   },
   "open_questions": [],
@@ -189,7 +203,7 @@
 | `all` | 全部 signal hit → `activated`；否则 `candidate`（部分命中也不升级） |
 | `weighted` | sum(weight×hit) ≥ `threshold` → `activated`；命中但 < threshold → `pending-confirmation`；零命中 → `candidate` |
 
-baseline 维度默认 `state = pending-confirmation`，除非存在 owner 确认或可验证 evidence 支撑最小 baseline 内容；generation 只能从 `baseline-dimensions.yaml.default_content` 渲染，不得编造强制规则。
+baseline 维度不参与激活规则判定；`baseline-dimensions.yaml` 全集必须始终写入 `dimensions[]`，且 `state = baseline`。无 evidence 时，generation 只能从 `baseline-dimensions.yaml.default_content` 渲染最小 draft 内容或 pending 记录，不得编造强制规则。
 
 ### Step 6 — 深度核验（depth-indicator）
 
@@ -228,6 +242,8 @@ baseline 维度默认 `state = pending-confirmation`，除非存在 owner 确认
 - [ ] state ∈ {baseline, activated, candidate, pending-confirmation, shallow}
 - [ ] activated 维度必须有 ≥ 1 evidence_path
 - [ ] activated / shallow 维度必须有 skeleton_section
+- [ ] baseline 维度全集已写入 `dimensions[]`，state 均为 `baseline`
+- [ ] baseline 维度 `evidence_count = 0` 时仍不得被降级为 `candidate`
 - [ ] candidate 维度必须有 candidate_hint
 - [ ] gitnexus_readiness 字段完整
 - [ ] 不出现真实项目绝对路径（路径必须 sanitize 为相对路径或 glob 模式）

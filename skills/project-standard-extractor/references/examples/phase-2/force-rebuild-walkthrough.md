@@ -32,7 +32,7 @@ keep: 10
 ```
 == Force Rebuild Dry Run ==
 domain: 01-app-client
-backup target: skills/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/
+backup target: tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/
 sha256 fingerprint: 9f2c4ab1...e7d3
 files: 28  bytes: 184320
 exclude: evidence/raw-*, temp/, .git
@@ -56,27 +56,27 @@ confirm 01-app-client
 ### 1.4 backup-manager 执行序列
 
 ```
-1. mkdir .local-backups/01-app-client/.lock                     ← 取 domain lock
-2. scripts/backup.sh --domain=01-app-client \
-        --target=.local-backups/01-app-client/20260525T021045Z/ ← payload 备份(--exclude evidence/raw-*, temp/, .git)
+1. mkdir tools/maintainer/project-standard-extractor/.local-backups/01-app-client/.lock                     ← 取 domain lock
+2. tools/maintainer/project-standard-extractor/backup.sh --domain=01-app-client \
+        --target=tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/ ← payload 备份(--exclude evidence/raw-*, temp/, .git)
 3. shasum -a 256 ... > manifest.json.sha256                    ← 完整性 fingerprint
 4. mv engineering-standards/01-app-client \
       engineering-standards/01-app-client.broken-20260525T021045Z   ← atomic rename(原子操作,最小窗口)
 5. (phase 2 default `full` 管道执行:profile → batch → activator → ... → merge)
-6. bash scripts/force-rebuild-validate.sh \
+6. bash tools/maintainer/project-standard-extractor/force-rebuild-validate.sh \
         --domain=01-app-client \
-        --backup-dir=skills/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/
+        --backup-dir=tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/
    stdout: {"valid": true, "checks": {...}}
    exit: 0
 7. (调用 changelog-append helper,见 1.6)
 8. rm -rf engineering-standards/01-app-client.broken-20260525T021045Z   ← changelog 成功后删除旧点位
-9. rmdir .local-backups/01-app-client/.lock                     ← 释放 lock
+9. rmdir tools/maintainer/project-standard-extractor/.local-backups/01-app-client/.lock                     ← 释放 lock
 ```
 
 ### 1.5 备份目录树
 
 ```
-skills/project-standard-extractor/.local-backups/01-app-client/
+tools/maintainer/project-standard-extractor/.local-backups/01-app-client/
 ├── 20260525T021045Z/                       ← 本次 backup_id
 │   ├── manifest.json                        ← {sha256, files, bytes, operator, run_id, pin: false, ...}
 │   ├── manifest.json.sha256
@@ -91,7 +91,7 @@ skills/project-standard-extractor/.local-backups/01-app-client/
 ### 1.6 CHANGELOG 追加(根 `CHANGELOG.md`)
 
 ```markdown
-- v0.1.0 2026-05-25 02:11:08 leokuang: 01-app-client 重生(baseline=11 activated=4 candidate=2 pending=1 shallow=0,backup: .local-backups/01-app-client/20260525T021045Z/) (user-visible)
+- v0.1.0 2026-05-25 02:11:08 leokuang: 01-app-client 重生(baseline=11 activated=4 candidate=2 pending=1 shallow=0,backup: tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/) (user-visible)
 ```
 
 (作者从 `.claude/spec-first/.developer` 读 `name: leokuang`;version 从 CHANGELOG 头部继承 `0.1.0`)
@@ -100,16 +100,16 @@ skills/project-standard-extractor/.local-backups/01-app-client/
 
 ```bash
 # 1. validate 通过
-bash skills/project-standard-extractor/scripts/force-rebuild-validate.sh \
+bash tools/maintainer/project-standard-extractor/force-rebuild-validate.sh \
      --domain=01-app-client \
-     --backup-dir=skills/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/; echo $?
+     --backup-dir=tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/; echo $?
 # 期望: 0
 
 # 2. broken-ts 已删
 ls engineering-standards/01-app-client.broken-* 2>&1 | grep -q "No such" && echo "ok"
 
 # 3. lock 已释放
-test ! -d skills/project-standard-extractor/.local-backups/01-app-client/.lock && echo "ok"
+test ! -d tools/maintainer/project-standard-extractor/.local-backups/01-app-client/.lock && echo "ok"
 
 # 4. CHANGELOG 含 run_id
 grep -c "20260525T021045Z" CHANGELOG.md   # 期望 ≥ 1
@@ -143,7 +143,7 @@ grep -c "20260525T021045Z" CHANGELOG.md   # 期望 ≥ 1
 3. rm -rf engineering-standards/01-app-client     ← 破损产物清除
 4. mv engineering-standards/01-app-client.broken-20260525T021045Z \
       engineering-standards/01-app-client          ← 反向 atomic rename(回滚)
-5. 写 .local-backups/01-app-client/20260525T021045Z/failure.log:
+5. 写 tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/failure.log:
 ```
 
 ### 2.4 failure.log 片段
@@ -174,7 +174,7 @@ recommended_action: 检查 engineering-standards/01-app-client/temp/<run_id>-rev
   "rollback": {
     "rolled_back_at": "2026-05-25T02:14:33Z",
     "failure_reason": "QUALITY_GATE_BLOCKED",
-    "failure_log_path": ".local-backups/01-app-client/20260525T021045Z/failure.log",
+    "failure_log_path": "tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/failure.log",
     "validation_failure": "quality_gate_decisions[].status: blocked"
   }
 }
@@ -183,8 +183,8 @@ recommended_action: 检查 engineering-standards/01-app-client/temp/<run_id>-rev
 ### 2.6 关键不变量
 
 - 根 `CHANGELOG.md` **不**追加(失败不留痕)
-- `.local-backups/01-app-client/.lock` 已 `rmdir` 释放
-- `engineering-standards/01-app-client/` 内容与 `.local-backups/01-app-client/20260525T021045Z/` 一致(sha256 校验通过)
+- `tools/maintainer/project-standard-extractor/.local-backups/01-app-client/.lock` 已 `rmdir` 释放
+- `engineering-standards/01-app-client/` 内容与 `tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T021045Z/` 一致(sha256 校验通过)
 - 备份点 `20260525T021045Z` 保留(供 host developer 复盘 + restore)
 - **不**保留 `in-progress.lock`(避免后续 stuck)
 
@@ -208,16 +208,16 @@ run_mode: interactive                    # restore 不强制 interactive,但建�
 ### 3.3 backup-manager 行为(只读 + cp -a,不创建新 backup)
 
 ```
-1. mkdir .local-backups/01-app-client/.lock
-2. 校验 .local-backups/01-app-client/20260524T130000Z/ 存在 + manifest.json schema / manifest.json.sha256 / domain+backup_id 身份校验通过
-3. scripts/backup.sh --restore --domain=01-app-client \
-         --source=.local-backups/01-app-client/20260524T130000Z/            ← 从 payload 恢复内容
+1. mkdir tools/maintainer/project-standard-extractor/.local-backups/01-app-client/.lock
+2. 校验 tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260524T130000Z/ 存在 + manifest.json schema / manifest.json.sha256 / domain+backup_id 身份校验通过
+3. tools/maintainer/project-standard-extractor/backup.sh --restore --domain=01-app-client \
+         --source=tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260524T130000Z/            ← 从 payload 恢复内容
    脚本内部: mv engineering-standards/01-app-client \
       engineering-standards/01-app-client.pre-restore-20260525T021830Z
    校验 restore source 与恢复后目录 file_count / byte_count / sha256_fingerprint 均等于 manifest.stats
    校验成功后删除 .pre-restore-20260525T021830Z
 4. (调用 changelog-append helper,event_type: restore)
-5. rmdir .local-backups/01-app-client/.lock
+5. rmdir tools/maintainer/project-standard-extractor/.local-backups/01-app-client/.lock
 ```
 
 ### 3.4 CHANGELOG 追加
@@ -264,12 +264,12 @@ restore_from: 20260524T130000Z          # 要 pin 的 backup_id
 ### 4.3 backup-manager 行为(只改 manifest.json)
 
 ```
-1. mkdir .local-backups/01-app-client/.lock
-2. 读 .local-backups/01-app-client/20260524T130000Z/manifest.json
+1. mkdir tools/maintainer/project-standard-extractor/.local-backups/01-app-client/.lock
+2. 读 tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260524T130000Z/manifest.json
 3. 改 pin: false → pin: true
 4. 写回 manifest.json
 5. shasum -a 256 manifest.json > manifest.json.sha256   ← 重新计算
-6. rmdir .local-backups/01-app-client/.lock
+6. rmdir tools/maintainer/project-standard-extractor/.local-backups/01-app-client/.lock
 ```
 
 (**不**追加 CHANGELOG;pin / unpin 不算 source 变更)
@@ -297,7 +297,7 @@ restore_from: 20260524T130000Z          # 要 pin 的 backup_id
 
 ### 4.5 与 `--keep=N` 清理交互
 
-假设当前 `.local-backups/01-app-client/` 有 12 份(其中 `20260524T130000Z` pinned),用户调用 `force-rebuild keep: 10`:
+假设当前 `tools/maintainer/project-standard-extractor/.local-backups/01-app-client/` 有 12 份(其中 `20260524T130000Z` pinned),用户调用 `force-rebuild keep: 10`:
 
 - 备份新增 1 份 → 总 13 份
 - 清理算法:跳过 pinned → 非 pinned 共 12 份 → 保留最近 10 份非 pinned + 1 pinned = 11 份
@@ -348,7 +348,7 @@ domain: 01-app-client
 - `references/agents/backup-manager.md`(决策算法 12 步 + Step 10 dispatcher)
 - `references/prompts/orchestrator/force-rebuild/force-rebuild.md`(主流程 + §rollback + §changelog)
 - `references/prompts/orchestrator/force-rebuild/changelog-append.md`(success path 追加 helper)
-- `scripts/force-rebuild-validate.sh`(4 项确定性 check)
+- `tools/maintainer/project-standard-extractor/force-rebuild-validate.sh`(4 项确定性 check)
 - 项目级 `docs/evals/project-standard-extractor/dimension-framework/force-rebuild-cases.md`(对应 9 个 Given/When/Then 回归 case)
 - `SKILL.md` 调用协议(用户视角的输入字段 + blocked runtime 边界)
 - `references/quality-gate.md §5.5`(force-rebuild 模式下双门禁失败回滚链路)

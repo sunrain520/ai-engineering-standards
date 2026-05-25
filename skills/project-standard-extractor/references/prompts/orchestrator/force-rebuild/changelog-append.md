@@ -14,7 +14,7 @@
 ```yaml
 event_type: force-rebuild | restore | phase-2-release    # U21 复用 phase-2-release
 domain: 01-app-client                                     # event_type ∈ {force-rebuild, restore} 必填
-backup_path: ".local-backups/01-app-client/20260525T130000Z/"  # force-rebuild 必填
+backup_path: "tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T130000Z/"  # force-rebuild 必填
 restored_from_ts: "20260520T100000Z"                      # restore 必填
 dimension_activation_report_summary:                      # force-rebuild 必填(摘要不超 200 字符)
   baseline: 12
@@ -41,7 +41,7 @@ version: "0.1.0"                                          # 从根 CHANGELOG.md 
 ### force-rebuild
 
 ```
-- v0.1.0 2026-05-25 13:48:00 矿工: project-standard-extractor force-rebuild 01-app-client,备份至 .local-backups/01-app-client/20260525T130000Z/;新激活 map 摘要 baseline=12 activated=28 candidate=4 pending=7 shallow=3 (user-visible)
+- v0.1.0 2026-05-25 13:48:00 矿工: project-standard-extractor force-rebuild 01-app-client,备份至 tools/maintainer/project-standard-extractor/.local-backups/01-app-client/20260525T130000Z/;新激活 map 摘要 baseline=12 activated=28 candidate=4 pending=7 shallow=3 (user-visible)
 ```
 
 ### restore

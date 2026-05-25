@@ -6,6 +6,33 @@ Phase 2 Dimension Framework 当前为 `blocked / repair-in-progress`。本文件
 
 稳定路径仍是 Phase 1：`profile-first` 生成 project profile / extraction map / batch plan，用户确认 batch 后再执行受控 `batch-extraction`。
 
+## Stable Public Workflow
+
+公开 skill 入口只执行以下稳定路径：
+
+```
+intake-and-scope
+  -> profile-and-batch-planner
+  -> stop-for-batch-selection
+  -> facts-and-classification(selected batch only)
+  -> generation(generation_profile: phase1-selected-batch)
+  -> review-and-quality-gate
+  -> merge-coordinator(draft-only append)
+```
+
+稳定路径不读取 `dimension-activator`，不要求 `activation-report`，不启动 `extraction_mode=full`，也不接收 `output_action`。Generation 在该路径只消费单个 batch 的 `code_facts` / `classification` / `selected_batch_summary`，所有可执行规则必须追溯到本 batch evidence。
+
+## Maintainer / Repair-Only
+
+`force-rebuild` / `restore` / `pin` / `unpin` / `list` 是仓库维护者能力，不属于公开 skill 触发面。对应脚本位于仓库根：
+
+```text
+tools/maintainer/project-standard-extractor/backup.sh
+tools/maintainer/project-standard-extractor/force-rebuild-validate.sh
+```
+
+维护者入口说明见 `tools/maintainer/project-standard-extractor/README.md`。这些工具只应在 Phase 2 repair / force-rebuild 验证任务中手动调用；普通规范萃取不得调用。
+
 ## 1. 执行模式
 
 | run_mode | 说明 | 适用场景 |

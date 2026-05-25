@@ -2,11 +2,16 @@
 
 ## 角色目标
 
-基于 `code_facts` + `classification` + `activation-report` 生成**开发者可直接使用的团队规范指南**，以及派生的 AI Coding Rules、Review Checklist 和候选索引产物。
+基于 `code_facts` + `classification` 生成**开发者可直接使用的团队规范指南**，以及派生的 AI Coding Rules、Review Checklist 和候选索引产物。
 
 核心转变：**不是填写规则条目表格，而是综合编写开发指南**。产出文档必须像有经验的架构师写的工作手册，开发者打开就能看懂、能用。工序仍然严格：evidence 先行 → 选 skeleton 综合编写 standard → 派生 ai-rules / review-checklist → 索引聚合。
 
-> 上游：`dimension-activator`（activation-report.v1）+ `facts-and-classification`（fact_candidates）。下游：`review-and-quality-gate`。
+本 agent 支持两条输入剖面：
+
+- **Phase 1 selected-batch**：稳定公开路径。消费单个 batch 的 `code_facts` / `classification` / `selected_batch_summary`，不要求 `activation-report`。
+- **Phase 2 dimension-aware**：repair-only 路径。额外消费 `activation-report.v1`，按维度激活态选择 skeleton 和章节标注。
+
+> 上游：`facts-and-classification`（Phase 1 / Phase 2 共用）；`dimension-activator`（仅 Phase 2 dimension-aware）。下游：`review-and-quality-gate`。
 
 ## 输入
 
@@ -14,9 +19,9 @@
 inputs:
   code_facts:             # facts-and-classification 的全量输出（每条 fact 含 dimension_id / dimension_state）
   classification:         # recommended / forbidden / legacy_compatible / pending_confirmation / conflict
-  activation_report:      # temp/{run_id}-activation-report.json (schema=activation-report.v1)
-                          # 来自 dimension-activator,本阶段唯一权威激活态来源
-                          # 决定 skeleton 选型 + 章节标注 + baseline 默认填充 + 未激活维度地图
+  activation_report:      # 可选；仅 Phase 2 dimension-aware 必填
+                          # temp/{run_id}-activation-report.json (schema=activation-report.v1)
+                          # 来自 dimension-activator,是 Phase 2 唯一权威激活态来源
   selected_batch_summary: # batch_id / domain / sub_domain / evidence_limit
   project_profile:        # temp/{run_id}-project-profile.md（用于理解架构背景）
   global_templates:       # assets/ 目录（standard-template.md 主参考）
@@ -27,9 +32,22 @@ inputs:
   existing_standards:     # 若 standard-{sub_domain}.md 已存在，列出已有章节标题列表
 ```
 
-## 维度激活态消费契约
+## 输入剖面判定
 
-本阶段对 `activation_report.dimensions[]` 的每个维度,按 `state` 决定生成策略:
+| 剖面 | 必填输入 | 生成策略 |
+| --- | --- | --- |
+| `phase1-selected-batch` | `selected_batch_summary.batch_id` + `code_facts` + `classification` | 使用 `standard-template.md` 和可匹配的 sub-domain skeleton 写 evidence-backed draft；不读取 `activation-report`，不生成维度未激活地图。 |
+| `phase2-dimension-aware` | `activation_report.schema == "activation-report.v1"` | 按 `activation_report.dimensions[]` 消费 baseline / activated / pending / shallow / candidate 状态。 |
+
+剖面选择规则：
+
+1. 存在合法 `activation_report` → `phase2-dimension-aware`。
+2. 不存在 `activation_report`，但存在 `selected_batch_summary.batch_id` → `phase1-selected-batch`。
+3. 两者都不存在 → 抛 `GENERATION_INPUT_PROFILE_MISSING`，停止。
+
+## Phase 2 维度激活态消费契约
+
+仅在 `phase2-dimension-aware` 剖面中，本阶段对 `activation_report.dimensions[]` 的每个维度按 `state` 决定生成策略：
 
 | state | 章节标注 `[{{activation_state_section_N}}]` | 章节正文来源 | 写入位置 |
 | --- | --- | --- | --- |
@@ -39,7 +57,7 @@ inputs:
 | `shallow` | `shallow` | 与 activated 相同生成,但额外加 `> ⚠️ 本节 coverage=low,等待 review 改判` warning | standard-{sub_domain}.md |
 | `candidate` | （不出现在端规范） | 仅落入 overview-skeleton 的「未激活维度地图」段（AE7） | standard-overview.md(端级)的 §9 未激活维度地图 |
 
-**铁律**:本阶段**不重新判定** state,只消费 `activation-report.json`。任何与 activation-report 不一致的章节标注视为 schema violation。
+**铁律**:Phase 2 中本阶段**不重新判定** state,只消费 `activation-report.json`。任何与 activation-report 不一致的章节标注视为 schema violation。
 
 ## 输出（完整产物清单）
 
@@ -60,24 +78,26 @@ inputs:
 ## 生成管线（严格工序）
 
 ```
-Sub-step A0: Activation Report Loader（前置）
-  └── 校验 activation-report.json schema=activation-report.v1
-  └── 计算每个维度的 skeleton 选型 + 章节标注映射
-  └── 完成标志: 每个非 candidate 非 baseline 维度都有 skeleton_section 文件路径
+Sub-step A0: Input Profile Loader（前置）
+  ├── Phase 1 selected-batch: 校验 selected_batch_summary + code_facts,建立 batch 写作上下文
+  └── Phase 2 dimension-aware: 校验 activation-report.json schema=activation-report.v1
+      └── 计算每个维度的 skeleton 选型 + 章节标注映射
 
 Sub-step A: Evidence Writer
   └── 写 evidence/*，固定 EV/POS/NEG/LEG 编号
-  └── 仅来自 activated / shallow / pending-confirmation 维度的 fact 进入 evidence
+  └── Phase 1: 仅来自 selected batch 的 fact 进入 evidence
+  └── Phase 2: 仅来自 activated / shallow / pending-confirmation 维度的 fact 进入 evidence
   └── 完成标志: code_facts 全部编号完毕
 
 Sub-step B: Developer Guide Author（核心）
-  └── 按 activation_report.dimensions[].skeleton_section 选定 skeleton 文件
-  └── 替换 {{activation_state}} 与 {{activation_state_section_N}} 占位符
-  └── baseline 维度 → 直接从 baseline-dimensions.yaml default 内容填充
-  └── activated / shallow 维度 → 综合 code_facts + classification 实质编写
-  └── pending-confirmation 维度 → 占位章节 + warning + pending-confirmation.md 指针
-  └── candidate 维度 → 仅在 overview-skeleton 的「未激活维度地图」段输出
-  └── 完成标志: 所有占位符已替换;每个章节标注 ∈ {baseline, activated, pending, shallow}
+  ├── Phase 1: 从 selected batch 的 evidence/classification 综合编写 standard-{sub_domain}.md
+  └── Phase 2:
+      └── 按 activation_report.dimensions[].skeleton_section 选定 skeleton 文件
+      └── 替换 {{activation_state}} 与 {{activation_state_section_N}} 占位符
+      └── baseline 维度 → 直接从 baseline-dimensions.yaml default 内容填充
+      └── activated / shallow 维度 → 综合 code_facts + classification 实质编写
+      └── pending-confirmation 维度 → 占位章节 + warning + pending-confirmation.md 指针
+      └── candidate 维度 → 仅在 overview-skeleton 的「未激活维度地图」段输出
 
 Sub-step C: Derivative Generator（可并行）
   ├── ai-rules.md    ← 从 standard-{sub_domain}.md §"AI 生成规则" 汇总段提取
@@ -97,13 +117,30 @@ Sub-step D: Index & Pack Aggregator（B + C 完成后）
 
 ## 执行步骤
 
-### Sub-step A0 — Activation Report Loader（前置门禁）
+### Sub-step A0 — Input Profile Loader（前置门禁）
+
+**A0.0 输入剖面判定**
+
+1. 若提供 `activation_report`，进入 `phase2-dimension-aware`，执行 A0.1-A0.5。
+2. 若未提供 `activation_report` 但存在 `selected_batch_summary.batch_id`，进入 `phase1-selected-batch`，执行 A0-P1。
+3. 若两类输入都不存在，抛 `GENERATION_INPUT_PROFILE_MISSING`，停止。
+
+**A0-P1 Phase 1 selected-batch 校验**
+
+1. 校验 `selected_batch_summary.batch_id`、`domain`、`sub_domain` 非空；缺失抛 `SELECTED_BATCH_CONTEXT_INVALID`。
+2. 校验 `code_facts` 已限定在该 batch 的 `candidate_files` 内；发现跨 batch fact 抛 `BATCH_BOUNDARY_LEAK`。
+3. `code_facts` 为空时不生成 `standard-{sub_domain}.md`；只写 `pending-confirmation.md` 与 review summary，失败模式为 `NO_REPRESENTATIVE_EVIDENCE`。
+4. 使用 `assets/standard-template.md` 作为主结构；如果存在匹配 `assets/skeletons/{domain}/{sub_domain}-skeleton.md`，只作为章节提示，不引入 activation-state 占位符。
+5. 建立 `generation_profile: phase1-selected-batch`，后续 self-check 跳过 Phase 2 activation-state 检查。
 
 **A0.1 schema 校验**
+
+以下规则仅适用于 `phase2-dimension-aware`：
 
 1. 读取 `temp/{run_id}-activation-report.json`,验证 `schema == "activation-report.v1"`;不匹配抛 `ACTIVATION_REPORT_SCHEMA_INVALID`,停止。
 2. 校验 `run_id` 与当前 run 一致;不匹配抛 `ACTIVATION_REPORT_RUN_MISMATCH`,停止。
 3. 校验 `dimensions[]` 非空;空集抛 `EMPTY_ACTIVATION_REPORT`,停止。
+4. 若 `dimensions[]` 全部为 `candidate`，且没有 baseline / activated / pending-confirmation / shallow 维度可生成，抛 `NO_DIMENSION_CAN_GENERATE`,停止。
 
 **A0.2 维度分组**
 
@@ -566,20 +603,23 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 
 **激活态 / Skeleton / 占位符相关**(U8 新增):
 
-- [ ] Sub-step A0 通过(activation-report schema=v1 + run_id 一致 + dimensions 非空)
-- [ ] 每个非 candidate / 非 baseline 维度都有 `skeleton_section` 文件路径,且文件存在于 `assets/skeletons/`
-- [ ] 占位符 100% 替换:目标文档不存在任何 `{{activation_state` 字面残留(grep 验证)
-- [ ] Front Matter `activation_state` 字段值 ∈ {baseline, activated, pending, shallow}(不是 `candidate`,不是占位符)
-- [ ] 每个章节标注 `[{baseline|activated|pending|shallow}]` 与 `activation-report.dimensions[].state` 一致(不允许本地修改)
-- [ ] `baseline` 章节不依赖 code_facts 也能填充(从 baseline-dimensions.yaml default 取)
-- [ ] `pending` 章节不输出强制规则 / FORBIDDEN,只输出占位 + warning + 跳转指针
-- [ ] `shallow` 章节首行 warning 行已写入,`recommended_action` 含 `keep-draft-low-coverage`
-- [ ] `candidate` 维度未出现在端规范文档章节中(只在 overview §9)
-- [ ] `standard-overview.md` 的 §9「未激活维度地图」存在,即使 candidate=0 也保留章节标题(AE7)
+- [ ] `generation_profile` 已记录为 `phase1-selected-batch` 或 `phase2-dimension-aware`
+- [ ] Phase 1 selected-batch: `standard-{sub_domain}.md` 的所有可执行规则都引用本 batch 的 EV/POS/NEG/LEG evidence
+- [ ] Phase 1 selected-batch: 未读取其它 batch 的 candidate_files，未生成 activation-state 字段或未激活维度地图
+- [ ] Phase 2 dimension-aware: Sub-step A0 通过(activation-report schema=v1 + run_id 一致 + dimensions 非空)
+- [ ] Phase 2 dimension-aware: 每个非 candidate / 非 baseline 维度都有 `skeleton_section` 文件路径,且文件存在于 `assets/skeletons/`
+- [ ] Phase 2 dimension-aware: 占位符 100% 替换;目标文档不存在任何 `{{activation_state` 字面残留(grep 验证)
+- [ ] Phase 2 dimension-aware: Front Matter `activation_state` 字段值 ∈ {baseline, activated, pending, shallow}(不是 `candidate`,不是占位符)
+- [ ] Phase 2 dimension-aware: 每个章节标注 `[{baseline|activated|pending|shallow}]` 与 `activation-report.dimensions[].state` 一致(不允许本地修改)
+- [ ] Phase 2 dimension-aware: `baseline` 章节不依赖 code_facts 也能填充(从 baseline-dimensions.yaml default 取)
+- [ ] Phase 2 dimension-aware: `pending` 章节不输出强制规则 / FORBIDDEN,只输出占位 + warning + 跳转指针
+- [ ] Phase 2 dimension-aware: `shallow` 章节首行 warning 行已写入,`recommended_action` 含 `keep-draft-low-coverage`
+- [ ] Phase 2 dimension-aware: `candidate` 维度未出现在端规范文档章节中(只在 overview §9)
+- [ ] Phase 2 dimension-aware: `standard-overview.md` 的 §9「未激活维度地图」存在,即使 candidate=0 也保留章节标题(AE7)
 - [ ] ai-rules.md 不收录 `pending` / `candidate` 维度的规则
 - [ ] review-checklist.md 不收录 `pending` / `candidate` 维度的检查项
-- [ ] `rules-index-candidate.json.sections[].activation_state` 字段每条都有值
-- [ ] `ai-context-pack.md` 摘要包含三态分布统计(baseline / activated / pending / shallow / candidate 数量)
+- [ ] Phase 2 dimension-aware: `rules-index-candidate.json.sections[].activation_state` 字段每条都有值
+- [ ] Phase 2 dimension-aware: `ai-context-pack.md` 摘要包含三态分布统计(baseline / activated / pending / shallow / candidate 数量)
 
 任一检查未通过:**不向 review 阶段移交**,回到 Sub-step B 修正。
 
@@ -591,9 +631,14 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 | evidence 不足以写完整章节 | 用已有 evidence 写能覆盖的节；其余节用 pending-confirmation 占位 |
 | 发现规则与已有 active 冲突 | 写入 `conflicts.md`，不写入 standard |
 | B0 推导阶段无法理解架构 | 回到 profile 阶段补充画像，不凭空编写 |
+| `GENERATION_INPUT_PROFILE_MISSING` | 停止管线;要求提供 `selected_batch_summary` 或合法 activation-report |
+| `SELECTED_BATCH_CONTEXT_INVALID` | 停止管线;回到 batch-plan 选择单个有效 batch |
+| `BATCH_BOUNDARY_LEAK` | 停止管线;清理跨 batch facts,不得扩大读取范围 |
+| `NO_REPRESENTATIVE_EVIDENCE` | 不生成 standard;仅输出 pending-confirmation 与 review summary |
 | `ACTIVATION_REPORT_SCHEMA_INVALID` | 停止管线;要求重跑 dimension-activator |
 | `ACTIVATION_REPORT_RUN_MISMATCH` | 停止管线;清理 temp/ 重跑 |
 | `EMPTY_ACTIVATION_REPORT` | 停止管线;dimensions[] 为空意味 dimension-activator 异常 |
+| `NO_DIMENSION_CAN_GENERATE` | 停止管线;activation-report 只有 candidate,没有可渲染维度 |
 | `MISSING_SKELETON_FOR_ACTIVE_DIM` | 停止管线;对应维度配置 skeleton_section=null 但 state=activated/shallow,需补 assets/skeletons/ |
 | `INCOMPLETE_SECTION_STATE_MAP` | 停止管线;skeleton 章节序号未被覆盖,可能 skeleton 与 R51 12 章节模板不一致 |
 | `PLACEHOLDER_LEAK` | 停止管线;目标文档残留 `{{activation_state` 字面量,替换不彻底 |
@@ -606,11 +651,12 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 4. 自动运行输出 `draft`，不得直接发布 `active`；`active` 只能由领域负责人确认后手动升级。
 5. ai-rules 和 review-checklist 是 standard 的派生，不得新创内容。
 6. 候选索引产物标记 `candidate`，不得默认发布。
-7. **Sub-step A0 必须先于 A 执行**:activation-report 校验失败整个管线停止。
-8. **skeleton 选型必须从 activation_report.dimensions[].skeleton_section 取**,不允许本阶段重新决策。
-9. **占位符必须 100% 替换**:`{{activation_state}}` / `{{activation_state_section_N}}` 不得在最终输出中残留。
-10. **baseline 章节必须从 baseline-dimensions.yaml default 内容直出**,即使 code_facts 为空。
-11. **overview-skeleton.md §9「未激活维度地图」必须保留**,即使 candidate 列表为空(AE7)。
+7. **Sub-step A0 必须先于 A 执行**:输入剖面不合法时整个管线停止。
+8. Phase 1 selected-batch 只写本 batch evidence-backed draft,不得隐式启动 dimension-activator 或跨 batch 扩大读取。
+9. Phase 2 中 **skeleton 选型必须从 activation_report.dimensions[].skeleton_section 取**,不允许本阶段重新决策。
+10. Phase 2 中 **占位符必须 100% 替换**:`{{activation_state}}` / `{{activation_state_section_N}}` 不得在最终输出中残留。
+11. Phase 2 中 **baseline 章节必须从 baseline-dimensions.yaml default 内容直出**,即使 code_facts 为空。
+12. Phase 2 中 **overview-skeleton.md §9「未激活维度地图」必须保留**,即使 candidate 列表为空(AE7)。
 
 ## 禁止做
 
@@ -622,12 +668,13 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 6. 不得默认发布候选索引产物。
 7. 不得凭空编写架构图——从 code_facts 推断，不确定的打「?」标注。
 8. 不得在规则节同时写"AI 生成代码要求"小节和文档末尾另一份 AI 规则汇总段重复内容；汇总段只摘要、不重写。
-9. **不得本地重新计算维度激活态**——`activation-report.json` 是唯一权威源;任何与之不一致的章节标注视为 schema violation。
-10. **不得为 `candidate` 维度生成端规范章节**——candidate 只在 overview §9 未激活地图出现。
-11. **不得跳过占位符替换或选择性替换**——所有 `{{activation_state` 占位符必须替换为具体状态值。
-12. **不得把 `pending` 章节的占位规则写为强制规则或 FORBIDDEN**——pending 章节不输出可执行规则,只输出 owner 确认指针。
-13. **不得为 `shallow` 章节省略 low-coverage warning**——必须在章节首行写入 warning 与 `recommended_action: keep-draft-low-coverage`。
-14. **不得让 ai-rules.md / review-checklist.md 收录 `pending` / `candidate` 维度的规则**——派生视图严格按激活态过滤。
+9. Phase 1 selected-batch 不得伪造 `activation-report` 或 `activation_state`;该分支只表达 evidence-backed draft。
+10. **不得本地重新计算维度激活态**——Phase 2 中 `activation-report.json` 是唯一权威源;任何与之不一致的章节标注视为 schema violation。
+11. **不得为 `candidate` 维度生成端规范章节**——candidate 只在 overview §9 未激活地图出现。
+12. **不得跳过占位符替换或选择性替换**——所有 `{{activation_state` 占位符必须替换为具体状态值。
+13. **不得把 `pending` 章节的占位规则写为强制规则或 FORBIDDEN**——pending 章节不输出可执行规则,只输出 owner 确认指针。
+14. **不得为 `shallow` 章节省略 low-coverage warning**——必须在章节首行写入 warning 与 `recommended_action: keep-draft-low-coverage`。
+15. **不得让 ai-rules.md / review-checklist.md 收录 `pending` / `candidate` 维度的规则**——派生视图严格按激活态过滤。
 
 ## EA-Doc 扩展（U27）
 

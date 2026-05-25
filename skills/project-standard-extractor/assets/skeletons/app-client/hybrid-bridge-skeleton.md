@@ -121,7 +121,7 @@ RN: NativeModules.XxxModule.call(...)
 
 - TurboModule 类名后缀 `*TurboModule`，spec 文件 `Native*Spec.ts` / `Native*Spec.flow.js`
 - NativeBridge API 接口后缀 `*Api`（按能力，不按页面）：`DeviceApi` / `AuthApi` / `TrackApi`，**禁止** `OrderListPageApi` 这类按页面命名
-- Bundle 入口 id：`<businessLine>.<feature>@<version>`（如 `wallet.recharge@1.4.2`）
+- Bundle 入口 id：`<businessLine>.<feature>@<version>`（如 `billing.topup@1.4.2`）
 - 错误码：`BRIDGE_<CATEGORY>_<CODE>`，如 `BRIDGE_AUTH_TOKEN_EXPIRED` / `BRIDGE_BUNDLE_VERIFY_FAILED`
 - WebView JsInterface 名 `NativeBridge`（统一），iOS WKScriptMessageHandler `name = "nativeBridge"`
 
@@ -152,12 +152,12 @@ RN: NativeModules.XxxModule.call(...)
 ```typescript
 // 反例（RN）：JS 直接调 NativeModules，绕过 NativeBridge
 import { NativeModules } from 'react-native';
-NativeModules.WalletModule.recharge(100); // ❌ 应 NativeBridge.call({ api: 'wallet', method: 'recharge', params: { amount: 100 } })
+NativeModules.BillingModule.topup(100); // ❌ 应 NativeBridge.call({ api: 'billing', method: 'topup', params: { amount: 100 } })
 ```
 
 ```kotlin
 // 反例（Android WebView）：暴露多个 JsInterface
-webView.addJavascriptInterface(WalletJsBridge(), "Wallet")     // ❌ 仅允许 "NativeBridge"
+webView.addJavascriptInterface(BillingJsBridge(), "Billing")   // ❌ 仅允许 "NativeBridge"
 webView.addJavascriptInterface(TrackJsBridge(), "Track")        // ❌ 应统一收口
 ```
 
@@ -165,7 +165,7 @@ webView.addJavascriptInterface(TrackJsBridge(), "Track")        // ❌ 应统一
 
 ```typescript
 // 正例：JS 侧统一 facade
-NativeBridge.call({ api: 'wallet', method: 'recharge', params: { amount: 100 } })
+NativeBridge.call({ api: 'billing', method: 'topup', params: { amount: 100 } })
   .then(({ code, data }) => { /* ... */ });
 ```
 
@@ -207,9 +207,9 @@ NativeBridge.call({ api: 'wallet', method: 'recharge', params: { amount: 100 } }
 
 ```kotlin
 // 反例：Activity 内直接硬编码 H5 URL
-class WalletActivity : AppCompatActivity() {
+class BillingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        webView.loadUrl("https://cdn.example.com/wallet/index.html?ts=$ts") // ❌ 应走 BundleLoader.load("wallet.recharge@1.4.2")
+        webView.loadUrl("https://cdn.example.com/billing/index.html?ts=$ts") // ❌ 应走 BundleLoader.load("billing.topup@1.4.2")
     }
 }
 ```

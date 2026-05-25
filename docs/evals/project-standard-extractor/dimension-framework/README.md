@@ -50,6 +50,6 @@
 
 - `references/agents/backup-manager.md`(决策算法 12 步)
 - `references/prompts/orchestrator/force-rebuild/`（force-rebuild / changelog-append）
-- `scripts/force-rebuild-validate.sh`（4 项确定性 check + JSON 输出）
+- `tools/maintainer/project-standard-extractor/force-rebuild-validate.sh`（4 项确定性 check + JSON 输出）
 - `references/quality-gate.md §5.5`（force-rebuild 模式双门禁）
 - `references/config/dimension-framework/` (维度定义 + 激活规则)

@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 # project-standard-extractor backup helper
 # 跨平台兼容: macOS BSD / GNU Linux / WSL
-# 由 references/agents/backup-manager.md 调用,实现 cp -a 全量备份、sha256 fingerprint、--restore 拷回
+# 由 project-standard-extractor maintainer 流程调用,实现 cp -a 全量备份、sha256 fingerprint、--restore 拷回
 #
 # 用法:
-#   scripts/backup.sh --dry-run --domain=<domain>
+#   tools/maintainer/project-standard-extractor/backup.sh --dry-run --domain=<domain>
 #       计算 sha256 fingerprint + file_count + byte_count + exclude_patterns,不写盘
-#   scripts/backup.sh --domain=<domain> --target=<backup_dir>
+#   tools/maintainer/project-standard-extractor/backup.sh --domain=<domain> --target=<backup_dir>
 #       全量备份(cp -a),写 manifest.json 必需字段到 stdout(JSON)
-#   scripts/backup.sh --restore --domain=<domain> --source=<backup_dir>
+#   tools/maintainer/project-standard-extractor/backup.sh --restore --domain=<domain> --source=<backup_dir>
 #       从 backup_dir 拷回 engineering-standards/<domain>/
-#   scripts/backup.sh --list --domain=<domain>
-#       列出 .local-backups/<domain>/ 下所有 backup(JSON 数组,字典序);老 backup 无 pin → 视为 false
-#   scripts/backup.sh --pin --domain=<domain> --backup-id=<UTC-ts>
-#   scripts/backup.sh --unpin --domain=<domain> --backup-id=<UTC-ts>
+#   tools/maintainer/project-standard-extractor/backup.sh --list --domain=<domain>
+#       列出本工具目录 .local-backups/<domain>/ 下所有 backup(JSON 数组,字典序);老 backup 无 pin → 视为 false
+#   tools/maintainer/project-standard-extractor/backup.sh --pin --domain=<domain> --backup-id=<UTC-ts>
+#   tools/maintainer/project-standard-extractor/backup.sh --unpin --domain=<domain> --backup-id=<UTC-ts>
 #       切换 manifest.json `pin: bool`;不计入 --keep=N 自动清理(老 backup 无 pin 视为 false 兼容)
 #
 # 注意:
@@ -147,7 +147,7 @@ done
 [ -z "$DOMAIN" ] && die "--domain=<domain> required"
 
 SRC_DIR="$REPO_ROOT/engineering-standards/$DOMAIN"
-BACKUPS_DIR="$REPO_ROOT/skills/project-standard-extractor/.local-backups/$DOMAIN"
+BACKUPS_DIR="$REPO_ROOT/tools/maintainer/project-standard-extractor/.local-backups/$DOMAIN"
 
 # 路径穿越校验:domain 不得含 .. / 绝对路径 / 反斜杠
 case "$DOMAIN" in

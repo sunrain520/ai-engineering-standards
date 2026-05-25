@@ -23,7 +23,7 @@ intake-and-scope            (转入 phase 2 default `full` 管道)
 profile-and-batch-planner → dimension-activator → facts-and-classification → generation
         → review-and-quality-gate → merge-coordinator
         ↓
-scripts/force-rebuild-validate.sh  (U24,4 项确定性校验)
+tools/maintainer/project-standard-extractor/force-rebuild-validate.sh  (U24,4 项确定性校验)
         ↓
         ┌─────── valid=true ───────┐         ┌─────── valid=false ───────┐
         ↓                            ↓        ↓                            ↓
@@ -65,7 +65,7 @@ dry-run 预览输出格式(orchestrator 渲染给用户):
 ```
 == Force Rebuild Dry Run ==
 domain: <domain>
-backup target: skills/project-standard-extractor/.local-backups/<domain>/<UTC-ts>/
+backup target: tools/maintainer/project-standard-extractor/.local-backups/<domain>/<UTC-ts>/
 sha256 fingerprint: <64 hex>
 files: <N>  bytes: <M>
 exclude: evidence/raw-*, temp/, .git
@@ -73,7 +73,7 @@ operator: <name>
 git head: <sha> @ <branch> (clean)
 dimension activation summary:
   baseline=<N1> activated=<N2> candidate=<N3> pending=<N4> shallow=<N5>
-gitignore status: <ok | "建议把 skills/project-standard-extractor/.local-backups/ 加入 .gitignore">
+gitignore status: <ok | "建议把 tools/maintainer/project-standard-extractor/.local-backups/ 加入 .gitignore">
 
 输入 `confirm <domain>` 确认重生(其他输入将取消并释放 lock)
 ```
@@ -114,7 +114,7 @@ backup-manager step 10a 通过 helper 追加根 `CHANGELOG.md`:
 ```yaml
 event_type: force-rebuild
 domain: "01-app-client"
-backup_path: ".local-backups/01-app-client/<UTC-ts>/"
+backup_path: "tools/maintainer/project-standard-extractor/.local-backups/01-app-client/<UTC-ts>/"
 dimension_activation_report_summary:        # 从 dimension-activator 输出读
   baseline: <N1>
   activated: <N2>
@@ -143,7 +143,7 @@ helper 返回 `success: false` 时,本 orchestrator 触发 step 10a 末段**特�
 - `references/agents/backup-manager.md` — 决策算法 12 步 + safeguard / failure mode 全表
 - `references/prompts/orchestrator/force-rebuild/backup-manager.md` — backup-manager 内部短 prompt(简化 host LLM 调用)
 - `references/prompts/orchestrator/force-rebuild/changelog-append.md` — U24 CHANGELOG 追加 helper(本 prompt 在 success path 末段调用)
-- `scripts/backup.sh` / `scripts/backup.sh` — 跨平台 cp/rsync/sha256 实现
-- `scripts/force-rebuild-validate.sh` — U24 4 项确定性校验
+- `tools/maintainer/project-standard-extractor/backup.sh` — 跨平台 cp/rsync/sha256 实现
+- `tools/maintainer/project-standard-extractor/force-rebuild-validate.sh` — U24 4 项确定性校验
 - `references/config/backup/manifest-schema.json` — manifest.json ajv schema
 - `assets/backup-manifest-template.json` — manifest.json 写入骨架

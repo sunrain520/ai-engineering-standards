@@ -18,15 +18,15 @@ run_mode: interactive
 
 ## 严格执行顺序(force-rebuild)
 
-1. **取 lock** — `mkdir skills/project-standard-extractor/.local-backups/<domain>/.lock`,失败 → 拒绝
+1. **取 lock** — `mkdir tools/maintainer/project-standard-extractor/.local-backups/<domain>/.lock`,失败 → 拒绝
 2. **safeguard 1** — `git status --porcelain --ignored=no engineering-standards/<domain>/` 必须空;非 git / shallow 拒绝
-3. **safeguard 2 dry-run** — `scripts/backup.sh --dry-run --domain=<domain>`,记录 sha256 / file_count / byte_count / porcelain snapshot 到内存
+3. **safeguard 2 dry-run** — `tools/maintainer/project-standard-extractor/backup.sh --dry-run --domain=<domain>`,记录 sha256 / file_count / byte_count / porcelain snapshot 到内存
 4. **safeguard 3 等用户输入** — 必须本轮显式 `confirm <domain>`(全字 case-sensitive);通过后**复检 sha256 + porcelain**
-5. **mkdir backup_dir** — `.local-backups/<domain>/<UTC-ts>/`(`<UTC-ts>` = `date -u +%Y%m%dT%H%M%SZ`)
-6. **cp -a / rsync** — `scripts/backup.sh --domain=<domain> --target=<backup_dir>`
+5. **mkdir backup_dir** — `tools/maintainer/project-standard-extractor/.local-backups/<domain>/<UTC-ts>/`(`<UTC-ts>` = `date -u +%Y%m%dT%H%M%SZ`)
+6. **cp -a / rsync** — `tools/maintainer/project-standard-extractor/backup.sh --domain=<domain> --target=<backup_dir>`
 7. **写 manifest.json** — 用 `assets/backup-manifest-template.json` 骨架补全字段;ajv 校验 `references/config/backup/manifest-schema.json` valid
 8. **atomic rename** — `mv engineering-standards/<domain> engineering-standards/<domain>.broken-<ts>`(`<ts>` = `<UTC-ts>`)
-9. **`--keep=N` 清理** — 列 `.local-backups/<domain>/` 按 backup_id 字典序,跳过 `pin: true`,删除超出 N 个的最旧份
+9. **`--keep=N` 清理** — 列 `tools/maintainer/project-standard-extractor/.local-backups/<domain>/` 按 backup_id 字典序,跳过 `pin: true`,删除超出 N 个的最旧份
 10. **交还重生** — 返回 `{ success: true, action_taken: backup-and-rename, ... }`,intake-and-scope 转入 phase 2 `full` 管道
 
 > Step 10a / 10b 由 U24 重生流程触发(force-rebuild-validate.sh 通过 / 失败),本 inline prompt 不直接处理。
@@ -48,8 +48,8 @@ run_mode: interactive
 ### restore(`output_action=restore --restore=<ts>`)
 
 1. 取 lock
-2. ajv 校验 `.local-backups/<domain>/<ts>/manifest.json` + `manifest.json.sha256` + manifest domain / backup_id 身份
-3. `scripts/backup.sh --restore --domain=<domain> --source=<backup_dir>`
+2. ajv 校验 `tools/maintainer/project-standard-extractor/.local-backups/<domain>/<ts>/manifest.json` + `manifest.json.sha256` + manifest domain / backup_id 身份
+3. `tools/maintainer/project-standard-extractor/backup.sh --restore --domain=<domain> --source=<backup_dir>`
 4. 脚本内部执行 `.pre-restore-<now>` atomic rename,并校验 file_count / byte_count / sha256_fingerprint;失败由脚本反向 mv
 5. changelog-append 追加恢复条目
 6. 释放 lock
@@ -57,13 +57,13 @@ run_mode: interactive
 ### pin(`output_action=pin --restore=<ts>`)
 
 1. 取 lock
-2. 读 `.local-backups/<domain>/<ts>/manifest.json`,把 `pin` 字段改 true,ajv valid 后写回
+2. 读 `tools/maintainer/project-standard-extractor/.local-backups/<domain>/<ts>/manifest.json`,把 `pin` 字段改 true,ajv valid 后写回
 3. 释放 lock
 
 ### unpin(`output_action=unpin --restore=<ts>`)
 
 1. 取 lock
-2. 读 `.local-backups/<domain>/<ts>/manifest.json`,把 `pin` 字段改 false
+2. 读 `tools/maintainer/project-standard-extractor/.local-backups/<domain>/<ts>/manifest.json`,把 `pin` 字段改 false
 3. 释放 lock
 
 ## Self-check(每次执行前)
