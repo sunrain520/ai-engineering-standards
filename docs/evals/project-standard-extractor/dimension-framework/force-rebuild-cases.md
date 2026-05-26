@@ -65,7 +65,7 @@ dry-run 输出 `Force Rebuild Dry Run` 模板 → 用户输入字面 `confirm 01
 **Verification grep**:
 
 - `bash tools/maintainer/project-standard-extractor/force-rebuild-validate.sh --domain=01-app-client --backup-dir=tools/maintainer/project-standard-extractor/.local-backups/01-app-client/<UTC-ts>/` exit 0
-- `grep -cE '^[[:space:]]*status:[[:space:]]*(blocked|conflict)' engineering-standards/01-app-client/temp/<run_id>-review-summary.md` == 0
+- `quality_gate_decisions:` YAML 段内 `status: blocked | conflict` 计数为 0；正文或示例中的同名字段不参与阻断统计
 - `jq -e '.dimensions[].dimension_id' engineering-standards/01-app-client/evidence/dimension-activation-report.json` 不为空
 - 根 `CHANGELOG.md` 末尾有 force-rebuild 条目 + leokuang 作者
 
@@ -107,7 +107,7 @@ confirm 通过 → 走 phase 2 → quality gate 输出含 `status: conflict`。
 **脚本级回归 fixture**:
 
 - 构造 `engineering-standards/01-app-client/temp/<run_id>-review-summary.md`，其中 `quality_gate_decisions:` 段含独立行 `status: blocked`
-- 调用真实接口 `bash tools/maintainer/project-standard-extractor/force-rebuild-validate.sh --domain=01-app-client --backup-dir=tools/maintainer/project-standard-extractor/.local-backups/01-app-client/<UTC-ts>/`
+- 调用真实接口 `bash tools/maintainer/project-standard-extractor/force-rebuild-validate.sh --domain=01-app-client --backup-dir=tools/maintainer/project-standard-extractor/.local-backups/01-app-client/<UTC-ts>/ --review-summary=engineering-standards/01-app-client/temp/<run_id>-review-summary.md`
 - 期望 exit 1，stdout JSON 中 `.failure.check == "quality_gate"`，`.checks.d_quality_gate.blocked_or_conflict_count >= 1`
 
 ---

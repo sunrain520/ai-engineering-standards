@@ -3,7 +3,7 @@
 # 由 U24 Step 10 调用,4 项校验全部通过 → success path;任一失败 → backup-manager 触发 atomic rollback
 #
 # 用法:
-#   tools/maintainer/project-standard-extractor/force-rebuild-validate.sh --domain=<domain> --backup-dir=<backup_dir>
+#   tools/maintainer/project-standard-extractor/force-rebuild-validate.sh --domain=<domain> --backup-dir=<backup_dir> [--review-summary=<path>]
 #
 # 输出: stdout JSON
 #   { "valid": true,  "checks": { ... } }            # 全过
@@ -40,11 +40,13 @@ EOF
 
 DOMAIN=""
 BACKUP_DIR=""
+REVIEW_SUMMARY=""
 
 for arg in "$@"; do
   case "$arg" in
     --domain=*) DOMAIN="${arg#--domain=}" ;;
     --backup-dir=*) BACKUP_DIR="${arg#--backup-dir=}" ;;
+    --review-summary=*) REVIEW_SUMMARY="${arg#--review-summary=}" ;;
     *) die "unknown arg: $arg" ;;
   esac
 done
@@ -71,6 +73,83 @@ count_chars() {
     total=$((total + sz))
   done < <(LC_ALL=C find "$dir" -type f \( -name 'standard-*.md' -o -name 'standard*.md' \) 2>/dev/null | LC_ALL=C sort)
   echo "$total"
+}
+
+abs_path() {
+  local path="$1"
+  local full_path
+  if [[ "$path" = /* ]]; then
+    full_path="$path"
+  else
+    full_path="$REPO_ROOT/$path"
+  fi
+  local dir
+  local base
+  dir="$(dirname "$full_path")"
+  base="$(basename "$full_path")"
+  if [[ ! -d "$dir" ]]; then
+    return 1
+  fi
+  printf '%s/%s\n' "$(cd "$dir" && pwd -P)" "$base"
+}
+
+normalize_backup_id_for_review() {
+  local backup_id="$1"
+  if [[ "$backup_id" =~ ^([0-9]{8})T([0-9]{6})Z$ ]]; then
+    printf '%s-%s\n' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+  else
+    printf '%s\n' "$backup_id"
+  fi
+}
+
+select_review_file() {
+  local review_dir="$1"
+  local backup_id="$2"
+  local explicit_review_summary="$3"
+
+  if [[ -n "$explicit_review_summary" ]]; then
+    local explicit_abs
+    explicit_abs="$(abs_path "$explicit_review_summary")" || return 1
+    if [[ -f "$explicit_abs" ]]; then
+      printf '%s\n' "$explicit_abs"
+      return 0
+    fi
+    return 1
+  fi
+
+  if [[ ! -d "$review_dir" ]]; then
+    return 1
+  fi
+
+  local normalized_id
+  normalized_id="$(normalize_backup_id_for_review "$backup_id")"
+  local matches=()
+  local f
+  local base
+  while IFS= read -r f; do
+    base="$(basename "$f")"
+    if [[ "$base" == *"$backup_id"* || "$base" == *"$normalized_id"* ]]; then
+      matches+=("$f")
+    fi
+  done < <(LC_ALL=C find "$review_dir" -type f -name '*review-summary*.md' 2>/dev/null | LC_ALL=C sort)
+
+  if [[ "${#matches[@]}" -eq 1 ]]; then
+    printf '%s\n' "${matches[0]}"
+    return 0
+  fi
+  return 1
+}
+
+count_blocked_quality_gate_statuses() {
+  local review_file="$1"
+  awk '
+    /^[[:space:]]*quality_gate_decisions:[[:space:]]*$/ { in_section=1; next }
+    in_section && /^```/ { in_section=0; next }
+    in_section && /^#+[[:space:]]/ { in_section=0; next }
+    in_section && /^[[:alnum:]_][[:alnum:]_-]*:[[:space:]]*/ { in_section=0; next }
+    in_section && /^[[:space:]]*(-[[:space:]]*)?status:[[:space:]]*(blocked|conflict)([[:space:]#]|$)/ { count++ }
+    END { print count + 0 }
+  ' "$review_file"
 }
 
 OLD_DIR="$BACKUP_DIR"
@@ -162,28 +241,23 @@ if [ "$RULE_HITS" -eq 0 ]; then
 fi
 CHECK_C="{\"files_with_rules\": $RULE_HITS, \"pass\": true}"
 
-# ---------- check (d) Quality Gate grep ----------
-# 找 review summary, 检查 quality_gate_decisions: 段内 status: blocked/conflict 命中数
+# ---------- check (d) Quality Gate ----------
+# 找当前 run 绑定的 review summary，检查 quality_gate_decisions: 段内 status: blocked/conflict 命中数
 RUN_ID_HINT=$(basename "$BACKUP_DIR")
 REVIEW_DIR="$NEW_DIR/temp"
-REVIEW_FILE=""
-if [ -d "$REVIEW_DIR" ]; then
-  REVIEW_FILE=$(LC_ALL=C find "$REVIEW_DIR" -type f -name '*review-summary*.md' 2>/dev/null | LC_ALL=C sort -r | head -n 1)
-fi
+REVIEW_FILE="$(select_review_file "$REVIEW_DIR" "$RUN_ID_HINT" "$REVIEW_SUMMARY" || true)"
 
 if [ -z "$REVIEW_FILE" ] || [ ! -f "$REVIEW_FILE" ]; then
-  CHECKS_JSON="{\"a_char_ratio\": $CHECK_A, \"b_activation_report_schema\": $CHECK_B, \"c_non_empty_rules\": $CHECK_C, \"d_quality_gate\": {\"review_file\": null, \"pass\": false}}"
-  fail "quality_gate" "review-summary.md exists" "missing"
+  CHECKS_JSON="{\"a_char_ratio\": $CHECK_A, \"b_activation_report_schema\": $CHECK_B, \"c_non_empty_rules\": $CHECK_C, \"d_quality_gate\": {\"review_file\": null, \"run_id_hint\": \"$RUN_ID_HINT\", \"pass\": false}}"
+  fail "quality_gate" "one review-summary bound to current backup id or --review-summary path" "missing or ambiguous"
 fi
 
-# grep quality_gate_decisions: 段
-if ! grep -q 'quality_gate_decisions:' "$REVIEW_FILE"; then
+if ! grep -Eq '^[[:space:]]*quality_gate_decisions:[[:space:]]*$' "$REVIEW_FILE"; then
   CHECKS_JSON="{\"a_char_ratio\": $CHECK_A, \"b_activation_report_schema\": $CHECK_B, \"c_non_empty_rules\": $CHECK_C, \"d_quality_gate\": {\"review_file\": \"$REVIEW_FILE\", \"has_section\": false, \"pass\": false}}"
   fail "quality_gate" "quality_gate_decisions: section" "section missing"
 fi
 
-# count blocked/conflict (status: blocked / status: conflict)
-BLOCKED_COUNT=$(grep -cE '^[[:space:]]*status:[[:space:]]*(blocked|conflict)' "$REVIEW_FILE" || true)
+BLOCKED_COUNT=$(count_blocked_quality_gate_statuses "$REVIEW_FILE")
 BLOCKED_COUNT=${BLOCKED_COUNT:-0}
 if [ "$BLOCKED_COUNT" -gt 0 ]; then
   CHECKS_JSON="{\"a_char_ratio\": $CHECK_A, \"b_activation_report_schema\": $CHECK_B, \"c_non_empty_rules\": $CHECK_C, \"d_quality_gate\": {\"review_file\": \"$REVIEW_FILE\", \"blocked_or_conflict_count\": $BLOCKED_COUNT, \"pass\": false}}"

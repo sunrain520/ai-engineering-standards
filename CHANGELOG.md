@@ -9,6 +9,9 @@
   - 用户可感知的变更在末尾追加 `(user-visible)`
 
 - v0.1.0 2026-05-21 00:50:29 leokuang: 使用 spec-first 初始化项目
+- v0.1.0 2026-05-26 13:38:53 leokuang: 新增 project-standard-extractor 全流程自动化 draft pipeline 需求文档，明确单仓库自动画像、batch 队列、逐批萃取、质量门禁、owner approval queue 和 active 发布边界 (user-visible)
+- v0.1.0 2026-05-26 07:00:14 leokuang: 修复 project-standard-extractor force-rebuild 校验的 review-summary run 绑定、quality_gate_decisions 段内阻断解析和 restore domain lock，保持 `.claude/` 运行目录整体忽略，并清理新增文档尾随空格以通过 whitespace check (user-visible)
+- v0.1.0 2026-05-26 01:30:47 leokuang: 深度校准 project-standard-extractor 30 分钟核心研发团队分享稿，补齐逐章讲稿、讲者提醒、演示台词、FAQ、会后试点行动，并在用户手册中加入分享稿入口 (user-visible)
 - v0.1.0 2026-05-26 01:22:51 leokuang: 将本地 `.claude/` 与 `.history/` 运行目录加入 gitignore，避免 host/runtime 临时资产进入项目变更 (user-visible)
 - v0.1.0 2026-05-26 01:20:09 leokuang: 新增 project-standard-extractor 30 分钟核心研发团队分享稿，面向重度 AI 辅助开发场景覆盖稳定使用路径、AI 上下文消费、设计取舍和共建试点机制，并加入用户手册入口 (user-visible)
 - v0.1.0 2026-05-26 01:02:38 leokuang: 为 project-standard-extractor 增加只读 public-surface validator，并明确外部 evals 与 package-local smoke evals 的权威关系，防止公开入口、maintainer gate 和 repair fallback 契约漂移 (user-visible)

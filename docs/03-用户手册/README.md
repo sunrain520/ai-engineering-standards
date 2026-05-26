@@ -8,7 +8,7 @@
 | --- | --- |
 | [AI 辅助研发工程规范用户手册](./AI辅助研发工程规范用户手册.md) | 第一次使用本仓库、准备执行规范萃取、需要理解产物和发布边界 |
 | [project-standard-extractor 执行逻辑分析](./project-standard-extractor-execution-analysis.md) | 需要上帝视角理解 Skill 触发逻辑、执行流程、阶段产物、ASCII 图和 repair-only 边界 |
-| [project-standard-extractor 团队分享稿](./project-standard-extractor-sharing-script.md) | 面向核心研发的 30 分钟分享稿，聚焦 AI 辅助开发、稳定路径、设计取舍和共建试点 |
+| [project-standard-extractor 团队分享稿](./project-standard-extractor-sharing-script.md) | 面向核心研发的 30 分钟逐章分享稿，聚焦 AI 辅助开发、稳定路径、设计取舍、现场演示、FAQ 和共建试点 |
 
 ## 快速路径
 

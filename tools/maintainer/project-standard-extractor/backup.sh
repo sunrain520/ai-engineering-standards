@@ -321,6 +321,7 @@ EOF
   restore)
     [ -z "$SOURCE" ] && die "--source=<backup_dir> required for restore mode"
     [ ! -d "$SOURCE" ] && die "backup not found: $SOURCE"
+    acquire_lock
     MANIFEST="$SOURCE/manifest.json"
     SOURCE_BACKUP_ID=$(basename "$SOURCE")
     validate_backup_id "$SOURCE_BACKUP_ID"

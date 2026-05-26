@@ -21,7 +21,7 @@ tools/maintainer/project-standard-extractor/backup.sh --list --domain=<domain>
 tools/maintainer/project-standard-extractor/backup.sh --pin --domain=<domain> --backup-id=<UTC-ts>
 tools/maintainer/project-standard-extractor/backup.sh --unpin --domain=<domain> --backup-id=<UTC-ts>
 
-tools/maintainer/project-standard-extractor/force-rebuild-validate.sh --domain=<domain> --backup-dir=<backup_dir>
+tools/maintainer/project-standard-extractor/force-rebuild-validate.sh --domain=<domain> --backup-dir=<backup_dir> [--review-summary=<path>]
 ```
 
 ## Public Surface Validator
@@ -29,6 +29,8 @@ tools/maintainer/project-standard-extractor/force-rebuild-validate.sh --domain=<
 `public-surface-validate.sh` 是只读检查器，用于验证公开 skill 入口、stable workflow、selected-batch、baseline fallback、maintainer context gate、旧脚本路径和 eval 权威关系是否一致。
 
 它不会执行 backup / restore / force-rebuild，也不会读取或修改 `engineering-standards/<domain>/` 产物。
+
+`force-rebuild-validate.sh` 默认只读取与当前 `<backup_dir>` 的 backup id 绑定的 `temp/*review-summary*.md`；如果调用方使用自定义 run id，必须显式传入 `--review-summary=<path>`。
 
 ## 本地产物
 

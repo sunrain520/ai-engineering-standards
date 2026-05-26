@@ -56,6 +56,7 @@ Phase 2 维度框架、cross-project、EA-Doc、securities PoC 以及 force-rebu
 | 查看阶段契约 | `skills/project-standard-extractor/references/agents/` |
 | 查看输出位置 | `skills/project-standard-extractor/references/config/output-targets.md` |
 | 查看维护者工具边界 | `tools/maintainer/project-standard-extractor/README.md` |
+| 准备给核心研发做 30 分钟分享 | `docs/03-用户手册/project-standard-extractor-sharing-script.md` |
 
 如果只是使用现有规范，不需要执行萃取，直接从 `engineering-standards/README.md` 进入对应研发域即可。
 
@@ -446,3 +447,13 @@ docs/03-用户手册/project-standard-extractor-execution-analysis.md
 ```
 
 该文档按当前 `SKILL.md`、`references/workflow.md`、`references/agents/*.md` 和 `references/config/output-targets.md` 对齐，适合作为执行前的流程核对清单。
+
+## 17. 团队分享稿
+
+如果你是 `project-standard-extractor` 的开发者、维护者或推广负责人，需要面向部门核心研发介绍这个 Skill，阅读：
+
+```text
+docs/03-用户手册/project-standard-extractor-sharing-script.md
+```
+
+该分享稿按 30 分钟设计，面向重度 AI 辅助开发人群，覆盖开场痛点、稳定使用路径、产物消费方式、关键设计取舍、现场演示建议、常见问题和会后试点行动。

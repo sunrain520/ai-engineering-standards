@@ -137,11 +137,11 @@ EA-Doc 维度: 全部首次运行，视为全量扫描
 merge-coordinator 决策:
   EA-Doc-API §: 记录 openapi.yaml 中 28 个已文档化端点清单
   EA-Backend-02 §: 约束代码层 API 设计规范（命名/版本/幂等性等）
-  
+
   merge-suggestions.md 新增:
   "EA-Doc-API 与 EA-Backend-02 关联：openapi.yaml 覆盖率应 ≥ 所有
    Controller @GetMapping/@PostMapping 端点，建议 owner 验证一致性"
-  
+
   conflicts.md: 无冲突（两者作用层不同）
 ```
 
@@ -159,7 +159,7 @@ merge-coordinator 决策:
 
 门禁 B（深度）:
   avg depth_score = 0.76 ✅（含 wiki 加成）
-  
+
 结论: PASS → 进 merge
 ```
 

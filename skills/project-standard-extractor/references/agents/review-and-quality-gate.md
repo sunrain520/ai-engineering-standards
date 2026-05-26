@@ -274,7 +274,7 @@ Gate B 在 Gate A 完成后**串行**执行。读取 `activation-report.dimensio
 
 ### `quality_gate_decisions[].status` 枚举(U24 force-rebuild-validate.sh canonical 字段)
 
-每条决策必须输出 `status` 字段(枚举三选一),force-rebuild-validate.sh check (d) 用 `grep -cE '^[[:space:]]*status:[[:space:]]*(blocked|conflict)'` 统计阻断:
+每条决策必须输出 `status` 字段(枚举三选一),force-rebuild-validate.sh check (d) 只解析 `quality_gate_decisions:` YAML 段内的 `status: blocked | conflict` 来统计阻断:
 
 | status | 触发条件(任一) | 写入 review-summary.md `quality_gate_decisions:` 段格式 |
 | --- | --- | --- |
@@ -282,7 +282,7 @@ Gate B 在 Gate A 完成后**串行**执行。读取 `activation-report.dimensio
 | `blocked` | 任一 persona 输出 BLOCK / hard-fail / activation_gate_outcome=forced-candidate-skip(candidate 维度误植入)/ P0 evidence 缺失 | `status: blocked` |
 | `conflict` | conflicts.md 新增 ≥ 1 条 breaking 与本条规则关联 / debate_record.arbiter 决议 = unresolved / 跨项目 partial_activated 维度未裁定 | `status: conflict` |
 
-**铁律**:`status` 字段值必须出现在 review-summary.md `quality_gate_decisions:` YAML 段内,**每行单独一个 `status: <value>`**(force-rebuild-validate.sh 用 grep 行级匹配,**禁止**写在 inline comment 或 code block 注释里)。
+**铁律**:`status` 字段值必须出现在 review-summary.md `quality_gate_decisions:` YAML 段内,**每行单独一个 `status: <value>`**；正文、示例或其他 YAML 段中的同名字段不参与 U24 阻断统计。
 
 force-rebuild 模式下,只要 `status: blocked` 或 `status: conflict` ≥ 1 行,U24 validate.sh check (d) 立即 fail,backup-manager step 10b 触发 atomic rollback。
 
