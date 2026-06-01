@@ -8,6 +8,8 @@
   - `变更摘要` 使用中文，简明说明本次改动
 - 用户可感知的变更在末尾追加 `(user-visible)`
 
+- v0.1.0 2026-06-01 12:23:56 leokuang: 新增 project-standard-extractor 一步生成可使用规范文档实施计划，定义 full-auto 公开入口、ordered batch queue、逐 batch worker、跨 batch 聚合、质量分层、eval/validator 和用户文档同步的实施单元 (user-visible)
+- v0.1.0 2026-06-01 12:17:37 leokuang: 新增 project-standard-extractor 一步生成可使用规范文档 PRD，明确完整项目输入后自动画像、执行 ready batch、聚合 standard / ai-rules / review-checklist，并保留 draft/active 治理边界 (user-visible)
 - v0.1.0 2026-06-01 12:07:32 leokuang: 提交前脱敏 APP 客户端临时萃取 evidence 中的明文凭据样本，避免远程仓库暴露敏感信息 (user-visible)
 - v0.1.0 2026-05-26 22:52:00 leokuang: APP 负责人确认 batch-001 全部 5 条规则（2×P1 + 1×FORBIDDEN + 2×P2），将 standard / ai-rules / review-checklist / evidence 从 status: draft 升级为 status: active (user-visible)
 - v0.1.0 2026-05-26 22:45:00 leokuang: 完成 hszq-app batch-001-trade-architecture 全量 batch-extraction：生成 standard（5 条规则）、ai-rules（12 条）、review-checklist（20 条检查项）、evidence（13 条 code-facts）、rules-index-candidate、llms-candidate、ai-context-pack，通过 Gate A 内容门禁（全 PASS），输出 review-report 和 review-summary (user-visible)
