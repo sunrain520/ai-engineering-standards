@@ -1,0 +1,49 @@
+# APP Client (Android) Engineering Standards - LLMs Entry Map
+# run_id: 20260526-212711-app-client
+# batch: batch-001-trade-architecture
+# status: candidate (需用户确认后发布到根 llms.txt)
+
+## 架构规范
+
+> P1 新增业务功能必须使用 Clean Architecture 三层分离
+- 新功能按 data/ → domain/ → presentation/ 三层组织
+- 依赖方向：presentation → domain ← data
+- ViewModel 必须通过 UseCase 获取数据
+- UseCase 不得引用 Android framework 类型
+- 详见: engineering-standards/01-app-client/temp/20260526-212711-app-client-standard-trade-architecture.md
+
+> P1 ViewModel 必须按职责分类使用
+- 业务型: 持有 UiState，通过 UseCase 获取数据
+- 事件协调型(*EventVM): 跨 Fragment 事件总线，只持有事件 LiveData
+- Scope 共享型: 跨子 Fragment 共享状态属性
+- 单个 ViewModel 不超过 400 行
+- 详见: engineering-standards/01-app-client/temp/20260526-212711-app-client-standard-trade-architecture.md
+
+> FORBIDDEN 新代码不得引入 MVP Presenter 模式
+- 不得新建 Presenter 类
+- 不得实现 onInitPresenter
+- 不得新建 MVP Contract 接口
+- 替代方案: ViewModel + UseCase (Clean Architecture)
+- 详见: engineering-standards/01-app-client/temp/20260526-212711-app-client-standard-trade-architecture.md
+
+> P2 ViewModel 不得直接持有 DAO 或 Database 引用
+- DAO/Database 引用只能出现在 data/ 包的 Repository 实现层
+- 新 Repository 必须先定义 domain 层接口
+- 详见: engineering-standards/01-app-client/temp/20260526-212711-app-client-standard-trade-architecture.md
+
+> P2 非标 ViewModel 封装（BaseVMDataHelper）不得扩散
+- 新模块不得继承 BaseVMDataHelper
+- 使用标准 ViewModelProvider / by viewModels() / by activityViewModels()
+- 详见: engineering-standards/01-app-client/temp/20260526-212711-app-client-standard-trade-architecture.md
+
+## AI Rules 快速引用
+
+- 详见: engineering-standards/01-app-client/temp/20260526-212711-app-client-ai-rules-batch-001.md
+
+## Review Checklist
+
+- 详见: engineering-standards/01-app-client/temp/20260526-212711-app-client-review-checklist-batch-001.md
+
+## Evidence
+
+- 代码事实: engineering-standards/01-app-client/evidence/code-facts-batch-001.md

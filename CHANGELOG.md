@@ -6,8 +6,15 @@
   - 日期时间必须使用 `YYYY-MM-DD HH:MM:SS`
   - `作者` 填写提交人或变更责任人
   - `变更摘要` 使用中文，简明说明本次改动
-  - 用户可感知的变更在末尾追加 `(user-visible)`
+- 用户可感知的变更在末尾追加 `(user-visible)`
 
+- v0.1.0 2026-06-01 12:07:32 leokuang: 提交前脱敏 APP 客户端临时萃取 evidence 中的明文凭据样本，避免远程仓库暴露敏感信息 (user-visible)
+- v0.1.0 2026-05-26 22:52:00 leokuang: APP 负责人确认 batch-001 全部 5 条规则（2×P1 + 1×FORBIDDEN + 2×P2），将 standard / ai-rules / review-checklist / evidence 从 status: draft 升级为 status: active (user-visible)
+- v0.1.0 2026-05-26 22:45:00 leokuang: 完成 hszq-app batch-001-trade-architecture 全量 batch-extraction：生成 standard（5 条规则）、ai-rules（12 条）、review-checklist（20 条检查项）、evidence（13 条 code-facts）、rules-index-candidate、llms-candidate、ai-context-pack，通过 Gate A 内容门禁（全 PASS），输出 review-report 和 review-summary (user-visible)
+- v0.1.0 2026-05-26 21:27:11 leokuang: 对 hszq-app 执行 GitNexus 增强的 profile-first 萃取（run_id: 20260526-212711-app-client），利用 158K nodes 深度索引获取架构 pattern、模块依赖拓扑、核心基类 CRITICAL 影响分析，生成 project-profile / extraction-map / batch-plan 三件套 (user-visible)
+- v0.1.0 2026-05-26 15:11:38 leokuang: 为 project-standard-extractor 设计与内部解读用户手册补充附录 C「产物目录结构」，覆盖顶层目录树、四类消费分组、命名规则、实际示例和关键边界 (user-visible)
+- v0.1.0 2026-05-26 14:53:24 leokuang: 新增 project-standard-extractor 设计与内部解读用户手册（开发者第一视角的深度分析稿，覆盖设计哲学、系统分层、执行逻辑、设计取舍辩护、三类使用方式、现场演示、Q&A 和演进路线），并在用户手册 README 加入入口与快速路径条目 (user-visible)
+- v0.1.0 2026-05-26 14:40:58 leokuang: 使用 project-standard-extractor auto/profile-first 模式重新扫描 kaz-mvp，生成 APP 客户端项目画像、extraction map 与 batch plan，并记录 GitNexus 降级、敏感路径排除和单 batch 后续选择边界 (user-visible)
 - v0.1.0 2026-05-21 00:50:29 leokuang: 使用 spec-first 初始化项目
 - v0.1.0 2026-05-26 13:38:53 leokuang: 新增 project-standard-extractor 全流程自动化 draft pipeline 需求文档，明确单仓库自动画像、batch 队列、逐批萃取、质量门禁、owner approval queue 和 active 发布边界 (user-visible)
 - v0.1.0 2026-05-26 07:00:14 leokuang: 修复 project-standard-extractor force-rebuild 校验的 review-summary run 绑定、quality_gate_decisions 段内阻断解析和 restore domain lock，保持 `.claude/` 运行目录整体忽略，并清理新增文档尾随空格以通过 whitespace check (user-visible)
@@ -131,3 +138,4 @@
 - v0.1.0 2026-05-25 15:33:21 leokuang: 修复 Phase 2 force-rebuild/restore 复审阻断项——`backup.sh --restore` 增加 manifest.json.sha256、domain/backup_id 身份和 file_count/byte_count/sha256 三元完整性校验，并由脚本独占 `.pre-restore-*` rename/rollback；`force-rebuild-validate.sh` 改为识别 backup payload 目录并修正 standard*.md find 分组；activation-report schema 要求 signal source 且允许 machine-auditable evidence/fallback 字段；同步修正 GitNexus eval、force-rebuild eval、walkthrough 和 signal 示例，避免 schema-valid report 与回归断言互相矛盾 (user-visible)
 - v0.1.0 2026-05-25 18:03:10 leokuang: 二轮代码评审修复 project-standard-extractor skill：去除 force-rebuild.md `scripts/backup.sh` 重复引用；明确 SKILL.md 步骤 4 进入 Phase 2 blocked 管道的触发条件（output_action != append 或 repair plan 显式驱动）(user-visible)
 - v0.1.0 2026-05-25 22:01:15 leokuang: 硬化 project-standard-extractor 公开入口，将稳定萃取路径收敛为 profile-first + 单 batch draft generation，迁出 maintainer 脚本到 tools/maintainer，补齐 skill-local evals 并消除 skill-audit P0/P1/P2 findings (user-visible)
+- v0.1.0 2026-05-26 13:47:38 leokuang: 新增 project-standard-extractor full-auto draft pipeline 深度实施计划，定义 full-auto-draft 公开模式、ordered batch queue、逐 batch selected-batch worker、质量分层、跨 batch 冲突归并、owner approval queue、eval/docs 同步与契约漂移校验范围 (user-visible)

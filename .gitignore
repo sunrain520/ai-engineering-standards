@@ -1,6 +1,5 @@
 # spec-first:start
 # spec-first generated runtime assets
-.claude/
 .claude/commands/spec/
 .claude/skills/
 .claude/spec-first/

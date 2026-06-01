@@ -10,7 +10,7 @@
 
 ### Changelog
 - 任何项目 source 新增、删除或修改，都必须同步更新根目录 `CHANGELOG.md`；记录格式以仓库现行格式为准。
-- `作者` 使用当前 host developer profile：Codex 读 `.codex/spec-first/.developer`，Claude 读 `.claude/spec-first/.developer`；缺失时先运行 `spec-first init --codex|--claude -u <name> --lang <zh|en>`。
+- `作者` 使用全局 developer profile：统一读 `~/.spec-first/.developer`；缺失时先运行 `spec-first init` 并按引导选择开发者姓名与语言。
 - 用户可见变更追加 `(user-visible)`；缺少对应记录时，拒绝生成 source 变更。
 <!-- spec-first:lang:end -->
 
