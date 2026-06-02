@@ -44,6 +44,11 @@ app / feature / core modules
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
+### 说明
+
+- 本地工程替换（dependency substitution / includeBuild）一旦散落到各业务模块，构建解析路径就会随机器和模块而异，导致同一份代码在不同环境产物不一致、难以排查的依赖冲突。集中到根 `settings.gradle` 才能让替换规则可见、可统一开关、可整体校验。
+- 替换规则若不做 `findProject` 等存在性判断，缺少本地工程的同学或 CI 环境会因找不到模块而直接构建失败，破坏构建可复现性；存在性保护让替换在本地可用、在标准环境自动退回 Maven 产物。
+
 ### 适用范围
 
 - 本地联调、Maven 产物替换、included build、跨模块依赖调试。
@@ -72,6 +77,11 @@ app / feature / core modules
 ## P2 快速构建开关只能跳过校验任务，不能改变产物语义
 
 > level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
+
+### 说明
+
+- 快速构建开关的价值在于本地提速，安全边界是只跳过 lint、test、check、androidTest、jacoco、kover 等校验类任务，这些任务不影响最终产物的字节内容。一旦让开关介入源码、资源、依赖解析或 release 行为，本地构建与 CI 产物就会发生语义漂移，破坏构建可复现性，且问题往往在发布后才暴露。
+- 开关默认关闭、并在 CI 与发布路径显式关闭，是为了保证正式产物始终经过完整校验；新增提速能力时说明影响的任务类型，便于 review 判断是否越界。
 
 ### 适用范围
 

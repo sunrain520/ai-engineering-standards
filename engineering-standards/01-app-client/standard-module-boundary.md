@@ -23,7 +23,11 @@ tags:
 
 ## P1 跨域协作必须通过 contract 稳定边界
 
-> level: P1 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: APP 架构负责人 · last_reviewed: 2026-05-22 · recommended_action: promote-to-active
+> level: P1 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: APP 架构负责人 · last_reviewed: 2026-06-02 · recommended_action: promote-to-active
+
+### 说明
+
+- 跨业务域如果直接依赖对方的 `feature` 实现模块，任意一方内部重构都会编译期击穿到调用方，模块边界形同虚设，最终退化为大泥球。通过 `contract` 暴露稳定协议，把「调用方需要什么」与「实现方怎么做」解耦，使实现可独立演进、依赖图保持单向。这条规则要防止的就是「跨域调用绕过契约直连实现」导致的隐式强耦合。
 
 ### 适用范围
 
@@ -44,6 +48,42 @@ tags:
 1. 禁止让 `contract` 反向依赖 `feature` 实现模块。
 2. 禁止跨业务域调用绕过 `contract` 直接连接其他业务域实现。
 3. 禁止把页面实现、复杂业务流程或内部状态管理沉淀到 `contract`。
+
+### 正例
+
+```kotlin
+// 正例：order 域通过 quotes 域的 contract 暴露的稳定接口协作，不依赖其 feature 实现
+// quotes-contract 模块（只含接口 + 轻量 DTO）
+interface QuotesContract {
+    fun getLatestPrice(symbol: String): PriceDto
+}
+
+// order-feature 模块 build.gradle.kts：只依赖 contract，不依赖 quotes-feature
+dependencies {
+    implementation(project(":quotes-contract"))
+}
+
+class OrderViewModel(private val quotes: QuotesContract) {
+    fun refresh(symbol: String) {
+        val price = quotes.getLatestPrice(symbol) // 经契约调用，跨域解耦
+    }
+}
+```
+
+### 反例
+
+```kotlin
+// 反例：order-feature 直接依赖 quotes-feature 实现 → 跨域强耦合，quotes 重构即击穿 order
+dependencies {
+    implementation(project(":quotes-feature")) // ⛔ 绕过 contract 直连实现模块
+}
+
+class OrderViewModel(private val quotesRepo: QuotesFeatureRepositoryImpl) { // ⛔ 依赖对方实现细节
+    fun refresh(symbol: String) {
+        val price = quotesRepo.fetchPriceFromDb(symbol) // 改法：改依赖 QuotesContract 接口
+    }
+}
+```
 
 ### AI 生成代码要求
 
@@ -69,7 +109,11 @@ tags:
 
 ## P2 contract 模块应保持依赖轻量
 
-> level: P2 · status: active · source_kind: owner-confirmed · evidence_tier: single-project · risk_tag: low · owner: APP 架构负责人 · last_reviewed: 2026-05-22 · recommended_action: promote-to-active
+> level: P2 · status: active · source_kind: owner-confirmed · evidence_tier: single-project · risk_tag: low · owner: APP 架构负责人 · last_reviewed: 2026-06-02 · recommended_action: promote-to-active
+
+### 说明
+
+- `contract` 的价值在于「轻」——它只表达调用协议。一旦 `contract` 引入 UI 组件、页面框架或业务实现依赖，这些依赖会通过依赖传递泄漏给所有调用方，调用方为了用一个接口被迫拖入一整套 UI 栈，编译变慢、依赖图膨胀，契约层的解耦作用被反噬。这条规则防止 `contract` 因「顺手加依赖」逐渐变重而失去边界意义。
 
 ### 适用范围
 
@@ -89,6 +133,30 @@ tags:
 
 1. 禁止在没有使用点和负责人确认的情况下，为 `contract` 默认新增 UI 组件、页面框架或业务实现依赖。
 2. 禁止用 `contract` 依赖传递来让调用方间接获得 feature 或 UI 能力。
+
+### 正例
+
+```kotlin
+// 正例：contract 模块只保留表达协议所需的最小依赖
+// quotes-contract build.gradle.kts
+dependencies {
+    implementation(project(":core-model")) // 仅轻量 DTO/常量所需
+    // 无 UI、无 compose、无 feature 实现依赖
+}
+```
+
+### 反例
+
+```kotlin
+// 反例：contract 引入 UI 依赖 → 通过依赖传递泄漏给所有调用方
+// quotes-contract build.gradle.kts
+dependencies {
+    implementation(project(":core-model"))
+    implementation("androidx.compose.ui:ui") // ⛔ UI 栈进契约层
+    implementation(project(":quotes-feature")) // ⛔ 业务实现进契约层
+    // 改法：UI/实现依赖留在 feature 层，contract 只留接口与轻量 DTO
+}
+```
 
 ### AI 生成代码要求
 

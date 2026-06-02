@@ -42,6 +42,10 @@ app-kaz
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
+### 说明
+
+- Android 中 Push、RN runtime 等组件会在独立的子进程拉起 `Application.onCreate`，若不区分进程，子进程会重复执行宿主的全套业务初始化，导致启动变慢、内存翻倍，甚至因子进程缺少宿主上下文而崩溃。把业务容器、全局事件注册无差别复制到子进程，还会造成事件被多进程重复消费、状态错乱等难以排查的问题，因此必须以进程判断收口完整初始化。
+
 ### 适用范围
 
 - `Application`、启动初始化、Push、RN runtime、全局生命周期、业务容器初始化。
@@ -69,6 +73,10 @@ app-kaz
 ## P1 页面基类选择必须匹配页面状态复杂度
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
+
+### 说明
+
+- 基类承载了 loading/error/empty 状态机和订阅清理能力，给简单静态页强行套用加载态基类会引入用不到的状态分支和生命周期回调，徒增理解和维护成本；反过来给异步页用过轻的基类，则会逼开发者在 Fragment 里手写散落的 `isLoading`、`hasError` 等标志位，状态切换容易遗漏、互相覆盖，并且 Rx 订阅无法随 ViewModel 统一释放而泄漏。按状态复杂度选最低足够基类，才能让状态表达和资源回收都收口在统一路径上。
 
 ### 适用范围
 
@@ -102,6 +110,10 @@ app-kaz
 
 > level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
+### 说明
+
+- 交易由多个子模块组成，共享的 UI、utils 和数据模型如果各自复制一份，会随时间漂移成多个不一致的版本，修一个 bug 要改多处且容易漏改。把这些能力收敛到 `trade-core` 这类 feature-core 模块，可以让子模块共享同一份实现、保持单一来源；但 feature-core 一旦塞进具体业务页面流程，又会反过来变成谁都依赖的"大泥球"。同理，deprecated 的 `TradeRouter` 入口只是为存量保留的兼容壳，若被当作新页面跳转模板复制，会让已计划下线的代码继续扩散、迁移成本越滚越大。
+
 ### 适用范围
 
 - 交易模块共享 UI 组件、工具类、数据模型、路由兼容入口。
@@ -130,6 +142,10 @@ app-kaz
 ## P2 账户容器页应只编排页面结构和导航消费
 
 > level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
+
+### 说明
+
+- 账户容器页天然处在导航中枢位置，如果让它直接承载资产、订单、盈亏等叶子业务计算，容器就会越长越臃肿、与各叶子页紧耦合，叶子页拆分或复用时被容器逻辑拖住。把容器职责限定在结构编排和导航消费、让深链按"容器定位 Tab → 叶子继续下钻"分阶段处理，可以保持各层职责清晰、叶子页可独立演进。直接在容器层注入 KMP UseCase 属于绕过分层的历史写法，扩散后会让跨层依赖蔓延，因此只保留兼容并标记待确认，不作为新增模式。
 
 ### 适用范围
 
@@ -162,6 +178,10 @@ app-kaz
 ## P1 KMP 桥接层必须通过 Presenter/UseCase 工厂方法获取，不直接构造 Service
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
+
+### 说明
+
+- KMP Presenter/Service 的构造往往要求注入特定的 CoroutineScope、依赖装配和生命周期约定，直接 `new XxxPresenter()` 或 `new WatchlistService(GlobalScope)` 会绕过工厂封装，拿到一个生命周期与 Android 侧脱钩的实例，难以统一替换实现或做测试桩。用 `GlobalScope` 收集 `StateFlow` 会让协程随进程而非随页面存活，页面销毁后仍在更新 UI，造成内存泄漏甚至空指针；而漏掉 `onCleared()` 里的 `presenter.close()` 则会让 KMP 侧的订阅和资源一直挂着。通过工厂方法获取、绑定 `viewModelScope`/`repeatOnLifecycle` 并在销毁时 close，才能让桥接对象的生命周期与 Android 组件对齐。
 
 ### 适用范围
 
@@ -212,6 +232,10 @@ private val watchlistService = WatchlistService(GlobalScope) // 禁止
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
+### 说明
+
+- ViewPager 下的宿主与子页生命周期并不同步，子页可能尚未创建或已被回收。如果把子页业务状态上浮到宿主 ViewModel，宿主就要替所有子页持有和切换状态，宿主膨胀的同时还会因为读到尚未就绪的子页状态而出错。通过宿主 ViewModel 的 LiveData 直接给子页喂数据，会让子页隐式依赖宿主、无法独立复用和测试；而子页反向直接访问宿主 ViewModel 则会形成双向耦合。用 `arguments` 单向传参、用 `internal fun`/接口回调收口子页触发的宿主行为，能保持宿主只管结构编排、子页自管业务状态的清晰边界。
+
 ### 适用范围
 
 - 含 ViewPager + Tab 的宿主 Fragment（如 WatchListFragment、账户容器页）。
@@ -255,6 +279,10 @@ return WatchListPageFragment().apply {
 ## P2 StateMapper 负责 KMP UiState → Android Vo 的单向映射
 
 > level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
+
+### 说明
+
+- KMP UiState 和 Android Vo 是两套数据模型，转换逻辑如果散落在 ViewModel 里，会和页面逻辑、订阅逻辑搅在一起，难以复用和测试，且同一份映射在多个 ViewModel 里各写一遍容易不一致。抽成无状态、不碰 Android API 的 `XxxStateMapper` object，能让转换成为可独立测试的纯函数。枚举映射用 `when` 穷举而非 `else` 兜底，是为了在 KMP 侧新增枚举值时让编译器直接报"缺分支"，把遗漏挡在编译期而不是等到运行时落进兜底分支造成静默错误；用 sealed 类型表达列表项多态，则能在 `when` 消费时同样获得穷尽性检查，避免 `Any` 带来的类型不安全和强转。
 
 ### 适用范围
 
@@ -307,6 +335,10 @@ fun onResult(state: AccountCondOrderUiState) {
 
 > level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
+### 说明
+
+- Fragment 的视图生命周期比 Fragment 本身短：`onDestroyView` 之后视图已销毁但 Fragment 实例可能仍存活（如被加入回退栈）。如果用非空 `val binding` 长期持有 ViewBinding，被销毁的 View 树就会被 Fragment 一直引用而无法回收，造成内存泄漏；销毁后若再访问该 binding，操作的还是过期视图。用 nullable backing field 加 `onDestroyView` 置 null，既能在视图销毁时切断引用让 View 被回收，又能让销毁后误访问以明确的空指针快速暴露，而不是悄悄操作失效视图。
+
 ### 适用范围
 
 - 所有使用 ViewBinding 的 Fragment。
@@ -348,6 +380,10 @@ override fun onDestroyView() {
 ## P2 EventBus 注册/注销必须成对，在 onAttach/onDetach 或 onCreate/onDestroy 中完成
 
 > level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
+
+### 说明
+
+- EventBus 注册后会持有订阅者引用，注册不注销会让已销毁的 Fragment 被 EventBus 一直引用而泄漏，并在事件到来时回调到失效页面引发崩溃。把注册/注销放到 `onResume/onPause` 看似对称，但 ViewPager 切页会频繁触发这两个回调，导致订阅被反复注销、相邻页收不到事件；放在 `onAttach/onDetach`（Application 用 `onCreate/onTerminate`）才与"订阅者是否存活"对齐。`@Subscribe` 不指定 `threadMode` 时回调线程由发布线程决定，UI 操作可能落到非主线程而抛异常，因此 UI 处理必须显式声明 `ThreadMode.MAIN`。
 
 ### 适用范围
 

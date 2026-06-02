@@ -42,6 +42,10 @@ apps:kaz-app / 原生宿主
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
+### 说明
+
+- KMP 共享层会同时被 Android 与 iOS 宿主消费，一旦 UseCase 反向依赖 Repository 的网络实现或 DTO，平台细节就会沿 expect/actual 边界扩散，导致一份业务逻辑难以在两端复用。固定 UseCase -> Repository 接口的单向依赖，能让 domain 语义独立于具体数据源，替换网络栈或做平台特化时只改实现、不动业务契约。此外 KMP 编译为 iOS framework 时所有 public 声明都会进入 ObjC ABI，内部 UseCase 不加 refinement 注解隐藏，就会污染 iOS 头文件并带来后续删改即破坏 ABI 的兼容包袱。
+
 ### 适用范围
 
 - KMP trade/order/account 等共享业务模块。
@@ -74,6 +78,10 @@ apps:kaz-app / 原生宿主
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
+### 说明
+
+- Presenter 处在共享层，无法引用 Android View、Fragment 这类平台专有类型，否则代码根本无法编译进 iOS target；以不可变 `StateFlow<UiState>` 对外输出，正是为了让两端宿主用各自的 UI 框架订阅同一份状态。分页若不显式维护首屏、刷新、加载更多、空态、失败和下一页游标，跨平台两端就会各写一套不一致的边界处理，且把游标散落到 UI 层会让任一平台的列表在并发翻页时错乱。并发请求经 RequestGate 防重、成功结果先映射为 UI model 再合并进 UiState，能保证状态可重放、两端表现一致。
+
 ### 适用范围
 
 - KMP Presentation、分页列表、筛选状态、请求去重。
@@ -105,6 +113,10 @@ apps:kaz-app / 原生宿主
 
 > level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
 
+### 说明
+
+- KMP 通过 `settings.gradle.kts` 显式拆分模块，归属层级一旦混乱，跨平台编译会因循环依赖直接失败，且 `apps` 层沉淀的公共逻辑无法被其他业务域复用。把共享能力归到 `modules:core` 或对应业务域、业务域之间靠稳定类型与 contract 协作，可避免 app 层反向沉淀造成的依赖倒置。settings 变更同步说明新增模块的业务域和依赖方向，是因为模块图是 KMP 多 target 构建的事实来源,缺少这层说明,后续接手者难以判断哪些模块会被打进 iOS framework。
+
 ### 适用范围
 
 - KMP settings、模块新增、跨域依赖调整。
@@ -132,6 +144,10 @@ apps:kaz-app / 原生宿主
 ## P2 KMP 桥接 object 统一封装 Service 访问，Android 侧不直接持有 Service 实例
 
 > level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
+
+### 说明
+
+- KMP Service 自带初始化（`doInitWithCombination()`）和协程作用域等生命周期约束，若 Android 各处 ViewModel、Manager 直接 new Service 实例，会出现重复初始化、作用域泄漏，以及 KMP 内部参数细节（如 group 三元组）散落到调用方。用单一 `object` 桥接，把实例持有、初始化和访问入口收口到一处，Android 侧只面对贴合自身习惯的方法签名,KMP 内部签名调整时只改 object 不波及上层。替换旧实现时注释保留而非删除，是因为跨平台桥接的行为差异往往要等真机联调才暴露，保留旧代码便于快速对比和回滚。
 
 ### 适用范围
 
@@ -173,6 +189,10 @@ object WatchListKmp {
 ## P2 KMP Presenter 的 EffectFlow 用于一次性副作用，不用于持久状态
 
 > level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
+
+### 说明
+
+- `stateFlow` 语义是可重放的最新状态，新订阅者会立刻收到当前值；若把 Toast、导航、弹窗这类一次性副作用塞进 `stateFlow`，旋转屏幕或重新收集时就会重复弹窗、重复跳转。改用消费一次的 `effectFlow` 承载副作用，能让 Android 与 iOS 两端都基于同一份共享 Presenter 各自映射为平台事件，而不必在 UI 层各写一套去重逻辑。在 `init` 中用 `viewModelScope.launch` 收集而非 `onResume`，是为避免生命周期回调多次执行造成的重复订阅，否则一个 effect 会被消费多次。
 
 ### 适用范围
 

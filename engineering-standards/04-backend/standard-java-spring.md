@@ -52,6 +52,11 @@ tags:
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
 
+### 说明
+
+- Facade 是 Dubbo 服务对外的入口，线上问题排查往往只能从日志回溯调用链，入参缺失会让定位变成猜测。首行记录 memberId 与业务关键 ID，能让任意一次调用都可按业务主键串起全链路。
+- 枚举直接 `toString` 打印出的是类名或序号，不利于阅读；用 `getDescription()`/`name()` 输出可读语义，避免日志含糊。
+
 **适用范围**
 
 - 所有 @DubboService FacadeImpl 的公开方法。
@@ -105,6 +110,12 @@ public ModelResult<Long> apply(StockDepositApplyDto applyDto, ...) {
 ### P1 写操作 Facade 必须加 @Transactional 并在外部调用失败时显式回滚
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+
+### 说明
+
+- Spring 默认只对 `RuntimeException` 回滚，显式声明 `rollbackFor = Exception.class` 才能保证受检异常同样触发回滚，避免半提交导致数据不一致。
+- 事务内调用外部 Dubbo 失败时，仅 `return error` 并不会中断当前事务，本地已写入的数据仍会被提交；必须 `markRollbackOnly()` 主动标记回滚，使本地写与外部结果保持原子一致。
+- 当业务要求「先调外部、成功后再写库」时，方法级 `@Transactional` 无法精确控制边界，需用 `TransactionTemplate` 手动划定，把外部调用挪到事务外，缩短事务持有时间。
 
 **适用范围**
 
@@ -173,6 +184,12 @@ public ModelResult<Long> apply(...) {
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
 
+### 说明
+
+- 事务内同步发 MQ 时，消息可能在数据库事务尚未提交（甚至最终回滚）前就到达消费者，造成消费者读不到数据或处理一条根本不存在的业务，产生脏消息。
+- 注册 `afterCommit` 回调可保证消息只在本地事务真正提交后才发出，是最终一致性的基本保障；统一封装为 `publishAfterCommit()` 避免每处重复编写同步逻辑。
+- 把 MQ 发送收敛到独立 `*MqProducer` 类，隔离 SDK 细节、集中 topic/序列化约定，便于复用与替换。
+
 **适用范围**
 
 - 所有在事务方法内发送 MQ 消息的场景。
@@ -231,6 +248,12 @@ public ModelResult<Long> apply(...) {
 ### P1 Service 接口按读写分离命名，WriteService 方法加 @Transactional
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+
+### 说明
+
+- 读写分离命名让调用方从接口名即可判断方法是否产生副作用，也便于后续按读写差异做缓存、只读库路由、监控等治理；读写混在一个接口会模糊职责边界。
+- 读操作不应开启事务，`@Transactional` 会带来不必要的连接占用与开销；只在 WriteService 写方法上声明 `rollbackFor = Exception.class`，让事务边界与写操作精确对齐。
+- 参数约束用 `@NotNull`/`@Valid` 声明式校验，可在框架层统一拦截非法入参，避免实现类内散落手写 null 判断、保持业务代码聚焦。
 
 **适用范围**
 
@@ -303,6 +326,12 @@ public interface MemberStockDepositService {
 ### P1 DO 不出 server 模块边界，Domain 不含 DB 注解
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+
+### 说明
+
+- DO 承载数据库表结构细节，一旦作为 Facade 出入参跨服务暴露，调用方会与库表耦合，表结构调整会牵连所有消费者；用 Domain/DTO 作为契约可隔离持久化变更。
+- Domain 在 common 模块供跨服务传输，混入 `@TableName`/`@TableField` 等 MyBatis-Plus 注解既泄露存储实现，也会让 common 反向依赖 ORM，破坏分层。
+- 转换集中在静态 `*Converter`，避免映射逻辑在 Service/Facade 内重复散落、字段对不齐；Converter 不注入 Bean、不含业务规则，保持纯函数式可测、可复用。
 
 **适用范围**
 
@@ -384,6 +413,12 @@ public class MemberStockDeposit {
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
 
+### 说明
+
+- `check = false` 关闭启动期依赖检查，避免本服务因下游尚未就绪而启动失败，尤其在容器编排下各服务启动顺序不可控；缺省的强校验会放大启动期级联故障。
+- `group` 必须与服务端一致，否则服务发现匹配不到提供者，且因 `check = false` 启动时不报错，缺陷会潜伏到运行时调用才暴露，排查成本高。
+- Dubbo 调用受网络与下游状态影响，结果可能为 null 或失败；先判 `null`/`isSuccess` 再取数据，杜绝直接 `getData()`/`getModel()` 引发的 NPE。
+
 **适用范围**
 
 - 所有 @DubboReference 注入的外部服务调用。
@@ -443,6 +478,12 @@ TaskTransferInfo task = taskResult.getData();  // NPE 风险
 ### P1 统一用 result.withError(code, msg) 返回错误，不抛受检异常
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+
+### 说明
+
+- 统一用 `BaseResult`/`ModelResult`/`PageResult` 返回错误，让跨 Dubbo 的调用方能以一致方式判断成败；抛受检异常会穿透 RPC 序列化、契约不稳定，且强迫每个调用方写 try-catch。
+- 结构化错误码 `{业务域}.{操作}.{原因}` 便于检索、埋点告警与按业务定位问题；外部失败时透传对方 errorCode/errorMsg，可保留原始根因，避免自造错误码丢失上下文。
+- 禁止 try-catch 吞异常后返回成功，否则会掩盖真实失败、让上层误以为操作完成，是数据不一致与隐性故障的常见源头。
 
 **适用范围**
 
@@ -600,6 +641,12 @@ AI 生成 Java Spring 后端代码时必须遵守：
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
 
+### 说明
+
+- Controller 是 HTTP 适配层，职责限于参数绑定、校验与响应封装；一旦写入业务判断，逻辑会脱离可复用、可事务管理的 Facade/Service，难以被其他入口（如 MQ、定时任务）复用，也无法纳入统一事务。
+- 写操作加 `@UserActionLog` 与 `@RequiresPermissions`，是后台系统操作审计与权限管控的硬性要求，缺失会留下越权与无法追溯的安全缺口。
+- Controller 直接注入 `@DubboReference` 会绕过 admin Facade 编排层，使权限、日志、参数装配逻辑分散且无法收敛，因此被列为历史反例、新代码禁止。
+
 **适用范围**
 
 - hs-kaz-crm-admin 所有 Controller 类。
@@ -693,6 +740,12 @@ public class DepositTaskController {
 
 > level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
 
+### 说明
+
+- SQL 应收敛在 Mapper 层（注解或 XML），与持久化职责对齐；在 Service/Facade 内拼 SQL 字符串既混淆分层，又极易因字符串拼接引入 SQL 注入与维护盲区。
+- 简单单表查询用 `@Select`（配合 text block）就近表达、减少 XML 样板；多表 JOIN、resultMap、动态 SQL 用 XML 更易维护和复用，按复杂度分流可兼顾可读性与表达力。
+- 多参数用 `@Param` 显式命名，避免依赖参数顺序导致的隐性绑定错误；Mapper 返回 DO 而非 Domain，保持转换统一由 Converter 负责、不越层。
+
 **适用范围**
 
 - 所有 *-server 模块的 Mapper 接口，超出 MyBatis-Plus BaseMapper 基础 CRUD 的查询。
@@ -759,6 +812,12 @@ List<MemberStockDepositDO> selectByCondition(
 ### P1 @DubboReference 指定 group 时必须与服务端 @DubboService(group=...) 一致
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+
+### 说明
+
+- Dubbo 以 `group` 作为服务分组维度做服务发现，消费端 group 与提供端不一致就匹配不到实例，调用直接失败；这是跨服务集成最易踩的隐性坑。
+- 由于 `@DubboReference` 普遍带 `check = false`，group 错配在启动时不会报错，只在真正发起调用时才失败，问题潜伏期长、定位成本高，因此定为 high 风险。
+- group 值应以目标服务的 `@DubboService(group=...)` 为准，不能凭印象猜测；规范列出常见 group 仅作参考，新接入时仍需核对源服务注解。
 
 **适用范围**
 
