@@ -31,6 +31,8 @@ previous_origin: docs/brainstorms/2026-06-01-001-project-standard-extractor-code
 - R-33. 覆盖完整性报告，列出 `domain × sub_domain × task_type` 覆盖矩阵、batch 状态、低置信归因、遗漏点和缺口。
 - R-34.（plan-local，doc-review 2026-06-02 增补）增量 full-auto：对已生成过规范的仓库重复运行时，应复用已落盘产物作为基线，以 `(source_doc, section_title)` 对齐，只标注「新增 / evidence 变更 / 跨运行置信升级 / 已 superseded」，不重复堆积近义规则。
 - R-35.（plan-local）存量刷新检测：当已有 `active` / `draft` 规范与当次新 evidence 不一致时，应**检测并提示 owner**（写入 `conflicts.md` / `merge-suggestions.md` / owner decision queue），**不得自动改写 active**——刷新决策仍归 owner。
+- R-36.（定位转向 2026-06-02:萃取即权威，PRD R-36）高置信自动升级闸:过 BR-016 闸(occurrences≥2 确定性核验 + confidence:high + 多角色覆盖 + evidence 充分 + 无 conflict + 结构完整 + 未命中反范式黑名单 + 非高风险域 BR-017)的规则自动升 `auto-active` 进 AI 默认执行路径,无需逐条 owner 确认;未过闸降级 draft/pending。
+- R-37.（PRD R-37）auto-active provenance + 撤销链:每条 auto-active 规则 lineage 记录 `upgrade_mode` + 闸判据快照;owner 否决后下次运行移出执行路径(标 `owner-rejected`,移出≠改写正文)。
 
 **Origin actors:** A1 Skill 使用者, A2 Full-auto orchestrator, A3 Batch worker, A4 规范 owner, A5 AI 编码使用者, A6 Reviewer, A7 规范维护者, A8 目标代码仓库
 
@@ -49,7 +51,7 @@ previous_origin: docs/brainstorms/2026-06-01-001-project-standard-extractor-code
 
 ## Scope Boundaries
 
-- 不自动发布 `active` 规范。
+- 不发布 `owner-confirmed-active`(owner 手动确认档)——它仍只能由 owner 确认。但**过高置信闸(BR-016/BR-017)的规则会自动升为 `auto-active` 并进入 AI 默认执行路径**(定位转向 2026-06-02:萃取即权威);`auto-active` 与 `owner-confirmed-active` 都进默认执行,区别在来源(自动 vs 人工)与退出规则(auto-active 可被自动复检降级,见 U10;owner-confirmed 退出需 owner)。术语统一定义见 Key Technical Decisions「状态模型」。
 - 不把完整仓库直接作为无边界上下文交给 generation；profile-first 仍是内部前置阶段。
 - 不建设规范管理 Web 平台。
 - 不执行业务代码修改、bug 修复或 PR 代码评审。
@@ -157,6 +159,22 @@ previous_origin: docs/brainstorms/2026-06-01-001-project-standard-extractor-code
 | Full-auto execution model | Outer orchestrator loops over single-batch worker | Preserves context-governance single-batch invariant while removing manual selection from default UX. |
 | Batch coverage model | ready + pending-confirmation execute; skipped/blocked report only | Balances “run everything possible” with evidence governance. |
 | Rule usability（定位转向 2026-06-02:萃取即权威） | 通过高置信自动升级闸（PRD BR-016/R-36）的规则**自动标记为可直接使用**,无需逐条 owner 确认;未过闸者降级 draft/pending;owner 保留事后否决权 | 满足「萃取即可用」终极目标,高置信闸防止单样本/坏味道升权威 |
+
+#### 状态模型(auto-active 权威定义,消解 P0-1 术语冲突)
+
+规则级 status 在本转向后的完整枚举与语义(须同步进 `frontmatter-format.md §4.2` 与 U6 artifact contract):
+
+| status | 进 AI 默认执行? | 来源 | 退出规则 |
+| --- | --- | --- | --- |
+| `auto-active` | ✅ 是 | 过 BR-016 闸自动升级 | 可被 U10 自动复检降级为 `stale-auto-active`;owner 可事后否决为 `owner-rejected` |
+| `owner-confirmed-active` | ✅ 是 | owner 手动确认(旧 `active`) | 退出需 owner(受 R-35 不自动改写约束) |
+| `draft` | ❌ 否(仅 usable-as-input,带风险标识) | 有 evidence 但未过闸 | 下次运行可升 auto-active 或 owner 升级 |
+| `pending-confirmation` | ❌ 否 | 证据不足/高风险域(BR-017)/命中黑名单 | owner 裁定 |
+| `stale-auto-active` | ❌ 否(已移出执行路径) | U10 自动复检发现 evidence 不再满足闸 | 进 owner queue 待裁定 |
+| `owner-rejected` | ❌ 否 | owner 否决 auto-active(R-37) | 终态 |
+| `conflict` / `legacy-compatible` / `rejected` | ❌ 否 | 见各自定义 | — |
+
+**核心澄清**:「active」是一个**类别**,含 `auto-active`(自动来源)与 `owner-confirmed-active`(人工来源)两个子状态——两者都进 AI 默认执行;Scope「不发布 active」旧表述特指**不自动发布 owner-confirmed-active**,不阻止 auto-active。`authority_scope: this-repo` 是所有 auto-active 规则的强制字段(单项目证据边界)。
 | Structure gate | Skeleton-required sections when available; generic minimum fallback otherwise | Prevents rule piles while reusing existing skeleton assets. |
 | Merge routing | Phase1 quality buckets map to existing `target_state` route | Avoids inventing fake activation reports or coupling Phase1 to `dimension_state`. |
 | Fast index | Treat candidate/formal index boundary as product API | Prevents AI default loading of candidate artifacts. |
@@ -252,13 +270,19 @@ flowchart TB
 flowchart TB
   U1[U1 Public Entry] --> U2[U2 Queue Coverage]
   U2 --> U3[U3 Per-Batch Worker]
-  U3 --> U4[U4 Quality Policy]
+  U3 --> U4[U4 Quality Policy + auto-active 闸]
   U4 --> U5[U5 Merge Lineage]
   U5 --> U6[U6 Artifact Contract]
+  U5 --> U10[U10 增量/撤销/自动失效出口]
+  U4 --> U10
   U6 --> U7[U7 Evals Validators]
+  U10 --> U7
   U7 --> U8[U8 Docs Governance]
   U8 --> U9[U9 Contract Sync]
+  U10 --> U9
 ```
+
+> **U10 在 auto-active 安全链中的位置(P1-3)**:U10 不是文末孤立单元——它承载 auto-active 的撤销链(R-37)、自动失效出口(stale-auto-active)和增量对齐,是「萃取即权威」安全链的退出端。依赖 U4(产 auto-active)+ U5(merge/lineage);被 U7(validator 校验撤销/provenance)、U9(契约同步)依赖。
 
 ### U1. Full-Auto Public Entry And Mode Routing
 
@@ -314,7 +338,9 @@ flowchart TB
 **Dependencies:** U1
 
 **Files:**
-- Modify: `skills/project-standard-extractor/references/agents/profile-and-batch-planner.md`
+- Modify: `skills/project-standard-extractor/references/agents/profile-and-batch-planner.md`（改 `:53`「pending-confirmation 不进队列」→ 进队列归 `pending` 低置信档）
+- Modify: `skills/project-standard-extractor/references/config/context-governance.md`（P0-B:§3「每次正式萃取 batch 数=1」补 full-auto 外层循环语义,否则规则层挡多 batch 循环）
+- Modify: `skills/project-standard-extractor/references/agents/facts-and-classification.md`（P0-B:`:83` 现遇 pending 直接停止 + `:145` `BATCH_NOT_SELECTED`——须让 pending-confirmation batch 在 full-auto 低置信档下可执行,不再无条件停止）
 - Modify: `skills/project-standard-extractor/assets/project-profile-template.md`
 - Modify: `skills/project-standard-extractor/assets/extraction-map-template.md`
 - Modify: `skills/project-standard-extractor/assets/batch-plan-template.md`
@@ -327,6 +353,7 @@ flowchart TB
 **Approach:**
 - Promote existing `ordered_batch_queue` from optional auto-mode detail to required broad-input output.
 - Split queue entries into executable high-confidence `ready`, executable low-confidence `pending-confirmation`, and non-executable `skipped` / `blocked`.
+- **P0-B 契约闭环(三处必须同步改,否则 AE-02b 跑不通)**:(1) planner `:53` 改为 pending-confirmation 进 ordered_batch_queue 的 `pending` 低置信档;(2) context-governance §3「batch 数=1」补注「full-auto 由外层 orchestrator 循环逐个执行单 batch,每次调用仍=1 batch」;(3) facts-and-classification `:83`/`:145` 改为:full-auto 低置信档下 pending-confirmation batch 可执行(产出 low-confidence draft),不再无条件抛 `BATCH_NOT_SELECTED` 停止——仅 skipped/blocked 仍停止。
 - Add `coverage_report` data to profile/batch-plan/review-summary: profile matrix, batch status, candidate coverage, suspicious gaps and skip/block reasons.
 - Add `selection_provenance` to candidate files (`direct-scan`, `gitnexus-pointer`, `manifest`, `readme`, or equivalent); stale GitNexus candidates require direct-scan existence/representativeness confirmation before facts extraction.
 - Align evidence limits to existing authoritative defaults instead of inventing a new full-auto budget.
@@ -497,7 +524,7 @@ flowchart TB
 
 > **scope note（doc-review P2-3）**：U6 当前承担三层(contract 定义 + 8 模板引用改造 + validator),10 文件、内聚度偏低。实现时建议分两步落地:**U6a** 先定义 `output-artifact-contract.json` 并改 `output-targets.md` / `frontmatter-format.md`(≤3 文件,可先于 U5 完成,顺带解决 P1-2 lineage 缺 contract 定义的依赖);**U6b** 再改其余模板 + consumer surface + 创建 `artifact-contract-validate.sh`。两步不拆 U-ID,仅作实施顺序指引。
 
-**Requirements:** R-01, R-02, R-03, R-04, R-05, R-09, R-13, BR-009, BR-010, BR-011, BR-012, BR-014
+**Requirements:** R-01, R-02, R-03, R-04, R-05, R-09, R-13, BR-009, BR-010, BR-011, BR-012, BR-014, BR-016, BR-017（artifact contract 须承接 auto-active 等新状态枚举与字段）
 
 **Dependencies:** U5
 
@@ -516,6 +543,7 @@ flowchart TB
 
 **Approach:**
 - Introduce one machine-readable artifact contract for required/optional files, doc types, indexability, candidate/formal status, role consumption and publish conditions.
+- **新状态枚举承接(P1-2,实现阻塞级)**:`frontmatter-format.md §4.2` 规则级 status 枚举与 `output-artifact-contract.json` 必须新增 `auto-active`、`owner-confirmed-active`、`stale-auto-active`、`owner-rejected` 四个状态,并新增规则级字段 `authority_scope`(this-repo / cross-project)、`upgrade_mode`(auto-active / owner-confirmed)、`deterministic_occurrence_count`、`last_evidence_confirmed_run`。语义以 Key Technical Decisions「状态模型」表为唯一权威,artifact contract 与 frontmatter-format.md 引用它、不各自重定义(防 P1-3 式枚举漂移)。
 - Make `output-targets.md` and `frontmatter-format.md` reference the machine contract rather than redefining incompatible field semantics.
 - Define root/domain registry responsibilities without forcing a root `.index/` physical migration in this unit.
 - Extend domain overview or README templates as consumer control surfaces: AI coding, reviewer, owner and maintainer entry points plus “not executable” warnings for placeholder/no-evidence domains.
@@ -544,9 +572,9 @@ flowchart TB
 
 **Goal:** Encode the unified behavior in durable evals and deterministic validators so later prompt/template edits cannot drift.
 
-**Requirements:** R-12, R-15, R-28, AE-01..AE-16
+**Requirements:** R-12, R-15, R-28, R-36, R-37, AE-01..AE-18
 
-**Dependencies:** U1, U2, U3, U4, U5, U6
+**Dependencies:** U1, U2, U3, U4, U5, U6, U10
 
 **Files:**
 - Modify: `docs/evals/project-standard-extractor/README.md`
@@ -575,10 +603,12 @@ flowchart TB
 - `docs/evals/project-standard-extractor/README.md`
 
 **Test scenarios:**
-- Happy path: external eval source-of-truth covers all 16 acceptance examples.
+- Happy path: external eval source-of-truth covers all 18 acceptance examples (AE-01..AE-18).
 - Error path: validator fails if broad input still stops at manual batch selection by default.
 - Error path: validator fails if Phase1 full-auto requires `activation-report`.
 - Error path: drift linter catches `rule_id`, anchor, auto active and candidate overwrite regressions.
+- Covers AE-17. Happy path: 过闸规则升 auto-active 进默认执行;命中黑名单或高风险域(BR-017)的规则即使高频也降 pending。闸假阳性 eval 验证此分流。
+- Covers AE-18. Error path: owner 否决的 auto-active 规则在下次运行被移出执行路径(标 owner-rejected),validator 校验 lineage 含 `upgrade_mode` + `deterministic_occurrence_count` 判据快照。
 - Integration: validators can run from repo root or maintainer script directory.
 
 **Verification:**
@@ -638,7 +668,7 @@ flowchart TB
 
 **Requirements:** R-01..R-33（验证性收口,非新写入）
 
-**Dependencies:** U1, U2, U3, U4, U5, U6, U7, U8
+**Dependencies:** U1, U2, U3, U4, U5, U6, U7, U8, U10
 
 **Files:**
 - Modify: `skills/project-standard-extractor/references/examples/golden-sample-run.md`
@@ -725,7 +755,7 @@ flowchart TB
 
 - **Interaction graph:** Public workflow surfaces in `SKILL.md`, `workflow.md`, agents, prompts, assets/templates, evals, validators and user docs. Full-auto changes the default path across all layers.
 - **Error propagation:** Per-batch failures become batch-level summary entries and coverage gaps, not global run failure unless all batches are unusable or safety blocks the run.
-- **State lifecycle risks:** High-confidence draft becomes usable but not active; low-confidence/pending/conflict/rejected stay out of AI default execution.
+- **State lifecycle risks:** 过闸规则升为 `auto-active` 进 AI 默认执行(定位转向);未过闸的 high-confidence draft 仅 usable-as-input 不进默认执行;low-confidence/pending/conflict/rejected stay out of AI default execution。`auto-active` 可被 U10 自动复检降级为 `stale-auto-active`;`owner-confirmed-active` 退出需 owner。
 - **API surface parity:** External evals remain the full source-of-truth; skill-local evals remain smoke subset.
 - **Integration coverage:** Validator plus evals must cover full-auto defaults, artifact contract and drift patterns; prose-only checks are insufficient.
 - **Unchanged invariants:** Maintainer destructive tools stay excluded; existing active/draft standards remain append-only protected; no Rule ID/anchor is introduced.

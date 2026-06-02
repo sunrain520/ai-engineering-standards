@@ -288,6 +288,14 @@ related:
 - AE-16（覆盖 R-12, R-15）
   Given 文档中重新出现 `rule_id`、HTML anchor、旧 `.index` 口径、auto active 或 Phase 1 强制 `activation-report`，when drift linter 执行，then 应输出 WARN 或 BLOCK，并指向对应契约来源；对应 fixture 应能在回归中复现。
 
+### 萃取即权威转向验收(定位转向 2026-06-02)
+
+- AE-17（覆盖 R-36, BR-016, BR-017）
+  Given 一次 full-auto 运行,某规则 occurrences=3(确定性扫描核验)、confidence:high、多角色覆盖、无 conflict、结构完整、未命中反范式黑名单、非高风险域,when 自动升级闸执行,then 该规则自动升 `auto-active` 进 `ai-rules.md`/`review-checklist.md` 默认执行路径,且 owner queue 列出该条供事后否决;另一规则虽 occurrences=5 但命中吞异常黑名单(或属 security 域),then 一律降级 pending,不得 auto-active。
+
+- AE-18（覆盖 R-37）
+  Given 上次运行升了 auto-active 规则 X,owner 在 decision queue 标记 X 为 rejected,when 下次 full-auto 运行,then X 在 standard 补 `status: owner-rejected` 并从 ai-rules/review-checklist/rules-index 移出执行路径(不改写规则正文);且 owner 能从 X 的 lineage 看到 `upgrade_mode: auto-active` + `deterministic_occurrence_count` 等判据快照。
+
 ## Evidence And Assumptions
 
 ### Evidence
