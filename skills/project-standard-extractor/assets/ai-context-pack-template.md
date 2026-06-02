@@ -33,9 +33,9 @@ tags:
 
 ## 3. 命中规则
 
-| source_doc | section_title | level | evidence_doc | tags |
-| --- | --- | --- | --- | --- |
-| `{source_doc}` | `{section_title}` | P0 | `{evidence_doc}` | `{tags}` |
+| source_doc | section_title | level | status | evidence_doc | tags |
+| --- | --- | --- | --- | --- | --- |
+| `{source_doc}` | `{section_title}` | P0 | auto-active | `{evidence_doc}` | `{tags}` |
 
 引用格式：
 
@@ -59,7 +59,8 @@ tags:
 
 ## 6. 生成代码要求
 
-- 必须遵守命中规则。
+- 必须遵守命中的 `auto-active` / `owner-confirmed-active` 规则。
+- `draft` 只能作为参考上下文，不得当成默认强制规则。
 - 必须优先复用已有代码。
 - 必须输出修改文件列表。
 - 必须输出自检结果。

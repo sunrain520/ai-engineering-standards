@@ -21,7 +21,7 @@ tags:
 
 - run_id: `{run_id}`
 - source_profile: `{domain}/temp/{run_id}-project-profile.md`
-- extraction_mode: `profile-first`
+- extraction_mode: `{full-auto|profile-first|focused-module}`
 
 ## 2. 映射矩阵
 
@@ -43,6 +43,6 @@ tags:
 
 ## 5. batch 生成提示
 
-- 同一 batch 只能覆盖一个主要 `domain + sub_domain + module/task_type`。
-- 如果候选路径不足以支撑规则，batch 应标记为 `pending-confirmation` 或 `skipped`。
+- 同一 worker batch 只能覆盖一个主要 `domain + sub_domain + module/task_type`。
+- 如果候选路径不足以支撑 high-confidence 规则，batch 应标记为 `pending-confirmation` 并进入 low-confidence queue；完全不可执行才标记为 `skipped` / `blocked`。
 - 不得把多个不相关模块塞进一个 batch。

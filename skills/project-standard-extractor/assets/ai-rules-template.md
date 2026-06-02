@@ -26,18 +26,19 @@ tags:
 
 AI 默认必须执行：
 
-- 规则元数据 `level` 为 `P0` 或 `FORBIDDEN`，且 `status` 为 `active`。
-- 或 `status` 为 `draft`，同时 `source_kind ∈ {extracted, owner-confirmed}` 且 `evidence_tier ≠ none`。
+- 规则元数据 `status` 为 `auto-active` 或 `owner-confirmed-active`。
+- `auto-active` 规则必须带 `authority_scope: this-repo`、`upgrade_mode: auto-active`、`deterministic_occurrence_count >= 2` 和 lineage 闸判据快照。
 
 AI 默认可参考但不强制：
 
-- `level` 为 `P1` / `P2`，且满足上述 status / source_kind / evidence_tier 条件。
+- `status: draft` 且 `source_kind ∈ {extracted, owner-confirmed}`、`evidence_tier ≠ none` 的规则。
 
 AI 不得执行（即使在 standard.md 中出现）：
 
-- `status` 为 `pending-confirmation` / `conflict` / `legacy-compatible` / `rejected`。
+- `status` 为 `pending-confirmation` / `stale-auto-active` / `owner-rejected` / `conflict` / `legacy-compatible` / `rejected`。
 - `source_kind` 为 `template-placeholder`。
 - `evidence_tier` 为 `none`。
+- 命中 `references/config/anti-pattern-blocklist.yaml` 或高风险域但未 owner 确认的规则。
 
 ## 2. 必须执行规则清单
 
@@ -68,7 +69,7 @@ AI 不得执行（即使在 standard.md 中出现）：
 ## 4. 生成前必须检查
 
 1. 当前需求属于哪个研发域 / 子领域 / 业务模块？
-2. 是否已有 `active` 或 evidence-backed `draft` 规则？
+2. 是否已有 `auto-active` / `owner-confirmed-active` 规则？
 3. 是否有待合并 (`merge-suggestions.md`) 或冲突 (`conflicts.md`) 规则？
 4. 是否涉及 `risk_tag: high` 模块？
 5. 是否需要补充 evidence？
@@ -86,7 +87,7 @@ AI 不得执行（即使在 standard.md 中出现）：
 - 适用规则（二元组列表）：
 - 命中规则的 evidence_tier：
 - 是否包含 draft / high-risk warning：
-- 是否存在 pending / conflict / legacy 规则需要规避：
+- 是否存在 pending / stale-auto-active / owner-rejected / conflict / legacy 规则需要规避：
 - 是否需要负责人确认：
 ```
 

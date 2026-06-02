@@ -49,7 +49,7 @@ sensitive_candidates:
 existing_rule:
   source_doc: 04-backend/java/standard.md
   section_title: "P1 Controller 只负责请求接入和响应返回"
-  status: active
+  status: owner-confirmed-active
 candidate_rule:
   source_doc: 04-backend/java/standard.md
   section_title: "P1 Controller 必须自行处理事务边界"
@@ -60,7 +60,7 @@ candidate_rule:
 期望：
 
 - 触发 `TARGET_CONFLICT`。
-- 写入 `conflicts.md`，不得覆盖或降级已有 `active`。
+- 写入 `conflicts.md` 和 owner decision queue，不得覆盖或降级已有 `owner-confirmed-active`。
 
 ## FC-005 缺少负责人确认
 
@@ -74,7 +74,7 @@ candidate_rule:
 期望：
 
 - 触发 `OWNER_CONFIRMATION_MISSING`。
-- 保持 `pending-confirmation` 或 `draft`，输出确认项，不发布 `active`。
+- 保持 `pending-confirmation` 或 `draft`，输出确认项，不发布 `owner-confirmed-active`。
 
 ## FC-006 正式萃取缺少 batch
 
@@ -122,3 +122,50 @@ run_mode: interactive
 - 不进入 `backup-manager`。
 - 不调用 `tools/maintainer/project-standard-extractor/backup.sh`。
 - 提示改用 maintainer 工具或显式 repair-only workflow。
+
+## FC-009 高频反范式不得 auto-active
+
+```yaml
+candidate_rule:
+  level: P0
+  status: auto-active
+  deterministic_occurrence_count: 5
+  pattern: raw SQL string concatenates request parameter
+  anti_pattern_blocklist_hit: backend-raw-sql-concat
+```
+
+期望：
+
+- 触发 `AUTO_ACTIVE_ANTI_PATTERN_BLOCKED`。
+- 规则降级为 `pending-confirmation`，不得进入 `ai-rules.md §2`。
+- owner queue 标记 `requires_security_review: true` 或同等 owner review 动作。
+
+## FC-010 高风险域不得自动升级
+
+```yaml
+candidate_rule:
+  level: P0
+  sub_domain: auth-permission
+  deterministic_occurrence_count: 4
+  confidence: high
+```
+
+期望：
+
+- 触发 `AUTO_ACTIVE_HIGH_RISK_DOMAIN`。
+- 即使 evidence 充分，也只能进入 `pending-confirmation.md`。
+- owner queue 标记需要 security / permission owner review。
+
+## FC-011 Phase1 泄漏 activation-report
+
+```yaml
+run_profile: phase1-full-auto
+temp_files:
+  - temp/20260602-backend-activation-report.json
+```
+
+期望：
+
+- 触发 `PHASE1_ACTIVATION_REPORT_LEAK`。
+- generation / review / merge 不得把该 run 改判成 Phase 2。
+- `artifact-contract-validate.sh` 或 public validator 必须 BLOCK。

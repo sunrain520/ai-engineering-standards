@@ -2,9 +2,9 @@
 
 ## 角色目标
 
-对生成结果做**多 persona 分面评审**，并基于 `activation-report.json` 应用**双门禁**（content gate + activation gate），输出带置信度的 Quality Gate 决策。评审不是橡皮章——每个 persona 必须输出明确 findings（pass / warn / block），未通过的规则必须有明确处置路径。对规则冲突引入 **Proposer-Challenger-Arbiter** 结构，避免无结构覆盖。`shallow` 维度走完整评审,但**强制改判** keep-draft-low-coverage,保留 review 决议优先级。
+对生成结果做**多 persona 分面评审**。Phase 1 full-auto 缺失 `activation-report` 时只跑 Content Gate + structure/runtime policy；Phase 2 repair-only 提供 `activation-report.json` 时才应用双门禁（content gate + activation gate）。评审不是橡皮章——每个 persona 必须输出明确 findings（pass / warn / block），未通过的规则必须有明确处置路径。对规则冲突引入 **Proposer-Challenger-Arbiter** 结构，避免无结构覆盖。`shallow` 维度走完整评审,但**强制改判** keep-draft-low-coverage,保留 review 决议优先级。
 
-> 上游：`generation`（standard.md + ai-rules.md + review-checklist.md + evidence/* + 候选索引 + activation-report 透传）。下游：`merge-coordinator`。
+> 上游：`generation`（standard.md + ai-rules.md + review-checklist.md + evidence/* + 候选索引；Phase 2 可额外透传 activation-report）。下游：`merge-coordinator`。
 
 ## 输入
 
@@ -16,11 +16,12 @@ inputs:
   evidence_docs:          # evidence/code-facts.md + positive + forbidden + legacy
   pending_doc:            # pending-confirmation.md
   candidate_index:        # temp/{run_id}-rules-index-candidate.json
-  activation_report:      # temp/{run_id}-activation-report.json (schema=activation-report.v1)
-                          # 来自 dimension-activator,本阶段权威激活态来源
-                          # 决定 P8 Coverage Reviewer + 双门禁聚合 + shallow 强制改判
+  activation_report:      # 可选；仅 Phase 2 repair-only 必填
+                          # 存在时来自 dimension-activator,是权威激活态来源
+                          # 决定 Phase 2 P8 Coverage Reviewer + 双门禁聚合 + shallow 强制改判
+  coverage_report:        # Phase 1 full-auto 必填；profile/batch planner 的覆盖矩阵与盲区摘要
   depth_indicator:        # references/config/dimension-framework/depth-indicator.yaml
-                          # 端 / 维度阈值,P8 Coverage 与 generation depth_score 对照
+                          # 端 / 维度阈值,仅 Phase 2 P8 Coverage 与 generation depth_score 对照
   existing_standards:     # 当前 engineering-standards/ 下的 active/draft 规则清单
   batch_summary:          # batch_id + evidence_limit + rule_limit + stop_conditions_hit
 ```
@@ -43,7 +44,9 @@ inputs:
               quality_gate_decision (final)
 ```
 
-**铁律**:Gate B 决议**优先**于 Gate A——即使 P1-P8 全部 PASS,只要 dimension_state 是 pending-confirmation,最终决议必须是 move-to-pending;shallow 维度即使 PASS,最终 recommended_action 必须是 keep-draft-low-coverage。
+**Phase 1 铁律**:缺失 `activation_report` 且存在 `batch_summary.batch_id` 时,本阶段进入 `phase1-full-auto`，只执行 Gate A 与结构/运行策略检查；`final_gate_decision` 直接取 Gate A 决议，不跑 Gate B，不做 activation-report 收口校验。
+
+**Phase 2 铁律**:Gate B 决议**优先**于 Gate A——即使 P1-P8 全部 PASS,只要 dimension_state 是 pending-confirmation,最终决议必须是 move-to-pending;shallow 维度即使 PASS,最终 recommended_action 必须是 keep-draft-low-coverage。
 
 ## 输出（Handoff Schema）
 
@@ -51,8 +54,10 @@ inputs:
 review_report:
   run_id: ""
   batch_id: ""
-  activation_report_ref: ""    # temp/{run_id}-activation-report.json 透传
-  evaluated_rules: []          # [{source_doc, section_title, level, dimension_id, dimension_state, outcome}]
+  review_profile: "phase1-full-auto | phase2-dimension-aware"
+  activation_report_source: "" # Phase 2 temp 输入透传；Phase 1 为 null，不作为正式产物
+  evaluated_rules: []          # Phase 1: [{source_doc, section_title, level, target_state, outcome}]
+                               # Phase 2: [{source_doc, section_title, level, dimension_id, dimension_state, outcome}]
   persona_findings: []         # 见各 persona 输出格式
   debate_records: []           # 冲突规则的 Proposer-Challenger-Arbiter 记录
   quality_gate_decisions: []   # 每条规则一个决策
@@ -63,15 +68,15 @@ review_report:
 quality_gate_decision:    # 每条规则各一份
   source_doc: ""
   section_title: ""              # 与 standard.md H2 字面一致
-  dimension_id: ""               # 关联 activation-report.dimensions[].dimension_id
-  dimension_state: ""            # 来自 activation-report,本阶段不重判
+  dimension_id: ""               # Phase 2 关联 activation-report.dimensions[].dimension_id；Phase 1 可为 null
+  dimension_state: ""            # Phase 2 来自 activation-report；Phase 1 为 null
   passed: false
   status: ""                     # ok | blocked | conflict（U24 force-rebuild-validate.sh 必读字段；canonical 决策状态）
-  target_state: ""               # draft / pending-confirmation / conflict / legacy-compatible / rejected
-  recommended_action: ""         # keep-draft / promote-to-active / move-to-pending / mark-conflict / mark-legacy / reject / defer / keep-draft-low-coverage
+  target_state: ""               # auto-active / owner-confirmed-active / draft / pending-confirmation / conflict / legacy-compatible / stale-auto-active / owner-rejected / rejected
+  recommended_action: ""         # auto-activate / keep-draft / move-to-pending / mark-conflict / mark-legacy / mark-stale-auto-active / mark-owner-rejected / reject / defer / keep-draft-low-coverage
   confidence: ""                 # high / medium / low（基于 persona 共识度）
   content_gate_outcome: ""       # pass / conditional / soft-fail / hard-fail / reject (Gate A 结论)
-  activation_gate_outcome: ""    # pass / forced-pending / forced-low-coverage / forced-candidate-skip (Gate B 结论)
+  activation_gate_outcome: ""    # phase1-not-applicable / pass / forced-pending / forced-low-coverage / forced-candidate-skip
   final_gate_decision: ""        # Gate B override Gate A 后的最终决议
   evidence_result: ""
   team_standard_result: ""
@@ -119,7 +124,7 @@ quality_gate_decision:    # 每条规则各一份
 - [ ] 规则不是行业通用知识的重复描述（如"不要写 SQL 注入"等行业常识，需要团队特有做法才能 draft）→ 若是通用知识且无团队特有 evidence → **WARN**
 - [ ] 规则 H2/H3 标题前缀严格匹配 `^(P0|P1|P2|FORBIDDEN) `，与 rules-index candidate 的 `section_title` 字面一致 → 若不一致 → **BLOCK**
 - [ ] **规则节使用 inline blockquote 元数据行**（`^> level: .* · status: .* · ...`），紧跟规则 H2/H3 标题；**禁止整块 `\`\`\`yaml ... \`\`\`` 元数据**（catalog 风格已废弃）→ 若发现 yaml 块 → **BLOCK**
-- [ ] **inline 元数据行字段全集到齐**:必含 `level`、`status`、`source_kind`、`evidence_tier`、`risk_tag`、`owner`、`last_reviewed`、`recommended_action` 共 8 项;字段顺序与 `references/prompts/rule-generation.md` 规定一致 → 若缺字段 → **WARN**;若字段顺序错乱 → **WARN**
+- [ ] **inline 元数据行字段全集到齐**:必含 `level`、`status`、`source_kind`、`evidence_tier`、`risk_tag`、`owner`、`last_reviewed`、`recommended_action`、`confidence_tier`、`authority_scope`、`upgrade_mode`、`deterministic_occurrence_count`、`last_evidence_confirmed_run` 共 13 项;字段顺序与 `references/prompts/rule-generation.md` 规定一致 → 若缺字段 → **WARN**;若字段顺序错乱 → **WARN**
 
 ---
 
@@ -214,18 +219,23 @@ debate_record:
 - [ ] `ai-context-pack.md` 的 `indexable: false` → 若为 `true` → **BLOCK**
 - [ ] `pending-confirmation.md` 中的规则不得出现在 `ai-rules.md §2 可执行规则` 中 → 若出现 → **BLOCK**
 - [ ] 所有 standard-{sub_domain}.md 不残留 `{{activation_state` 占位符(grep 验证)→ 若残留 → **BLOCK**
-- [ ] `standard-overview.md` §9 未激活维度地图 存在(AE7),即使 candidate=0 也保留章节标题 → 若缺 → **BLOCK**
+- [ ] Phase 2 下 `overview.md` §9 未激活维度地图存在(AE7),即使 candidate=0 也保留章节标题；Phase 1 下不得生成 activation map → 若违反 → **BLOCK**
 
 ---
 
-### P8 — Coverage Reviewer (U9 新增)
+### P8 — Coverage Reviewer
 
-**职责**：基于 `activation-report.dimensions[].depth_score` 与 `depth-indicator.yaml` 端 / 维度阈值对照,识别 coverage 不足的章节;对 `state == shallow` 的维度强制保留 `coverage = low` 标记。
+**职责**：在 Phase 1 使用 `coverage_report` 检查 profile 识别范围、batch 覆盖、盲区声明和低置信隔离；在 Phase 2 使用 `activation-report.dimensions[].depth_score` 与 `depth-indicator.yaml` 端 / 维度阈值对照,识别 coverage 不足的章节;对 `state == shallow` 的维度强制保留 `coverage = low` 标记。
 
-**输入**: `activation_report.dimensions[]` + `depth_indicator.yaml` + standard 文档章节级激活态标注。
+**输入**:
+- Phase 1: `coverage_report` + `batch_summary` + standard 文档规则级 target_state。
+- Phase 2: `activation_report.dimensions[]` + `depth_indicator.yaml` + standard 文档章节级激活态标注。
 
 **检查清单**：
 
+- [ ] Phase 1 下 `coverage_report.profile_matrix`、`batch_status_distribution`、`blind_spots` 三段存在；若声称全仓 100% 覆盖但无 blind_spots 说明 → **BLOCK**
+- [ ] Phase 1 下 `pending-confirmation` / low-confidence batch 的规则不得出现在 `ai-rules.md §2 可执行规则` 中 → 若出现 → **BLOCK**
+- [ ] Phase 1 下 skipped/blocked batch 只进入 coverage report，不得生成规则正文 → 若生成 → **BLOCK**
 - [ ] 每个 `standard-{sub_domain}.md` 章节标注 `[activated]` 或 `[shallow]` 的章节,在 activation-report 都能找到对应 dimension_id → 若孤儿 → **BLOCK**
 - [ ] `state == shallow` 维度对应的章节首行有 `> ⚠️ 本节 coverage=low` warning → 若缺 → **BLOCK**
 - [ ] `state == shallow` 维度规则的 inline 元数据行 `recommended_action == keep-draft-low-coverage` → 若不一致 → **BLOCK**
@@ -238,7 +248,9 @@ debate_record:
 
 **深度未达改判建议**:对 `state == activated` 但 `depth_score` 低于阈值的维度,P8 输出 `suggest_demote_to_shallow: true`,由 Gate B 决议是否落实改判。
 
-**输出格式**：`{rule_locator, dimension_id, dimension_state, depth_score, threshold, outcome: pass|warn|block, suggest_demote_to_shallow, detail}`
+**输出格式**：
+- Phase 1: `{rule_locator, batch_id, target_state, coverage_bucket, blind_spot_refs, outcome: pass|warn|block, detail}`
+- Phase 2: `{rule_locator, dimension_id, dimension_state, depth_score, threshold, outcome: pass|warn|block, suggest_demote_to_shallow, detail}`
 
 ---
 
@@ -256,6 +268,19 @@ debate_record:
 | 多 BLOCK / 冲突（HARD FAIL） | ≥ 3 个 BLOCK 或与 active 冲突 | `hard-fail` | `conflict` | `mark-conflict` |
 | 无 evidence / 无执行性（REJECT） | evidence_tier: none 且无法补救 | `reject` | `rejected` | `reject` |
 | 行业高风险（DEFER） | P6 BLOCK 且无 owner 确认 | `soft-fail` | `pending-confirmation` | `defer` |
+
+### Phase 1 auto-active 闸（Gate A 后附加）
+
+Gate A 初步通过后,对每条候选规则执行 BR-016/BR-017 自动升级闸:
+
+| 条件 | 结果 |
+| --- | --- |
+| `deterministic_occurrence_count >= 2` + `confidence: high` + 多角色/多文件 coverage + evidence 充分 + 无未裁定 conflict + 结构完整 + 未命中反范式黑名单 + 非高风险域 | `target_state: auto-active`, `recommended_action: auto-activate`, `activation_gate_outcome: phase1-not-applicable` |
+| 缺 `deterministic_occurrence_count` | BLOCK, `target_state: pending-confirmation`, error `AUTO_ACTIVE_OCCURRENCE_UNVERIFIED` |
+| 命中 `references/config/anti-pattern-blocklist.yaml` | `target_state: pending-confirmation`, `required_human_confirmation += anti-pattern-review` |
+| sub_domain 命中 `anti-pattern-blocklist.yaml high_risk_domains`（security/auth/authentication/authorization/cryptography/crypto/permission/compliance/privacy/pii/payment/finance）| `target_state: pending-confirmation`, `required_human_confirmation += security-review` |
+
+`auto-active` 只说明项目内高置信代表性,不是行业最佳实践背书；每条 auto-active 必须输出闸判据快照,供 U5 lineage 与 owner queue 使用。
 
 ### Gate B — Activation Gate（激活态强制改判）
 
@@ -290,7 +315,7 @@ force-rebuild 模式下,只要 `status: blocked` 或 `status: conflict` ≥ 1 �
 
 ```
 confidence:
-  high   = 8/8 personas pass 或 WARN 仅 P2/P6 + Gate B activated 维度
+  high   = Phase 1 过 auto-active 闸,或 Phase 2 中 8/8 personas pass 且 Gate B activated 维度
   medium = 6-7/8 personas pass，BLOCK ≤ 1 且已标注修复路径,或 shallow / pending 维度强制改判后内容质量良好
   low    = ≤ 5/8 personas pass 或有 BLOCK 且不可修复,或 candidate 维度误植入端规范
 ```
@@ -305,11 +330,21 @@ confidence:
 - [ ] 每条规则有 `quality_gate_decision` 输出
 - [ ] 所有 BLOCK finding 都有 `detail` 字段说明
 - [ ] conflict 规则都有完整 `debate_record`（Proposer + Challenger + Arbiter）
-- [ ] `required_human_confirmation` 列表非空时，对应规则 `target_state` 不得为 `active`
+- [ ] `required_human_confirmation` 列表非空时，对应规则 `target_state` 不得为 `auto-active` 或 `owner-confirmed-active`
 - [ ] `recommended_action` 取值必须在 `references/config/frontmatter-format.md §4.7` 枚举内，无自创取值
 - [ ] 没有规则被静默批准（每条决策都有 persona 结果支撑）
 
-**双门禁与激活态相关**(U9 新增):
+**Phase 1 full-auto 专项**:
+
+- [ ] `review_profile == phase1-full-auto`
+- [ ] `activation_report_source == null`
+- [ ] `activation_gate_outcome == phase1-not-applicable`
+- [ ] Gate B 未执行；`final_gate_decision` 直接等于 Gate A 决议或 auto-active 闸附加判定
+- [ ] P8 使用 `coverage_report`，且包含 profile blind spots；不得把 profile 矩阵误称为全仓无盲区覆盖
+- [ ] 每条 `target_state: auto-active` 都有 `deterministic_occurrence_count`、反范式黑名单检查结果、高风险域检查结果和闸判据快照
+- [ ] 命中反范式黑名单或高风险域的规则不得为 `auto-active`
+
+**Phase 2 双门禁与激活态相关**:
 
 - [ ] activation-report schema=v1 校验通过 + run_id 一致
 - [ ] 每条 quality_gate_decision 包含 `dimension_id` + `dimension_state`(取自 activation-report,不本地推断)
@@ -331,17 +366,22 @@ confidence:
 | `dimension_state == pending-confirmation` 但章节出现强制规则 | P8 BLOCK + Gate B forced-pending;记 override_rationale |
 | `dimension_state == shallow` 但章节缺 low-coverage warning | P8 BLOCK;返回 generation 修正 |
 | `dimension_state == candidate` 但内容混入 standard 章节 | P8 BLOCK;Gate B forced-candidate-skip |
-| activation-report.json 缺失或 schema 不匹配 | `ACTIVATION_REPORT_SCHEMA_INVALID`;停止评审 |
+| activation-report.json 缺失且存在 `batch_summary.batch_id` | 进入 `phase1-full-auto`;只跑 Gate A + structure/runtime policy;`activation_gate_outcome=phase1-not-applicable` |
+| activation-report.json 缺失且没有 `batch_summary.batch_id` | `ACTIVATION_REPORT_MISSING_WITHOUT_BATCH`;停止评审 |
+| activation-report.json 存在但 schema 不匹配 | `ACTIVATION_REPORT_SCHEMA_INVALID`;停止评审 |
 | activation-report.run_id 与当前不一致 | `ACTIVATION_REPORT_RUN_MISMATCH`;停止评审 |
+| `auto-active` 缺 `deterministic_occurrence_count` 或闸判据快照 | `AUTO_ACTIVE_OCCURRENCE_UNVERIFIED`;降 pending-confirmation 并 BLOCK |
+| `auto-active` 命中反范式黑名单 | `AUTO_ACTIVE_ANTI_PATTERN_BLOCKED`;降 pending-confirmation |
+| `auto-active` 命中 `anti-pattern-blocklist.yaml high_risk_domains`（security/auth/authentication/authorization/cryptography/crypto/permission/compliance/privacy/pii/payment/finance）高风险域 | `AUTO_ACTIVE_HIGH_RISK_DOMAIN`;降 pending-confirmation 并要求 owner/security review |
 
 ## 必须做
 
 1. 执行全部 8 个 persona（P1-P8），不得跳过或合并。
 2. 对每条冲突规则执行 Proposer-Challenger-Arbiter debate 流程。
 3. `recommended_action` 只能使用 `references/config/frontmatter-format.md §4.7` 的 canonical 枚举值。
-4. 不得发布 `active`（那是负责人手工动作）。
+4. 不得发布 `owner-confirmed-active`（那是负责人手工动作）；Phase 1 只能在过 BR-016/BR-017 闸时发布 `auto-active`。
 5. BLOCK 级 finding 必须有具体 `detail` 和修复建议。
-6. **双门禁串行执行**:Gate A 完成后才能执行 Gate B;Gate B 决议优先于 Gate A 内容决议。
+6. **Phase 2 双门禁串行执行**:Gate A 完成后才能执行 Gate B;Gate B 决议优先于 Gate A 内容决议。Phase 1 不跑 Gate B。
 7. **shallow 维度强制改判**:即使 Gate A PASS,recommended_action 必须是 `keep-draft-low-coverage`,coverage 标记必须保留。
 8. **pending-confirmation 维度强制改判**:即使 Gate A PASS,recommended_action 必须是 `move-to-pending`,不得保留为 keep-draft。
 9. **transparent override**:每次 Gate B 改判都要写 `override_rationale`,审计可追溯。
@@ -353,7 +393,7 @@ confidence:
 3. 不得把负责人确认缺失的高风险规则升级为强制执行规则。
 4. 不得忽略 batch 边界检查（P7 必须执行）。
 5. 不得把 project-profile 的推断当成 evidence（P1 会 BLOCK 这种情况）。
-6. **不得本地重新计算维度激活态**——activation-report 是唯一权威源;dimension_state 字段必须从 report 拷贝。
-7. **不得让 Gate A pass 覆盖 Gate B 的强制改判**——pending / shallow 维度的最终决议必须遵循 Gate B。
-8. **不得跳过 P8 Coverage Reviewer**——这是双门禁的关键 input。
-9. **不得让 candidate 维度规则进入 quality_gate_decisions[]**——candidate 内容不应出现在 standard 中,出现就是 P8 BLOCK。
+6. **Phase 2 不得本地重新计算维度激活态**——activation-report 是唯一权威源;dimension_state 字段必须从 report 拷贝。
+7. **Phase 2 不得让 Gate A pass 覆盖 Gate B 的强制改判**——pending / shallow 维度的最终决议必须遵循 Gate B。
+8. **不得跳过 P8 Coverage Reviewer**——Phase 1 使用 coverage_report,Phase 2 使用 activation-report/depth-indicator。
+9. **Phase 2 不得让 candidate 维度规则进入 quality_gate_decisions[]**——candidate 内容不应出现在 standard 中,出现就是 P8 BLOCK。

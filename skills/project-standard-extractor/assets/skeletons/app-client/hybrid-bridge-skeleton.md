@@ -129,7 +129,7 @@ RN: NativeModules.XxxModule.call(...)
 
 ### P0 JS 侧调用必须经 NativeBridge 唯一收口
 
-> level: P0 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: P0 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 **适用范围**
 
@@ -186,7 +186,7 @@ NativeBridge.call({ api: 'billing', method: 'topup', params: { amount: 100 } })
 
 ### P1 完整 bundle 多入口必须经注册表加载
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 **适用范围**
 
@@ -216,7 +216,7 @@ class BillingActivity : AppCompatActivity() {
 
 ### P1 TurboModule spec 必须 Codegen 派生
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: medium · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: medium · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 **适用范围**
 
@@ -230,7 +230,7 @@ class BillingActivity : AppCompatActivity() {
 
 ### FORBIDDEN JS 侧获得任意 native 反射能力
 
-> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 > ⛔ **FORBIDDEN**：任何 Bridge API 不得提供"按字符串调用任意类 / 方法"的反射能力（如 `invokeNativeMethod(className, method, args)`），即便仅用于调试。
 
@@ -248,7 +248,7 @@ class DebugBridge {
 
 ### FORBIDDEN Bundle 加载跳过签名校验
 
-> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 > ⛔ **FORBIDDEN**：`release` build 中 bundle 加载流程包含 `if (BuildConfig.DEBUG || skipVerify) { ... }` 类型分支跳过 `bundle/verifier/`。
 

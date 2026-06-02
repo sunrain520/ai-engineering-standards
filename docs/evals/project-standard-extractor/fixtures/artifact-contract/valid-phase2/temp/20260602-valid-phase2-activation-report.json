@@ -1,0 +1,11 @@
+{
+  "schema": "activation-report.v1",
+  "run_id": "20260602-valid-phase2",
+  "dimensions": [
+    {
+      "dimension_id": "EA-BACKEND-API",
+      "state": "activated",
+      "depth_score": 1.0
+    }
+  ]
+}

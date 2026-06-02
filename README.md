@@ -79,14 +79,14 @@
   -> evidence / pending / merge / conflict
 ```
 
-第一阶段不建设 Web 平台、完整 CLI、自动 CI、向量索引，也不自动把 `draft` 发布为 `active`。
+第一阶段不建设 Web 平台、完整 CLI、自动 CI 或向量索引。`project-standard-extractor` 的普通入口默认 full-auto：内部先做 profile-first，再按 `ordered_batch_queue` 逐 batch 生成 evidence-backed 规范、AI Rules、Review Checklist、lineage 和 owner queue。
 
 ## V1 关键约定
 
 - **文件级索引**：由 `project-standard-extractor` 生成并进入快速索引的 Markdown 顶部必须带 YAML Front Matter（`doc_id` / `domain` / `sub_domain` / `doc_type` / `tags` / `index_format: engineering-standards-md-v1`），详见 `skills/project-standard-extractor/config/frontmatter-format.md`；历史手写入口文档可逐步补齐。
 - **规则标题级过滤**：通过 `rules-index.json` 索引规则标题、来源文档和级别；不使用 Rule ID 或 HTML anchor。
 - **规则引用统一为二元组**：`{source_doc}「{section_title}」`；规则 H2 标题以 `P0 / P1 / P2 / FORBIDDEN ` 前缀开头，与索引字面一致。
-- **状态门禁**：所有萃取产物默认 `draft`，`active` 必须由领域负责人确认；不覆盖已有 `active` 或 `draft`，相近 → `merge-suggestions.md`，冲突 → `conflicts.md`，无证据 → `pending-confirmation.md`。
+- **状态门禁**：`auto-active` / `owner-confirmed-active` 才进入 AI 默认执行路径；`draft` 只作参考，`pending-confirmation` / `stale-auto-active` / `owner-rejected` / `conflict` / `legacy-compatible` / `rejected` 不进入默认执行。不覆盖已有 owner-confirmed/legacy active 或 draft；相近 → `merge-suggestions.md`，冲突 → `conflicts.md`，无证据 → `pending-confirmation.md`。
 - **Changelog 强制**：任何 source 变更必须同步 `CHANGELOG.md`，用户可见变更追加 `(user-visible)`。
 
 ## Workflow 入口

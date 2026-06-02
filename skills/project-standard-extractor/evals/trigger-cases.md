@@ -4,7 +4,7 @@
 
 这些用例应触发 `project-standard-extractor` 的公开稳定路径。
 
-## TC-001 Broad Repository Profile
+## TC-001 Broad Repository Full-auto
 
 ```yaml
 request: 从这个 Java 服务仓库萃取团队后端开发规范
@@ -15,8 +15,10 @@ project_paths:
 期望：
 
 - 触发本 skill。
-- 进入 `profile-first`，只输出 `project-profile.md`、`extraction-map.md`、`batch-plan.md`。
-- 未选择 batch 前不得生成 `standard-{sub_domain}.md`、`ai-rules.md` 或 `review-checklist.md`。
+- 进入默认 `full-auto`，内部先运行 `profile-first`。
+- 输出 `project-profile.md`、`extraction-map.md`、`batch-plan.md`、`ordered_batch_queue` 和 `coverage_report`。
+- 按 queue 逐个执行 ready / pending-confirmation batch；每次 worker 调用仍只处理一个 batch。
+- 通过高置信闸的规则可标 `auto-active`；未过闸规则保持 draft / pending。
 
 ## TC-002 Selected Batch Generation
 
@@ -34,7 +36,7 @@ selected_batch:
 - 触发本 skill。
 - 只读取 `backend-java-api-order` 的 candidate files 与必要邻近 evidence。
 - 使用 `generation_profile: phase1-selected-batch`。
-- 输出 evidence-backed draft `standard-{sub_domain}.md`、`ai-rules.md`、`review-checklist.md` 和 review summary。
+- 输出 evidence-backed `standard-{sub_domain}.md`、`ai-rules.md`、`review-checklist.md`、lineage 和 review summary。
 
 ## TC-003 Focused Module Extraction
 

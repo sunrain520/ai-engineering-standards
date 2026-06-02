@@ -7,7 +7,7 @@
 1. **大输入先画像**：完整项目、完整仓库、多服务、多端、未知研发域或 broad scope 默认进入 `profile-first`。
 2. **不得全量读取源码**：任何阶段都不得为了“更完整”而读取整个仓库、整个 Skill 目录或所有服务文件。
 3. **阶段间只传 artifact**：后续阶段优先读取 `project-profile`、`extraction-map`、`batch-plan`、`code-facts` 摘要和路径，不传递完整源码。
-4. **正式萃取只处理一个 batch**：一次 `batch-extraction` 必须选择一个 `batch_id`，不得跨 batch 合并读取。
+4. **单 worker 调用只处理一个 batch**：一次 `batch-extraction` 或 full-auto worker call 必须锁定一个 `batch_id`，不得跨 batch 合并读取。full-auto 只能由外层 orchestrator 串行循环多个单 batch 调用。
 5. **规则来自 evidence，不来自画像**：`project-profile` 和 `extraction-map` 只能产生候选方向，不能直接升级为团队规则。
 6. **敏感信息只记存在事实**：secret、token、私钥、生产凭据、生产配置值不得复制到任何产物。
 
@@ -15,7 +15,8 @@
 
 | 模式 | 最大允许读取 | 允许产物 | 不允许产物 |
 | --- | --- | --- | --- |
-| `profile-first` | 目录结构、清单、配置类别、少量代表性文件候选 | project profile、extraction map、batch plan | standard、ai-rules、review-checklist |
+| `full-auto` | profile-first 预算 + 每次一个 batch 的 candidate files | project profile、extraction map、batch plan、coverage report、standard、ai-rules、review-checklist、pending/conflicts、lineage | 全仓源码上下文、Phase 2 activation-report、跨 batch 单次读取 |
+| `profile-first` | 目录结构、清单、配置类别、少量代表性文件候选 | project profile、extraction map、batch plan、ordered queue、coverage blind-spots | standard、ai-rules、review-checklist |
 | `batch-extraction` | 一个 batch 的 candidate files 和必要邻近文件 | code facts、classification、draft rules、evidence | 其它 batch 的事实或规则 |
 | `focused-module` | 用户指定模块和必要邻近文件 | scoped facts、draft rules、evidence | 全项目总结 |
 | `review-only` | 已有萃取产物 | review report、quality gate decision | 新规则 |
@@ -30,7 +31,7 @@
 | profile 阶段代表性目录深度 | 3 层 | 不变 |
 | 每个 batch 候选文件数 | 30 | 需覆盖 sub_domain 多个角色/层级 |
 | 每个 batch evidence 条目数 | 25 | 综合 Developer Guide 需要足够 evidence 写完整指南 |
-| 每次正式萃取 batch 数 | 1 | 不变 |
+| 每次 worker call batch 数 | 1 | 不变；full-auto 外层循环多个 worker call |
 
 预算放宽到 25 条 evidence 是因为：综合 Developer Guide 需要覆盖 sub_domain 所有主要层级，读 8 个文件只能覆盖 1-2 个角色，无法产出有实质价值的完整指南。
 
@@ -44,8 +45,9 @@
 2. `extraction-map`：domain / sub_domain / module / task_type 到候选 evidence 的映射。
 3. `batch-plan`：可执行 batch 列表、候选文件、排除范围、限制和停止条件。
 4. `code-facts`：选定 batch 的事实摘要、证据强度和推导边界。
+5. `coverage-report`：profile 矩阵内覆盖、ready/pending/skipped/blocked 分布、profile blind-spots。
 
-后续阶段可以读取这些 artifact 和其中列出的候选路径，但不能把上一阶段的原始源码上下文原样带入。
+后续阶段可以读取这些 artifact 和其中列出的候选路径，但不能把上一阶段的原始源码上下文原样带入。full-auto 的下游阶段只能读取当前 queue item 的候选路径；跨 batch 汇总只能读取每个 worker 写出的摘要 / merge summary。
 
 ## 5. 示例和 eval 读取边界
 

@@ -52,7 +52,7 @@
 
 - [ ] 规则文案不含"本项目""本仓""xx 服务"等单项目专属语 → 命中 → **WARN**
 - [ ] 规则在多项目运行下若仅 1 个项目命中 → 走 Cross-Project Aggregator 的 partial_activated 处理(不直接 BLOCK,但写入差异说明)
-- [ ] 规则不属于 `pending-confirmation`、`legacy-compatible`(如属 → 标记对应 target_state,不进 active)
+- [ ] 规则不属于 `pending-confirmation`、`legacy-compatible`(如属 → 标记对应 target_state,不进 AI 默认执行路径)
 
 ### 1.3 G3·AI 可执行性门禁(R43)
 
@@ -113,7 +113,7 @@
 
 ### 1.8 G8·冲突门禁
 
-**职责**:新规与既有 active / draft 规则不冲突,冲突进入 Proposer-Challenger-Arbiter 仲裁。
+**职责**:新规与既有 `auto-active` / `owner-confirmed-active` / legacy `active` / `draft` 规则不冲突,冲突进入 Proposer-Challenger-Arbiter 仲裁。
 
 **Persona**:Conflict Reviewer (P5)
 
@@ -164,7 +164,7 @@
 **判定细项**:
 
 - [ ] candidate 维度**不得**出现在 `standard-{sub_domain}.md` 章节主体 → 出现 → **BLOCK**
-- [ ] candidate 维度必须出现在 `standard-overview.md §9 未激活维度地图` → 缺 → **BLOCK**(AE7)
+- [ ] Phase 2 candidate 维度必须出现在 `overview.md §9 未激活维度地图`；Phase 1 不生成 activation map → 缺失或阶段越界 → **BLOCK**(AE7)
 - [ ] candidate 维度**不得**收录到 `ai-rules.md` 与 `review-checklist.md` → 收录 → **BLOCK**
 - [ ] §9 candidate 条目附 `trigger_when` 字段(说明何时升级激活) → 缺 → **WARN**
 
@@ -284,7 +284,7 @@ pending_item:
 | Gate A 冲突(G8) | `conflict` | `mark-conflict` |
 | Gate A 历史包袱保留 | `legacy-compatible` | `mark-legacy` |
 | 规则数量超限(G6 截断超出部分) | 维持原状 | `defer` |
-| 已有负责人签字 + 无冲突 + Gate B pass | `draft` | `promote-to-active`(由负责人手动改 status,Skill 不自动发布) |
+| 已有负责人签字 + 无冲突 + Gate B pass | `owner-confirmed-active` | `defer`(负责人手动确认状态,Skill 不自动发布 `owner-confirmed-active`) |
 
 ## 5. 输出格式
 
@@ -295,8 +295,8 @@ quality_gate_decision:    # 每条规则一个决议,由 review-and-quality-gate
   dimension_id: ""                # 关联 activation-report.dimensions[].dimension_id
   dimension_state: ""             # baseline / activated / candidate / pending-confirmation / shallow / partial_activated
   passed: false
-  target_state: ""                # draft / pending-confirmation / conflict / legacy-compatible / rejected
-  recommended_action: ""          # keep-draft / promote-to-active / move-to-pending / mark-conflict / mark-legacy / reject / defer / keep-draft-low-coverage
+  target_state: ""                # auto-active / owner-confirmed-active / draft / pending-confirmation / conflict / legacy-compatible / stale-auto-active / owner-rejected / rejected
+  recommended_action: ""          # auto-activate / keep-draft / keep-draft-low-coverage / move-to-pending / mark-conflict / mark-legacy / mark-stale-auto-active / mark-owner-rejected / reject / defer
   confidence: ""                  # high / medium / low
   content_gate_outcome: ""        # pass / conditional / soft-fail / hard-fail / reject(Gate A)
   activation_gate_outcome: ""     # pass / forced-pending / forced-low-coverage / forced-candidate-skip(Gate B)

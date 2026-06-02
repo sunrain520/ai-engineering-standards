@@ -2,6 +2,8 @@
 
 ## 1. 统一输出文件
 
+机器可校验的文件、状态、候选/正式边界以 `references/config/output-artifact-contract.json` 为准；本文件描述人读写入策略,不得与 JSON contract 的枚举和必填字段漂移。
+
 每个 domain 目录应提供：
 
 - `overview.md`
@@ -16,6 +18,8 @@
 - `pending-confirmation.md`
 - `merge-suggestions.md`
 - `conflicts.md`
+- `lineage-ledger.json`
+- `owner-decision-queue.json`
 - `examples/README.md`
 - `evidence/README.md`
 - `evidence/code-facts.md`
@@ -50,6 +54,8 @@
 | 无证据或需确认规则 | `pending-confirmation.md` | `pending-confirmation` |
 | 相近规则合并建议 | `merge-suggestions.md` | `merge-suggestions` |
 | 规则冲突 | `conflicts.md` | `conflicts` |
+| lineage 审计账本 | `lineage-ledger.json` | 不适用 |
+| owner 决策队列 | `owner-decision-queue.json` | 不适用 |
 | 代码事实 | `evidence/code-facts.md` | `evidence-code-facts` |
 | 正例 | `evidence/positive-examples.md` | `evidence-positive` |
 | 反例 | `evidence/forbidden-examples.md` | `evidence-forbidden` |
@@ -72,6 +78,8 @@
 | `pending-confirmation.md` | `{domain}-pending-confirmation` |
 | `merge-suggestions.md` | `{domain}-merge-suggestions` |
 | `conflicts.md` | `{domain}-conflicts` |
+| `lineage-ledger.json` | 不使用 doc_id |
+| `owner-decision-queue.json` | 不使用 doc_id |
 | `evidence/code-facts.md` | `{domain}-evidence-code-facts` |
 | `evidence/positive-examples.md` | `{domain}-evidence-positive` |
 | `evidence/forbidden-examples.md` | `{domain}-evidence-forbidden` |
@@ -94,7 +102,11 @@
 2. 同一规则（按 `{source_doc}「{section_title}」` 二元组识别）追加新 evidence，不重写旧 evidence。
 3. 发现相似规则时写入 `merge-suggestions.md`。
 4. 发现冲突时写入 `conflicts.md`。
-5. 人工确认后再由负责人把规则元数据 `status` 从 `draft` 改为 `active`。
+5. 通过 BR-016/BR-017 闸的规则可自动写 `status: auto-active` 并进入默认执行路径。
+6. 人工确认只产生 `owner-confirmed-active`；本流程不得自动写 `owner-confirmed-active`。
+7. 重复运行先用 `existing_index` 按 `(source_doc, section_title)` 和 normalized title fingerprint 对齐：等价规则只追加 evidence，evidence 变化记 `evidence-changed`，旧 pending 被新 standard 承接时标 `superseded_by`。
+8. 已有 `owner-confirmed-active` / legacy `active` 与新 evidence 不一致时只写 `conflicts.md` / `merge-suggestions.md` / owner queue；不得自动改写 active 正文。
+9. `auto-active` 可被自动复检降级为 `stale-auto-active` 并移出默认执行路径；`owner-confirmed-active` 的退出仍需 owner。
 
 ## 5. Front Matter 要求
 
@@ -107,6 +119,12 @@
 ## 6. Handoff 与候选索引产物
 
 1. `project-profile`、`extraction-map`、`batch-plan`、`review-summary`、`review-report` 和 `ai-context-pack` 是运行级 Markdown artifact，必须写入 `temp/`，必须有 Front Matter，默认 `indexable: false`。
-2. `rules-index-candidate.json` 必须是候选文件，字段使用 `title`、`domain`、`sub_domain`、`level`、`source_doc`、`section_title`、`evidence_doc`、`tags`，不得包含 `rule_id` 或 `anchor`。
+2. `rules-index-candidate.json` 必须是候选文件，字段使用 `title`、`domain`、`sub_domain`、`level`、`status`、`source_doc`、`section_title`、`evidence_doc`、`authority_scope`、`upgrade_mode`、`tags`，不得包含 `rule_id` 或 `anchor`。
 3. `llms-candidate.txt` 是候选入口地图，不得默认覆盖根 `llms.txt`。
 4. 发布正式 `.index/rules-index.json` 或根 `llms.txt` 需要用户显式确认；本 Skill 第一阶段只输出候选和合并建议。
+5. `lineage-ledger.json` 是 audit artifact，必须覆盖 standard / ai-rules / review-checklist / rules-index / pending / conflict 等派生视图。
+6. `owner-decision-queue.json` 是 owner handoff artifact，必须覆盖 auto-active、pending-confirmation、conflict、stale-auto-active 和 owner-rejected；队列动作字段使用 `owner_queue_action`，不得复用规则 inline 元数据的 `recommended_action`。
+
+## 7. AI 默认消费边界
+
+AI 默认执行路径只加载 `status ∈ {auto-active, owner-confirmed-active}` 的规则。`draft` 可作为上下文参考但不是强制规则；`pending-confirmation`、`stale-auto-active`、`owner-rejected`、`conflict`、`legacy-compatible`、`rejected` 一律不得进入默认执行路径。候选文件（`*-candidate.*`、`ai-context-pack.md`）不能覆盖正式 `.index/rules-index.json` 或根 `llms.txt`。

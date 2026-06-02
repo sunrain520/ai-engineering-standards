@@ -23,7 +23,7 @@ tags:
 
 ## P1 跨域协作必须通过 contract 稳定边界
 
-> level: P1 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: APP 架构负责人 · last_reviewed: 2026-06-02 · recommended_action: promote-to-active
+> level: P1 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: APP 架构负责人 · last_reviewed: 2026-06-02 · recommended_action: promote-to-active · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 
@@ -109,7 +109,7 @@ class OrderViewModel(private val quotesRepo: QuotesFeatureRepositoryImpl) { // �
 
 ## P2 contract 模块应保持依赖轻量
 
-> level: P2 · status: active · source_kind: owner-confirmed · evidence_tier: single-project · risk_tag: low · owner: APP 架构负责人 · last_reviewed: 2026-06-02 · recommended_action: promote-to-active
+> level: P2 · status: active · source_kind: owner-confirmed · evidence_tier: single-project · risk_tag: low · owner: APP 架构负责人 · last_reviewed: 2026-06-02 · recommended_action: promote-to-active · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 

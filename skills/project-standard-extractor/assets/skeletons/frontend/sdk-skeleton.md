@@ -59,13 +59,13 @@ sdk/
 
 ### P1 package.json 必须配置 exports / types / module
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: medium · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: medium · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 **强制规则**:`exports` map 同时包含 `import` / `require` / `types`;`sideEffects` 显式声明以保 tree-shaking。
 
 ### FORBIDDEN 默认导出业务侧 React 组件
 
-> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: medium · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: medium · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 > ⛔ **FORBIDDEN**:SDK 默认导出复杂 React 组件 + 默认样式,必须将 UI 与逻辑拆为可选 entry。
 

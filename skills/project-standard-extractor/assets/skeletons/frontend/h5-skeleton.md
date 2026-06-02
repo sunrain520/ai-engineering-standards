@@ -58,13 +58,13 @@ src/
 
 ### P1 viewport 配置 [{{activation_state}}]
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: medium · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: medium · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 **强制规则**:`<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">`,iOS 安全区使用 `env(safe-area-inset-*)`。
 
 ### FORBIDDEN 直接污染 window 全局
 
-> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 > ⛔ **FORBIDDEN**:`window.__xxx = ...` 直接挂业务对象。所有 JSBridge 必须经统一 `bridge/` 命名空间封装。
 

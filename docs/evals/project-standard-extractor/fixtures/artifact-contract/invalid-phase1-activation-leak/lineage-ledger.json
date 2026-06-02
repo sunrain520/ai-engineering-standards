@@ -1,0 +1,80 @@
+{
+  "schema": "project-standard-extractor-lineage-ledger.v1",
+  "run_id": "20260602-valid-phase1",
+  "domain": "backend",
+  "generated_at": "2026-06-02T00:00:00Z",
+  "edges": [
+    {
+      "batch_id": "batch-api",
+      "evidence_id": "EV-BACKEND-1",
+      "source_doc": "standard-api.md",
+      "section_title": "P1 Service layer owns business rules",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-api.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 2,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-valid-phase1",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-api",
+      "evidence_id": "EV-BACKEND-1",
+      "source_doc": "standard-api.md",
+      "section_title": "P1 Service layer owns business rules",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 2,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-valid-phase1",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-api",
+      "evidence_id": "EV-BACKEND-1",
+      "source_doc": "standard-api.md",
+      "section_title": "P1 Service layer owns business rules",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 2,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-valid-phase1",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-api",
+      "evidence_id": "EV-BACKEND-1",
+      "source_doc": "standard-api.md",
+      "section_title": "P1 Service layer owns business rules",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-valid-phase1-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 2,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-valid-phase1",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    }
+  ]
+}

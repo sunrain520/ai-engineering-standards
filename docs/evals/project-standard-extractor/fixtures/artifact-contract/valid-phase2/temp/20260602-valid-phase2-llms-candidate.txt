@@ -1,0 +1,7 @@
+# engineering-standards llms candidate
+
+candidate: true
+generated_from: 20260602-valid-phase2
+
+- Overview: backend/overview.md
+- Rules Index Candidate: backend/temp/20260602-valid-phase2-rules-index-candidate.json

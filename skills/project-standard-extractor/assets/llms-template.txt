@@ -14,11 +14,13 @@ generated_from: {run_id}
 ## Loading Policy
 
 1. Identify domain, sub_domain and task_type.
-2. Filter rules-index candidate by domain, sub_domain, level and tags.
-3. Load P0 and FORBIDDEN rules first.
-4. Load related standard.md and ai-rules.md.
-5. Self-check by citing source_doc + section_title.
+2. Filter rules-index candidate by domain, sub_domain, level, tags and status.
+3. Treat only status=auto-active or status=owner-confirmed-active as default executable.
+4. Load P0 and FORBIDDEN executable rules first.
+5. Load related standard.md and ai-rules.md.
+6. Self-check by citing source_doc + section_title.
 
 ## Candidate Boundary
 
 This file is a merge suggestion. Do not overwrite root llms.txt unless the user explicitly asks to publish it.
+Candidate entries are not formal policy until the artifact contract validator passes and the owner explicitly publishes the formal index.

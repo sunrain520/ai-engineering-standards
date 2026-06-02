@@ -84,8 +84,8 @@ previous_origin: docs/brainstorms/2026-06-01-001-project-standard-extractor-code
 - 增量(R-34):同仓库重复运行复用 existing_index 对齐,只标注 added/evidence-changed/superseded,不堆积近义规则;coverage 跨运行去重。
 - 存量刷新(R-35):已有 active/draft 与新 evidence 不一致时检测并提示 owner(conflicts/merge-suggestions/owner queue),active 不被自动改写。
 - artifact validator 能检查 Front Matter、`doc_type`、`indexable`、candidate/formal 边界、`rules-index` 与 H2 一致性、orphan derived rules、lineage 和 drift patterns。
-- `tools/maintainer/project-standard-extractor/public-surface-validate.sh` 覆盖 public wording、maintainer boundary 和 token-level 契约；语义质量由外部 eval AE-01..AE-16 覆盖。
-- 用户手册说明“一步生成全部规范”的默认体验、两档覆盖语义、产物消费方式、owner 后续裁定和 active 边界。
+- `tools/maintainer/project-standard-extractor/public-surface-validate.sh` 覆盖 public wording、maintainer boundary 和 token-level 契约；语义质量由外部 eval AE-01..AE-18 覆盖。
+- 用户手册说明“一步生成全部规范”的默认体验、两档覆盖语义、产物消费方式、auto-active 自动进入/退出、owner 后续裁定和 owner-confirmed-active 边界。
 - `CHANGELOG.md` 记录实施 source 改动。
 
 ---
@@ -590,7 +590,7 @@ flowchart TB
 - Create: `docs/evals/project-standard-extractor/artifact-contract-cases.md`（R-15 golden fixtures,**P2 / optional for V1 ship**——可在 U9 之后或 follow-up 补充,不阻塞 U8/U9 主线，见 doc-review P2-5）
 
 **Approach:**
-- Map AE-01..AE-16 to external eval assertions.
+- Map AE-01..AE-18 to external eval assertions.
 - Keep skill-local evals as package-local smoke subset pointing to external eval authority.
 - Extend `public-surface-validate.sh` for token-level checks: full-auto wording, no manual batch default, no Phase1 activation-report requirement, no destructive public inputs, smoke eval pointers.
 - Use `artifact-contract-validate.sh` for structural/generated artifact checks, while external evals cover semantic quality that shell grep cannot prove.
@@ -621,9 +621,9 @@ flowchart TB
 
 **Goal:** Teach users the new one-step default and preserve owner/maintainer/deferred boundaries.
 
-**Requirements:** R-09, R-14, R-30, R-33
+**Requirements:** R-09, R-14, R-30, R-33, R-36, R-37
 
-**Dependencies:** U1, U2, U4, U5, U6, U7
+**Dependencies:** U1, U2, U4, U5, U6, U7, U10
 
 **Files:**
 - Modify: `docs/03-用户手册/README.md`
@@ -637,8 +637,9 @@ flowchart TB
 
 **Approach:**
 - Update user-facing docs from “profile-first then manually choose batch” to “one run produces usable draft docs” while explaining profile-first remains internal.
-- Explain high-confidence draft, low-confidence draft, pending, legacy, conflict, rejected and active.
-- Explain owner migration from in-the-loop batch choice to on-the-loop approval and conflict裁定.
+- Explain the status model: `auto-active`, `owner-confirmed-active`, `draft`, `pending-confirmation`, `stale-auto-active`, `owner-rejected`, legacy and conflict.
+- Explain owner migration from in-the-loop batch choice to on-the-loop review: high-confidence rules can enter as `auto-active`, owner can later reject/downgrade, and conflicts still require owner 裁定.
+- Explain the distinction between automatic entry/exit (`auto-active` -> `stale-auto-active`/`owner-rejected`) and owner-confirmed active rules, whose exit still requires owner decision.
 - Explain coverage report: produced coverage, low-confidence coverage, skipped/blocked gaps and suspected omissions.
 - Keep force-rebuild/restore/pin/unpin/list documented as maintainer/repair-only, not ordinary runtime.
 - Update sharing material first because it is most likely to repeat stale default behavior.
@@ -650,12 +651,12 @@ flowchart TB
 **Test scenarios:**
 - Happy path: first-time user can understand that a full repo path ends in usable draft docs.
 - Happy path: sharing material answers “能不能直接给一个仓库生成全部规范？” with ready + pending + coverage semantics.
-- Edge case: user looking for active publication sees owner approval boundary.
+- Edge case: user looking for active publication sees the split between automatic `auto-active` and owner-confirmed active publication.
 - Edge case: user looking for force-rebuild sees maintainer boundary.
 - Test expectation: no unit test for prose-only docs; verification is link/path consistency, absence of absolute local paths and alignment with eval/output names.
 
 **Verification:**
-- Docs mention full-auto, two-tier coverage, usable draft, `active` owner approval and candidate/formal index consistently.
+- Docs mention full-auto, two-tier coverage, usable draft, `auto-active`/`owner-confirmed-active` lifecycle and candidate/formal index consistently.
 - `CHANGELOG.md` has a user-visible entry for implementation changes.
 
 ---
@@ -664,26 +665,26 @@ flowchart TB
 
 **Goal:** Align all source-of-truth layers after the feature units land, preventing a partially updated skill package.
 
-> **scope note（doc-review P2-2）**：downstream prompt/example 的更新职责应归还产生该契约变更的单元(U3 改 generation 时顺带改 rule-generation.md / code-facts.md;U4 改 quality gate 时顺带改 quality-review.md;U2 改 planner 时顺带改 batch-plan-generation.md / project-profile.md),避免「各单元建契约、U9 二次扫描补漏」的两步走。U9 收敛为**验证单元**:只运行 public-surface-validate.sh + artifact-contract-validate.sh 做最终一致性校验,不持有写入职责。注意 P1-3:U9 的 grep 扫不出 json↔md 语义漂移,该一致性须由 U6 的 validator 机制保证,U9 不制造「已防护」假象。
+> **scope note（doc-review P2-2）**：downstream prompt/example 的更新职责应归还产生该契约变更的单元(U3 改 generation 时顺带改 rule-generation.md / code-facts.md;U4 改 quality gate 时顺带改 quality-review.md;U2 改 planner 时顺带改 batch-plan-generation.md / project-profile.md),避免「各单元建契约、U9 二次扫描补漏」的两步走。U9 收敛为**验证单元**:只运行 public-surface-validate.sh + artifact-contract-validate.sh 做最终一致性校验,不持有写入职责。若校验发现 prompt/example 漂移,返回对应责任单元修复,不在 U9 二次写入。注意 P1-3:U9 的 grep 扫不出 json↔md 语义漂移,该一致性须由 U6 的 validator 机制保证,U9 不制造「已防护」假象。
 
 **Requirements:** R-01..R-33（验证性收口,非新写入）
 
 **Dependencies:** U1, U2, U3, U4, U5, U6, U7, U8, U10
 
 **Files:**
-- Modify: `skills/project-standard-extractor/references/examples/golden-sample-run.md`
-- Modify: `skills/project-standard-extractor/references/examples/thin-dogfood-run.md`
-- Modify: `skills/project-standard-extractor/references/prompts/batch-plan-generation.md`
-- Modify: `skills/project-standard-extractor/references/prompts/project-profile.md`
-- Modify: `skills/project-standard-extractor/references/prompts/quality-review.md`
-- Modify: `skills/project-standard-extractor/references/prompts/ai-rules-generation.md`
-- Modify: `skills/project-standard-extractor/references/prompts/review-checklist-generation.md`
-- Modify: `skills/project-standard-extractor/references/prompts/context-pack-generation.md`
+- Inspect: `skills/project-standard-extractor/references/examples/golden-sample-run.md`
+- Inspect: `skills/project-standard-extractor/references/examples/thin-dogfood-run.md`
+- Inspect: `skills/project-standard-extractor/references/prompts/batch-plan-generation.md`
+- Inspect: `skills/project-standard-extractor/references/prompts/project-profile.md`
+- Inspect: `skills/project-standard-extractor/references/prompts/quality-review.md`
+- Inspect: `skills/project-standard-extractor/references/prompts/ai-rules-generation.md`
+- Inspect: `skills/project-standard-extractor/references/prompts/review-checklist-generation.md`
+- Inspect: `skills/project-standard-extractor/references/prompts/context-pack-generation.md`
 - Test: `tools/maintainer/project-standard-extractor/public-surface-validate.sh`
 - Test: `tools/maintainer/project-standard-extractor/artifact-contract-validate.sh`
 
 **Approach:**
-- Sweep prompts/examples after contract changes so execution prompts, examples, assets and evals all describe the same flow.
+- Run final consistency checks over prompts/examples after contract changes so execution prompts, examples, assets and evals all describe the same flow; any required text change is sent back to the owning unit instead of patched in U9.
 - Prefer references to shared contract files over restating field lists in every prompt.
 - Keep Phase2 examples intact but clearly scoped to repair/dimension-aware flows.
 - Run consistency checks for legacy language: manual-batch default, auto active, fake activation report, Rule ID/anchor and old path references.
@@ -707,9 +708,9 @@ flowchart TB
 
 **Goal:** 让 full-auto 在重复运行时做增量(只标注变化、不堆积近义规则),并对已有 active/draft 与新 evidence 不一致做检测+提示 owner,而不改写 active。
 
-**Requirements:** R-34, R-35, R-31, BR-001, BR-002
+**Requirements:** R-34, R-35, R-31, R-36, R-37, BR-001, BR-002, BR-016, BR-017
 
-**Dependencies:** U5（增量建立在 merge append-only + existing_index 之上）
+**Dependencies:** U4, U5, U6（增量建立在 merge append-only + existing_index 之上;auto-active 自动失效依赖 U4 闸判据与 U6 状态/字段契约）
 
 > **复用既有基建(doc-review 2026-06-02 可行性评估)**：该 skill 已有 4 块增量基础设施,但全部绑在 Phase 2 维度坐标系上,phase1 需移植到 batch/规则坐标系:
 > - `merge-coordinator.md:25/168/250` 的 `existing_index`——以 `(source_doc, section_title)` 对齐已落盘规范,**与 dimension 无关,phase1 可直接复用**,这是存量对齐最关键的一块。
@@ -741,6 +742,7 @@ flowchart TB
 - Covers R-34. Happy path: 同仓库二次运行,未变规则只追加 evidence、不产生近义重复;新增子领域规则标 `added`。
 - Covers R-34/P1-1. Edge case: 某规则从 low-confidence(pending)升为 high-confidence(standard),pending 条目被标 superseded,coverage 不重复计数。
 - Covers R-35. Error path: 已有 active 规则与新 evidence 冲突 → 写 conflicts.md + owner queue 标 stale-needs-review,active 文件**未被改写**。
+- Covers R-37/BR-016/BR-017. Error path: auto-active 规则下次运行不再满足闸条件或命中新黑名单/高风险域 → 标 `stale-auto-active`,移出默认执行路径并进入 owner queue。
 - Error path: 首次运行无 baseline → 不报错,记当次快照 + `LIMITATIONS_NO_BASELINE`。
 - Integration: 增量 evolution 用 `(source_doc, section_title)` 而非 `dimension_id`,phase1 全程不依赖 activation-report(守 P0-A 不变量)。
 

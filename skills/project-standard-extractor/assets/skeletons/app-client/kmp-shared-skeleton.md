@@ -138,7 +138,7 @@ androidMain (actual 实现)    iosMain (actual 实现)
 
 ### P1 expect/actual 仅用于平台差异
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: medium · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: medium · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 **适用范围**
 
@@ -192,7 +192,7 @@ actual fun log(tag: String, msg: String) { println("[$tag] $msg") } // ❌ 应�
 
 ### P0 Domain 层零外部依赖
 
-> level: P0 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: P0 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 **适用范围**
 
@@ -242,7 +242,7 @@ class LoginUseCase(private val client: HttpClient) { // ❌ 应依赖 AuthReposi
 
 ### P1 Data 层不得跨过 Domain 直连 Presentation
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 **强制规则**
 
@@ -257,7 +257,7 @@ class LoginUseCase(private val client: HttpClient) { // ❌ 应依赖 AuthReposi
 
 ### FORBIDDEN 平台 UI 框架进入 commonMain
 
-> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 > ⛔ **FORBIDDEN**：commonMain 不得 import Compose / SwiftUI / UIKit / Android Framework 任何 UI 类。
 
@@ -274,7 +274,7 @@ import androidx.compose.runtime.Composable // ❌ 平台 UI 泄露至共享层
 
 ### FORBIDDEN Presentation 越过 Domain 直接调用 Data
 
-> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft
+> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: {{evidence_tier}} · risk_tag: high · owner: TBD · last_reviewed: {{last_reviewed}} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 > ⛔ **FORBIDDEN**：`presentation/**` 下 import `data.repository.*` / `data.remote.*` / `data.local.*`。
 

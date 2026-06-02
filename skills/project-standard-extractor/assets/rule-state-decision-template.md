@@ -27,7 +27,7 @@ tags:
 
 ## 2. 当前状态
 
-- status: `draft` / `active` / `pending-confirmation` / `conflict` / `legacy-compatible` / `rejected`
+- status: `auto-active` / `owner-confirmed-active` / `draft` / `pending-confirmation` / `stale-auto-active` / `owner-rejected` / `conflict` / `legacy-compatible` / `rejected`
 - level: `P0` / `P1` / `P2` / `FORBIDDEN`
 - risk_tag: `high` / `medium` / `low` / `none`
 
@@ -36,10 +36,12 @@ tags:
 取值之一：
 
 - [ ] `keep-draft`
-- [ ] `promote-to-active`
+- [ ] `auto-activate`
 - [ ] `move-to-pending`
 - [ ] `mark-conflict`
 - [ ] `mark-legacy`
+- [ ] `mark-stale-auto-active`
+- [ ] `mark-owner-rejected`
 - [ ] `reject`
 - [ ] `defer`
 
@@ -61,7 +63,7 @@ tags:
 | --- | --- | --- | --- | --- |
 | YYYY-MM-DD | 端负责人 / 架构负责人 / 安全 / 合规 / 行业负责人 |  |  |  |
 
-## 6. 升级到 active 的剩余阻塞项
+## 6. 进入默认执行路径的剩余阻塞项
 
 - [ ] {阻塞项 1}
 - [ ] {阻塞项 2}

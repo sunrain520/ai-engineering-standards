@@ -48,7 +48,7 @@ status: ready
 
 | status | 含义 | 后续动作 |
 | --- | --- | --- |
-| `ready` | 有代表性候选文件，可进入正式萃取 | 用户选择后执行 |
+| `ready` | 有代表性候选文件，可进入正式萃取 | full-auto：orchestrator 自动执行；interactive/diagnostic：用户可手动选择单 batch 重跑 |
 | `pending-confirmation` | 候选方向存在，但证据或负责人确认不足 | 先补输入或负责人确认 |
 | `skipped` | 没有代表性 evidence 或超出范围 | 不生成规则 |
 | `blocked` | 敏感、权限或读取边界阻塞 | 停止并说明原因 |

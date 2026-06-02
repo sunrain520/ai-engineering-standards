@@ -174,7 +174,7 @@ generation agent 产出：
 
 - 门禁 A：10 维章节全存在 ✅ / 状态一致 ✅ / evidence_tier 标注 ✅ → PASS
 - 门禁 B：覆盖率 100% ✅ / avg depth_score 0.73 ✅ → PASS
-- merge-coordinator：直接写入 `04-backend/`（无既有 active 规则，无覆盖风险）
+- merge-coordinator：直接写入 `04-backend/`（无既有 owner-confirmed-active / legacy active 规则，无覆盖风险）
 
 ---
 

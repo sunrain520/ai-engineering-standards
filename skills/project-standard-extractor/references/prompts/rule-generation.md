@@ -7,37 +7,39 @@
 ## 规则定位
 
 - **不使用 Rule ID，不使用 HTML anchor**。
-- 规则 H2 标题必须以 `P0` / `P1` / `P2` / `FORBIDDEN ` 之一为前缀，与正文一一对应。
+- 规则为 H3 子节，标题必须以 `P0` / `P1` / `P2` / `FORBIDDEN ` 之一为前缀，与正文一一对应。
 - 跨文档引用规则统一使用 `{source_doc}「{section_title}」` 二元组。
 
 ## 每条规则必须包含
 
-1. H2 标题（`## P0|P1|P2|FORBIDDEN {规则标题}`）。
-2. **inline 元数据行**（紧跟 H2，blockquote 单行，使用 ` · ` 分隔）：
+1. H3 标题（`### P0|P1|P2|FORBIDDEN {规则标题}`）。
+2. **说明**（粗体标题 + bullet）：讲清这条规则的 why——背后原理/动机/要防止的具体问题（对齐阿里《Java开发手册》「说明:」）。基于 evidence 观察，不空泛。
+3. **inline 元数据行**（紧跟 H2，blockquote 单行，使用 ` · ` 分隔）：
 
    ```markdown
-   > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft
+	   > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
    ```
 
    字段全集（顺序固定）：
    - `level`（P0 / P1 / P2 / FORBIDDEN）
-   - `status`（取值见 `references/config/frontmatter-format.md §4.2`，自动运行默认 `draft`，**不得**默认 `active`）
+	   - `status`（取值见 `references/config/frontmatter-format.md §4.2`；过 BR-016/BR-017 才可写 `auto-active`，不得写 `owner-confirmed-active`）
    - `source_kind`（extracted / owner-confirmed / industry-reference / template-placeholder）
    - `evidence_tier`（direct-code / cross-project / single-project / inferred / none）
    - `risk_tag`（high / medium / low / none）
    - `owner`、`last_reviewed`
-   - `recommended_action`（取值见 §4.7）
+	   - `recommended_action`（取值见 §4.7）
+	   - `confidence_tier`、`authority_scope`、`upgrade_mode`、`deterministic_occurrence_count`、`last_evidence_confirmed_run`
    - `conflicts_with: ["..."]`、`superseded_by: ...`（仅在非空时追加，元素之间用逗号；空值整字段省略）
 
    不允许把 inline 行改成多行 yaml 块。grep 用 `^> level: ` 即可定位每条规则。
 
-3. `### 适用范围`（说明在哪类文件、哪种场景下生效）。
-4. `### 强制规则` 或 `### 推荐规则`（**numbered list**，每条说明**怎么做**，不只是"应该"）。
-5. `### 禁止事项`（**bullet list**；FORBIDDEN 条目用 `> ⛔ FORBIDDEN：...` 格式并引用 NEG- evidence）。
-6. `### 正例` / `### 反例`（fenced code block，路径脱敏，注释说明正确/错误原因）。FORBIDDEN 与 P0 必须有反例；P1/P2 至少正例。
-7. `### AI 生成代码要求`（正向约束句式，"必须 / 禁止 / 应在 ..."）。
-8. `### Code Review 检查项`（reviewer 看代码即可二值判断 pass/fail）。
-9. `### Evidence`（列出 `evidence/{kind}.md「{条目编号}」`）。
+4. `### 适用范围`（说明在哪类文件、哪种场景下生效）。
+5. `### 强制规则` 或 `### 推荐规则`（**numbered list**，每条说明**怎么做**，不只是"应该"）。
+6. `### 禁止事项`（**bullet list**；FORBIDDEN 条目用 `> ⛔ FORBIDDEN：...` 格式并引用 NEG- evidence）。
+7. `### 正例` / `### 反例`（fenced code block，路径脱敏，注释说明正确/错误原因）。FORBIDDEN 与 P0 必须有反例；P1/P2 至少正例。
+8. `### AI 生成代码要求`（正向约束句式，"必须 / 禁止 / 应在 ..."）。
+9. `### Code Review 检查项`（reviewer 看代码即可二值判断 pass/fail）。
+10. `### Evidence`（列出 `evidence/{kind}.md「{条目编号}」`）。
 
 ## 文档级章节顺序
 
@@ -54,7 +56,7 @@
 
 - 不得为每条规则写整块 yaml 元数据块（catalog 风格）。元数据只能用 inline blockquote 行。
 - 不得把项目路径写进规则正文。
-- 不得把无证据内容写成 AI 可执行 draft。
-- 不得自动发布 active。
+- 不得把无证据内容写成 AI 可执行规则。
+- 不得自动发布 `owner-confirmed-active`;只有过闸规则可写 `auto-active`。
 - 不得为规则生成 Rule ID 或 HTML anchor。
 - 不得在规则节同时写"AI 生成代码要求"小节和文档末尾另一份 AI 规则汇总段重复内容；汇总段只摘要、不重写。

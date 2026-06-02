@@ -26,7 +26,7 @@ tags:
   - 代码示例内联，正例（脱敏泛化的通用示例，用 OrderService/UserRepository 等通用名，**不含项目路径**，守 BR-008）+ 反例（FORBIDDEN 必配）
   - 强制规则用 numbered list，禁止用 bullet
   - 节数由 evidence 决定，不够不要凑
-自动运行下文档与规则均默认 status: draft；active 由领域负责人手工升级
+	自动运行下规则可写 status: auto-active 或 draft：auto-active 只能由高置信闸产生；owner-confirmed-active 只能由负责人手工确认。
 -->
 
 ## 1. 技术栈与工程约束
@@ -58,7 +58,7 @@ tags:
 
 ### P1 {规则标题}
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: {YYYY-MM-DD} · recommended_action: keep-draft
+> level: P1 · status: {auto-active|draft|pending-confirmation} · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: {YYYY-MM-DD} · recommended_action: {auto-activate|keep-draft|move-to-pending} · confidence_tier: {high|normal|low} · authority_scope: {this-repo|none} · upgrade_mode: {auto-active|none} · deterministic_occurrence_count: {N|null} · last_evidence_confirmed_run: {run_id|null}
 
 **说明**
 
@@ -107,7 +107,7 @@ tags:
 
 ### FORBIDDEN {规则标题}
 
-> level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: {YYYY-MM-DD} · recommended_action: keep-draft
+> level: FORBIDDEN · status: {auto-active|draft|pending-confirmation} · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: {YYYY-MM-DD} · recommended_action: {auto-activate|keep-draft|move-to-pending} · confidence_tier: {high|normal|low} · authority_scope: {this-repo|none} · upgrade_mode: {auto-active|none} · deterministic_occurrence_count: {N|null} · last_evidence_confirmed_run: {run_id|null}
 
 > ⛔ **FORBIDDEN**：{具体禁止写法，一句话}。负例见 `evidence/forbidden-examples.md「NEG-{DOMAIN}-{N}」`
 

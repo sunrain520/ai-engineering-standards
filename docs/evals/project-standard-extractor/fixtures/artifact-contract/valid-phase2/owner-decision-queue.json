@@ -1,0 +1,17 @@
+{
+  "schema": "project-standard-extractor-owner-decision-queue.v1",
+  "run_id": "20260602-valid-phase2",
+  "domain": "backend",
+  "generated_at": "2026-06-02T00:00:00Z",
+  "items": [
+    {
+      "locator": "standard-api.md「P1 Service layer owns business rules」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": ["EV-BACKEND-1"],
+      "risk_tags": ["medium"],
+      "blocking_reason": "",
+      "requires_security_review": false
+    }
+  ]
+}

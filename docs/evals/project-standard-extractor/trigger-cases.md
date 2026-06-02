@@ -17,9 +17,11 @@ output_scope: full package
 
 - 进入 Intake and Scope。
 - 推断或确认 Backend / Java / API 子领域。
-- 因为是多服务输入，先进入 `profile-first`。
-- 输出 `project-profile`、`extraction-map` 和 `batch-plan`。
-- 选择单个 batch 后才输出 `code_facts` 并生成规范候选。
+- 因为是 broad input，默认进入 `full-auto`，但内部第一步仍是 `profile-first`。
+- 输出 `project-profile`、`extraction-map`、`batch-plan`、`ordered_batch_queue` 和 `coverage_report`。
+- 按 `ordered_batch_queue` 逐个执行 `ready` 与 `pending-confirmation` batch；每次 worker 调用仍只消费一个 batch。
+- `ready` batch 可产出 high-confidence 规则；过闸规则可标 `auto-active`，否则为 `draft`。
+- `pending-confirmation` batch 只能产出 low-confidence draft 并隔离到 `pending-confirmation.md`。
 
 ## TC-002 APP KMP 规范萃取
 
@@ -35,7 +37,7 @@ dev_domain: APP
 期望：
 
 - 识别 KMP、Android、iOS、DataCenter 等子领域候选。
-- 先生成 APP batch plan，不直接跨端生成规则。
+- 先生成 APP batch plan 与 `ordered_batch_queue`，再按 queue 逐 batch 生成规则。
 - 双端共性必须先进入 facts，不直接写强制规则。
 - 平台路径只能进入 evidence，不进入规则正文。
 
@@ -54,6 +56,7 @@ output_scope: full package
 
 - 生成 `engineering-standards/09-industry/` 候选输出。
 - 行业共性如果没有团队 evidence 或负责人确认，只能进入 `pending-confirmation.md`。
+- security/auth/compliance/行业高风险子领域不得自动升 `auto-active`，即使 occurrence 足够。
 
 ## TC-004 已选 batch 的后端 API 萃取
 

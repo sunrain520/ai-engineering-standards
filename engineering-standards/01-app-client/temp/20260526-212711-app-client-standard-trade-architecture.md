@@ -25,7 +25,7 @@ tags:
 
 ## P1 新增业务功能必须使用 Clean Architecture 三层分离
 
-> level: P1 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-26 · recommended_action: promoted-to-active
+> level: P1 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-26 · recommended_action: promoted-to-active · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 适用范围
 
@@ -63,7 +63,7 @@ tags:
 
 ## P1 ViewModel 必须按职责分类使用，不得混合多种关注点
 
-> level: P1 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-26 · recommended_action: promoted-to-active
+> level: P1 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-26 · recommended_action: promoted-to-active · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 适用范围
 
@@ -108,7 +108,7 @@ trade 模块中 ViewModel 按职责分为三类，新代码应明确归类：
 
 ## FORBIDDEN 新代码不得引入 MVP Presenter 模式
 
-> level: FORBIDDEN · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-26 · recommended_action: promoted-to-active
+> level: FORBIDDEN · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-26 · recommended_action: promoted-to-active · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 适用范围
 
@@ -144,7 +144,7 @@ trade 模块中 ViewModel 按职责分为三类，新代码应明确归类：
 
 ## P2 ViewModel 不得直接持有 DAO 或 Database 引用
 
-> level: P2 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-26 · recommended_action: promoted-to-active
+> level: P2 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-26 · recommended_action: promoted-to-active · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 适用范围
 
@@ -175,7 +175,7 @@ trade 模块中 ViewModel 按职责分为三类，新代码应明确归类：
 
 ## P2 非标 ViewModel 封装（BaseVMDataHelper 模式）不得扩散
 
-> level: P2 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-26 · recommended_action: promoted-to-active
+> level: P2 · status: active · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-26 · recommended_action: promoted-to-active · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 适用范围
 

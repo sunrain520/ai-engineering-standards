@@ -1,0 +1,69 @@
+schema: project-standard-extractor-anti-pattern-blocklist.v1
+purpose: >
+  Blocks known bad practices from becoming auto-active solely because they are
+  frequent in one codebase. A match forces target_state=pending-confirmation
+  and requires owner/security review.
+match_policy:
+  default_outcome: pending-confirmation
+  occurrence_count_does_not_override: true
+  applies_to_statuses:
+    - auto-active
+    - draft
+high_risk_domains:
+  - security
+  - auth
+  - authentication
+  - authorization
+  - cryptography
+  - crypto
+  - permission
+  - compliance
+  - privacy
+  - pii
+  - payment
+  - finance
+patterns:
+  - id: common-swallow-exception
+    domain: common
+    severity: high
+    match_hints:
+      - catch block ignores exception
+      - empty catch
+      - logs without preserving failure path
+    reason: Swallowing failures can make generated rules normalize hidden error handling.
+  - id: common-debug-output
+    domain: common
+    severity: medium
+    match_hints:
+      - console.log in production path
+      - printStackTrace
+      - println debug output
+    reason: Debug output frequency reflects project debt, not an executable standard.
+  - id: backend-raw-sql-concat
+    domain: backend
+    severity: high
+    match_hints:
+      - SQL string concatenates user input
+      - raw query built from request parameter
+    reason: Raw SQL concatenation must never be promoted without owner/security review.
+  - id: backend-null-equality-shortcut
+    domain: backend
+    severity: medium
+    match_hints:
+      - == null used as business-state check
+      - magic null sentinel
+    reason: Frequent null shortcuts can encode incidental implementation detail.
+  - id: frontend-direct-dom-mutation
+    domain: frontend
+    severity: medium
+    match_hints:
+      - direct DOM mutation in framework component render path
+      - document.querySelector used to mutate app state
+    reason: Framework bypasses are usually exceptions or debt, not standards.
+  - id: app-client-main-thread-io
+    domain: app-client
+    severity: high
+    match_hints:
+      - network or disk IO on main thread
+      - blocking call in UI lifecycle
+    reason: Main-thread blocking patterns must stay pending even if common.

@@ -53,7 +53,7 @@ selected_batch:
 ```yaml
 existing_rule:
   section_title: P1 Controller 只负责请求接入和响应返回
-  status: active
+  status: owner-confirmed-active
 candidate_rule:
   section_title: P1 Controller 必须自行处理事务边界
 ```
@@ -61,4 +61,18 @@ candidate_rule:
 期望：
 
 - 触发 `TARGET_CONFLICT`。
-- 写入 `conflicts.md`，不得覆盖或降级已有 active 规则。
+- 写入 `conflicts.md`，不得覆盖或降级已有 owner-confirmed-active 规则。
+
+## FC-005 Anti-pattern Auto-active Block
+
+```yaml
+candidate_rule:
+  status: auto-active
+  deterministic_occurrence_count: 5
+  anti_pattern_blocklist_hit: backend-raw-sql-concat
+```
+
+期望：
+
+- 触发 `AUTO_ACTIVE_ANTI_PATTERN_BLOCKED`。
+- 降为 `pending-confirmation`，不进入 AI 默认执行路径。

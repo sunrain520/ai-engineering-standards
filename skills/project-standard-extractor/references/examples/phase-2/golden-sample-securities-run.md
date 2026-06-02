@@ -194,7 +194,7 @@ estimated_tokens: ~42K
   evidence/dimension-activation-report.json → 不存在 → CREATE
 
 merge-suggestions.md：无需新增（新文件,无相近规则冲突）
-conflicts.md：无冲突（新域,无既有 active 规则）
+conflicts.md：无冲突（新域,无既有 owner-confirmed-active / legacy active 规则）
 pending-confirmation.md：追加 SEC-10 演练脚本确认项 + SEC-03/XSEC-01 weighted 重新核查项
 ```
 
@@ -206,7 +206,7 @@ pending-confirmation.md：追加 SEC-10 演练脚本确认项 + SEC-03/XSEC-01 w
 run_id: 20260525-030800-industry
 evidence_tier: synthetic-poc
 质量门禁: NOT_EVIDENCE（poc-draft 级别）
-发布状态: draft — 不可进 active 执行路径
+发布状态: draft — 不可进默认执行路径
 
 主要局限（PoC）：
   1. 所有 signal_hits 来自合成 mock，非真实代码扫描
@@ -217,7 +217,7 @@ evidence_tier: synthetic-poc
   1. 提供真实经纪平台 project_paths
   2. 确保 GitNexus graph-bootstrap 完成（graph_readiness.state=ready）
   3. 重跑 extraction_mode=full + output_action=force-rebuild
-  4. owner 确认 SEC-03 / SEC-10 / XSEC-01 pending 项后升级 active
+  4. owner 确认 SEC-03 / SEC-10 / XSEC-01 pending 项后升级为 owner-confirmed-active
 ```
 
 ---

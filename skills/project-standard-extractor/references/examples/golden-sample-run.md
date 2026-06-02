@@ -59,7 +59,7 @@ batches:
     status: ready
 ```
 
-用户选择 `backend-java-api-order` 后，下一轮进入 `batch-extraction`。
+full-auto 模式下，orchestrator 自动按 ordered_batch_queue 中的顺序串行执行各 batch，无需用户选择单 batch；本示例以 `backend-java-api-order` 为第一个 batch 展示后续流程。
 
 ## 4. Code Facts
 
@@ -102,7 +102,7 @@ conflict: []
 ```markdown
 ## P1 Controller 只负责请求接入和响应返回
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-21 · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-21 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 适用范围
 
@@ -144,9 +144,9 @@ AI 新增接口时必须先检查是否已有 Service，不得在 Controller 中
 
 并提示:
 
-- 状态：`status: draft`
+- 状态：`status: draft`（未过 auto-active 闸，只作为参考上下文）
 - evidence_tier：`single-project`
-- 需要后端负责人确认后才能由负责人手工改为 `status: active`
+- 后端负责人确认后才能手工改为 `status: owner-confirmed-active`
 
 ## 8. Review Checklist
 
@@ -163,7 +163,7 @@ AI 新增接口时必须先检查是否已有 Service，不得在 Controller 中
 - `04-backend/temp/20260521-180000-backend-llms-candidate.txt`
 - `04-backend/temp/20260521-180000-backend-ai-context-pack.md`
 
-`rules-index` 候选条目使用 `title`、`domain`、`sub_domain`、`level`、`source_doc`、`section_title`、`evidence_doc`、`tags`，不使用 `rule_id` 或 `anchor`。
+`rules-index` 候选条目使用 `title`、`domain`、`sub_domain`、`level`、`status`、`source_doc`、`section_title`、`evidence_doc`、`authority_scope`、`upgrade_mode`、`tags`，不使用 `rule_id` 或 `anchor`。
 
 ## 10. Quality Gate
 
@@ -175,6 +175,13 @@ quality_gate_decision:
   recommended_action: keep-draft
   required_human_confirmation:
     - backend owner
+  review_profile: "phase1-full-auto"
+  activation_gate_outcome: "phase1-not-applicable"
+  content_gate_outcome: "pass"
+  final_gate_decision: "keep-draft"
+  passed: true
+  blocking_findings: []
+  warnings: []
 ```
 
 行业交易规则因为没有行业负责人确认，进入 `pending-confirmation.md`。
@@ -188,10 +195,12 @@ quality_gate_decision:
 - `engineering-standards/04-backend/java/review-checklist.md`
 - `engineering-standards/04-backend/java/evidence/code-facts.md`
 - `engineering-standards/04-backend/pending-confirmation.md`
+- `engineering-standards/04-backend/lineage-ledger.json`
+- `engineering-standards/04-backend/owner-decision-queue.json`
 
 不覆盖：
 
-- 已有 `active` 规则
+- 已有 `owner-confirmed-active` 规则（含 legacy `active` 历史状态）
 - 已有 `draft` 规则
 
 ## 12. 覆盖的验收示例
@@ -205,5 +214,5 @@ quality_gate_decision:
 | AE5 高风险 draft 提示 | draft 输出 evidence_tier 和负责人确认项 |
 | AE6 重复运行不覆盖 | Merge Coordinator append-only |
 | AE7 二元组定位 | 规则统一以 `(source_doc, section_title)` 引用,不使用 Rule ID |
-| AE8 上下文治理 | broad input 先输出 profile / map / batch plan,再选择单 batch |
+| AE8 上下文治理 | broad input 先输出 profile / map / batch plan，然后 orchestrator 自动按 full-auto queue 逐 batch 执行 |
 | AE9 候选索引 | 输出 rules-index / llms / ai-context-pack candidate,不默认发布 |

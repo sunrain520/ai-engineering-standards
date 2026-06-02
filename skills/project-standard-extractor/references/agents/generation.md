@@ -17,12 +17,12 @@
 
 ```yaml
 inputs:
-  code_facts:             # facts-and-classification 的全量输出（每条 fact 含 dimension_id / dimension_state）
-  classification:         # recommended / forbidden / legacy_compatible / pending_confirmation / conflict
+  code_facts:             # facts-and-classification 的全量输出（Phase1 每条 fact 只含 batch/evidence 边界;Phase2 可含 dimension_id）
+  classification:         # recommended / forbidden / legacy_compatible / pending_confirmation / conflict / rejected
   activation_report:      # 可选；仅 Phase 2 dimension-aware 必填
                           # temp/{run_id}-activation-report.json (schema=activation-report.v1)
                           # 来自 dimension-activator,是 Phase 2 唯一权威激活态来源
-  selected_batch_summary: # batch_id / domain / sub_domain / evidence_limit
+  selected_batch_summary: # batch_id / domain / sub_domain / evidence_limit / confidence_tier
   project_profile:        # temp/{run_id}-project-profile.md（用于理解架构背景）
   global_templates:       # assets/ 目录（standard-template.md 主参考）
   skeletons_pool:         # assets/skeletons/ 目录（按 activation_report.dimensions[].skeleton_section 选用）
@@ -36,7 +36,7 @@ inputs:
 
 | 剖面 | 必填输入 | 生成策略 |
 | --- | --- | --- |
-| `phase1-selected-batch` | `selected_batch_summary.batch_id` + `code_facts` + `classification` | 使用 `standard-template.md` 和可匹配的 sub-domain skeleton 写 evidence-backed draft；不读取 `activation-report`，不生成维度未激活地图。 |
+| `phase1-selected-batch` | `selected_batch_summary.batch_id` + `code_facts` + `classification` | 使用 `standard-template.md` 和可匹配的 sub-domain skeleton 写 evidence-backed draft；不读取 `activation-report`，不生成维度未激活地图。`confidence_tier: low` 时只生成 pending draft，不进入 AI 默认执行。 |
 | `phase2-dimension-aware` | `activation_report.schema == "activation-report.v1"` | 按 `activation_report.dimensions[]` 消费 baseline / activated / pending / shallow / candidate 状态。 |
 
 剖面选择规则：
@@ -55,7 +55,7 @@ inputs:
 | `activated` | `activated` | 综合 code_facts + classification.recommended/forbidden/legacy_compatible 编写实质内容 | standard-{sub_domain}.md |
 | `pending-confirmation` | `pending` | 占位章节 + 触达原因 + warning + 跳到 pending-confirmation.md 的指针 | standard-{sub_domain}.md（占位）+ pending-confirmation.md（详情） |
 | `shallow` | `shallow` | 与 activated 相同生成,但额外加 `> ⚠️ 本节 coverage=low,等待 review 改判` warning | standard-{sub_domain}.md |
-| `candidate` | （不出现在端规范） | 仅落入 overview-skeleton 的「未激活维度地图」段（AE7） | standard-overview.md(端级)的 §9 未激活维度地图 |
+| `candidate` | （不出现在端规范） | 仅落入 overview-skeleton 的「未激活维度地图」段（AE7） | `overview.md` 的 §9 未激活维度地图 |
 
 **铁律**:Phase 2 中本阶段**不重新判定** state,只消费 `activation-report.json`。任何与 activation-report 不一致的章节标注视为 schema violation。
 
@@ -68,7 +68,7 @@ inputs:
 | `evidence/forbidden-examples.md` | evidence-forbidden | true | Sub-step A |
 | `evidence/legacy-compatible.md` | evidence-legacy | true | Sub-step A |
 | `standard-{sub_domain}.md` | standard | true | Sub-step B（每 sub_domain 一份 Developer Guide） |
-| `pending-confirmation.md` | pending-confirmation | false | Sub-step B |
+| `pending-confirmation.md` | pending-confirmation | true | Sub-step B |
 | `ai-rules.md` | ai-rules | true | Sub-step C |
 | `review-checklist.md` | review-checklist | true | Sub-step C |
 | `temp/{run_id}-rules-index-candidate.json` | — | — | Sub-step D |
@@ -79,7 +79,7 @@ inputs:
 
 ```
 Sub-step A0: Input Profile Loader（前置）
-  ├── Phase 1 selected-batch: 校验 selected_batch_summary + code_facts,建立 batch 写作上下文
+  ├── Phase 1 selected-batch: 校验 selected_batch_summary + code_facts + confidence_tier,建立 batch 写作上下文
   └── Phase 2 dimension-aware: 校验 activation-report.json schema=activation-report.v1
       └── 计算每个维度的 skeleton 选型 + 章节标注映射
 
@@ -106,7 +106,7 @@ Sub-step C: Derivative Generator（可并行）
   └── 完成标志: 每条条目引用了来源章节;shallow 维度条目附 `coverage=low` 标注
 
 Sub-step D: Index & Pack Aggregator（B + C 完成后）
-  ├── rules-index-candidate.json  ← 按章节索引 standard 内容(含每章节 activation_state)
+  ├── rules-index-candidate.json  ← 按规则索引 standard 内容(Phase 1 不含 activation 字段;Phase 2 可附 dimension_id/dimension_state)
   ├── llms-candidate.txt          ← 领域入口地图
   └── ai-context-pack.md          ← 摘要包(含三态分布统计)
 ```
@@ -130,8 +130,9 @@ Sub-step D: Index & Pack Aggregator（B + C 完成后）
 1. 校验 `selected_batch_summary.batch_id`、`domain`、`sub_domain` 非空；缺失抛 `SELECTED_BATCH_CONTEXT_INVALID`。
 2. 校验 `code_facts` 已限定在该 batch 的 `candidate_files` 内；发现跨 batch fact 抛 `BATCH_BOUNDARY_LEAK`。
 3. `code_facts` 为空时不生成 `standard-{sub_domain}.md`；只写 `pending-confirmation.md` 与 review summary，失败模式为 `NO_REPRESENTATIVE_EVIDENCE`。
-4. 使用 `assets/standard-template.md` 作为主结构；如果存在匹配 `assets/skeletons/{domain}/{sub_domain}-skeleton.md`，只作为章节提示，不引入 activation-state 占位符。
-5. 建立 `generation_profile: phase1-selected-batch`，后续 self-check 跳过 Phase 2 activation-state 检查。
+4. `selected_batch_summary.confidence_tier == low` 时，所有生成规则默认标 `target_state: pending-confirmation`、`confidence_tier: low`，只作为 low-confidence draft 输入后续 review/owner queue。
+5. 使用 `assets/standard-template.md` 作为主结构；如果存在匹配 `assets/skeletons/{domain}/{sub_domain}-skeleton.md`，只作为章节提示，不引入 activation-state 占位符。
+6. 建立 `generation_profile: phase1-selected-batch`，后续 self-check 跳过 Phase 2 activation-state 检查。
 
 **A0.1 schema 校验**
 
@@ -161,7 +162,7 @@ dimension_groups:
 
 | 维度归属 | skeleton 文件 | 落点 |
 | --- | --- | --- |
-| 端级 overview | `assets/skeletons/overview-skeleton.md` | `standard-overview.md`(端级聚合) |
+| 端级 overview | `assets/skeletons/overview-skeleton.md` | `overview.md`(端级聚合) |
 | sub-domain 强标识 | `assets/skeletons/{domain}/{sub_domain}-skeleton.md` | `standard-{sub_domain}.md` |
 | 横切(命名 / 错误模型) | `assets/skeletons/cross-cutting-skeleton.md` | `standard-common.md` 对应章节 |
 | industry sub | `assets/skeletons/industry/{name}-skeleton.md` | `standard-{industry_sub}.md` |
@@ -272,7 +273,7 @@ LEG-{DOMAIN}-{N}  → evidence/legacy-compatible.md
 ```yaml
 doc_id: "{domain}-{sub_domain}-standard"
 doc_type: standard
-status: draft    # 自动运行不得直接发布 active；active 只能由领域负责人确认后手动升级
+status: draft    # 文档级状态固定 draft;规则级 auto-active 只写在规则 inline 元数据行
 evidence_tier: "{从 code_facts 中最高的 tier}"
 source_batch: "{batch_id}"
 ```
@@ -300,12 +301,12 @@ source_batch: "{batch_id}"
 1. **inline 元数据行**（紧跟 H3，blockquote 单行，` · ` 分隔）：
 
    ```markdown
-   > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: {YYYY-MM-DD} · recommended_action: keep-draft
+   > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: {YYYY-MM-DD} · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
    ```
 
-   字段全集与顺序：`level`、`status`、`source_kind`、`evidence_tier`、`risk_tag`、`owner`、`last_reviewed`、`recommended_action`、`conflicts_with`（仅非空时追加）、`superseded_by`（仅非空时追加）。
+   字段全集与顺序：`level`、`status`、`source_kind`、`evidence_tier`、`risk_tag`、`owner`、`last_reviewed`、`recommended_action`、`confidence_tier`、`authority_scope`、`upgrade_mode`、`deterministic_occurrence_count`、`last_evidence_confirmed_run`、`conflicts_with`（仅非空时追加）、`superseded_by`（仅非空时追加）。
 
-   `status` 自动运行默认 `draft`，**禁止**输出 `active`。**禁止**整块 yaml。
+   `status` 自动运行默认 `draft`；只有通过 BR-016/BR-017 高置信自动升级闸时可写 `auto-active`。不得输出 `owner-confirmed-active` 或 legacy `active`。**禁止**整块 yaml。
 
 2. **说明**（粗体标题 + bullet）：讲清这条规则的 why——背后原理/动机/要防止的具体问题（对齐阿里《Java开发手册》「说明:」）。基于 evidence 观察，不空泛。让读者和 AI 不只知道做什么，还知道为什么。
 3. **适用范围**（粗体标题 + bullet）
@@ -422,7 +423,7 @@ activated > shallow > pending > baseline
 - 否则任一章节 `pending` → `pending`
 - 全部 `baseline` → `baseline`
 
-Front Matter `status` 字段独立于 `activation_state`:`status` 仍按 status 流转规则(自动运行恒为 `draft`,人工确认后 `active`)。
+Front Matter `status` 字段独立于 `activation_state`:文档级 status 仍为 `draft`;规则级 `auto-active` 只写在 inline 元数据行,`owner-confirmed-active` 只能由负责人手动确认。
 
 **B4. Pending Confirmation 落点**
 
@@ -444,7 +445,7 @@ PENDING-{DOMAIN}-{N}:
 
 **B5. 未激活维度地图（AE7 强制章节）**
 
-仅在生成端级 overview 文档(`standard-overview.md`,从 `assets/skeletons/overview-skeleton.md`)时执行:
+仅在 `phase2-dimension-aware` 生成端级 overview 文档(`overview.md`,从 `assets/skeletons/overview-skeleton.md`)时执行；Phase 1 full-auto 不生成本节，只在 coverage report / review summary 中记录 blind spots:
 
 1. 从 `activation_report.dimensions[]` 过滤 `state == "candidate"` 的维度集合
 2. 按 `layer`(baseline / end / industry) 分组
@@ -499,26 +500,29 @@ PENDING-{DOMAIN}-{N}:
 
 **D1. rules-index-candidate.json**
 
-按 `standard-{sub_domain}.md` 的主要章节（`## {N}. {章节名}`）生成索引，每个章节一条：
+按 `standard-{sub_domain}.md` 的规则章节（`##/### {P0|P1|P2|FORBIDDEN} {标题}`）生成索引，每条规则一条。Phase 1 不写 activation 字段；Phase 2 若需要关联维度，可额外写 `dimension_id` / `dimension_state`，但不得替代下列 canonical 字段：
 
 ```json
 {
+  "index_format": "engineering-standards-rules-index-v1",
   "generated_at": "{ISO8601}",
   "batch_id": "{batch_id}",
-  "status": "candidate",
-  "activation_report_ref": "temp/{run_id}-activation-report.json",
-  "sections": [
+  "candidate": true,
+  "rules": [
     {
+      "title": "{规则标题}",
+      "domain": "{domain}",
+      "sub_domain": "{sub_domain}",
+      "level": "P1",
+      "status": "draft|auto-active|pending-confirmation|conflict|legacy-compatible|stale-auto-active|owner-rejected|rejected",
       "source_doc": "standard-{sub_domain}.md",
-      "section_title": "{章节名,与 H2 字面一致}",
-      "section_type": "tech-stack|architecture|role-rules|ai-rules|review-checklist|evidence|inactive-dim-map",
-      "domain": "",
-      "sub_domain": "",
-      "dimension_id": "{对应 activation-report.dimensions[].dimension_id}",
-      "activation_state": "baseline|activated|pending|shallow",
-      "has_forbidden": false,
-      "evidence_ids": ["EV-{DOMAIN}-{N}"],
-      "tags": []
+      "section_title": "P1 {规则标题}",
+      "evidence_doc": "evidence/code-facts.md",
+      "authority_scope": "this-repo|none",
+      "upgrade_mode": "auto-active|none",
+      "deterministic_occurrence_count": 2,
+      "last_evidence_confirmed_run": "{run_id}",
+      "tags": ["{domain}", "{sub_domain}", "{task_type}"]
     }
   ]
 }
@@ -571,7 +575,7 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 
 ## 核心规范文件
 - `standard-{sub_domain}.md` — {sub_domain} 完整开发指南
-- `standard-overview.md` — 端级概览(含 §9 未激活维度地图)
+- `overview.md` — 端级概览(Phase 2 含 §9 未激活维度地图)
 
 ## 关键约束摘要(FORBIDDEN 和强制规则,仅 activated / shallow 维度)
 {从 standard 的禁止事项 + FORBIDDEN 标注中提取,每条一行}
@@ -580,7 +584,8 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 {文档状态 draft 的警告;pending 维度规则在 owner 确认前禁止由 AI 强制执行;shallow 维度规则需加倍验证}
 
 ## 来源 Batch 信息
-{batch_id, domain, sub_domain, evidence_tier, activation_report_ref}
+Phase 1: {batch_id, domain, sub_domain, evidence_tier, generation_profile}
+Phase 2: {batch_id, domain, sub_domain, evidence_tier, generation_profile, activation_report_source: temp/{run_id}-activation-report.json}
 ```
 
 ---
@@ -594,14 +599,14 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 - [ ] 有至少 1 个反例代码块（基于 NEG-* evidence 泛化）
 - [ ] FORBIDDEN 规则已用 `⛔ FORBIDDEN` 标注，并引用 NEG-* evidence
 - [ ] Evidence 参考表格已填写（无空行）
-- [ ] `status: draft`（自动运行不得直接发布 active）
+- [ ] 规则 `status` 只能是 `draft` / `auto-active` / `pending-confirmation` / `conflict` / `legacy-compatible` / `stale-auto-active` / `owner-rejected` / `rejected`；自动运行不得输出 `owner-confirmed-active` 或 legacy `active`
 - [ ] 规则正文没有具体项目绝对路径
 - [ ] `ai-rules.md` 和 `review-checklist.md` 引用了 standard 章节
 - [ ] Sub-step D 在 B+C 完成后才执行
 - [ ] `rules-index-candidate.json` 中 `status: candidate`（不是 published）
 - [ ] pending_confirmation 的内容写入了 `pending-confirmation.md`
 - [ ] **每个规则节(P0/P1/P2/FORBIDDEN H2/H3)紧跟标题都有 inline 元数据 blockquote 单行**(`> level: ... · status: ... · ...`),**没有任何 \`\`\`yaml ... \`\`\` 整块元数据**(catalog 风格已废弃)
-- [ ] **inline 元数据行字段完整**:必含 `level`、`status`、`source_kind`、`evidence_tier`、`risk_tag`、`owner`、`last_reviewed`、`recommended_action` 共 8 项;`conflicts_with`、`superseded_by` 仅在非空时追加;字段顺序与 `references/prompts/rule-generation.md` 一致
+- [ ] **inline 元数据行字段完整**:必含 `level`、`status`、`source_kind`、`evidence_tier`、`risk_tag`、`owner`、`last_reviewed`、`recommended_action`、`confidence_tier`、`authority_scope`、`upgrade_mode`、`deterministic_occurrence_count`、`last_evidence_confirmed_run` 共 13 项;`conflicts_with`、`superseded_by` 仅在非空时追加;字段顺序与 `references/prompts/rule-generation.md` 一致
 
 **激活态 / Skeleton / 占位符相关**(U8 新增):
 
@@ -617,10 +622,10 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 - [ ] Phase 2 dimension-aware: `pending` 章节不输出强制规则 / FORBIDDEN,只输出占位 + warning + 跳转指针
 - [ ] Phase 2 dimension-aware: `shallow` 章节首行 warning 行已写入,`recommended_action` 含 `keep-draft-low-coverage`
 - [ ] Phase 2 dimension-aware: `candidate` 维度未出现在端规范文档章节中(只在 overview §9)
-- [ ] Phase 2 dimension-aware: `standard-overview.md` 的 §9「未激活维度地图」存在,即使 candidate=0 也保留章节标题(AE7)
+- [ ] Phase 2 dimension-aware: `overview.md` 的 §9「未激活维度地图」存在,即使 candidate=0 也保留章节标题(AE7)
 - [ ] ai-rules.md 不收录 `pending` / `candidate` 维度的规则
 - [ ] review-checklist.md 不收录 `pending` / `candidate` 维度的检查项
-- [ ] Phase 2 dimension-aware: `rules-index-candidate.json.sections[].activation_state` 字段每条都有值
+- [ ] `rules-index-candidate.json.rules[]` 每条都有 `title`、`domain`、`sub_domain`、`level`、`status`、`source_doc`、`section_title`、`evidence_doc`、`authority_scope`、`upgrade_mode`、`tags`;Phase 1 不含 activation 字段,Phase 2 可额外含 `dimension_id` / `dimension_state`
 - [ ] Phase 2 dimension-aware: `ai-context-pack.md` 摘要包含三态分布统计(baseline / activated / pending / shallow / candidate 数量)
 
 任一检查未通过:**不向 review 阶段移交**,回到 Sub-step B 修正。
@@ -631,7 +636,7 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 | --- | --- |
 | code_facts 为空或全部 pending | 不生成 standard；仅输出 pending-confirmation |
 | evidence 不足以写完整章节 | 用已有 evidence 写能覆盖的节；其余节用 pending-confirmation 占位 |
-| 发现规则与已有 active 冲突 | 写入 `conflicts.md`，不写入 standard |
+| 发现规则与已有 `auto-active` / `owner-confirmed-active` / legacy `active` 冲突 | 写入 `conflicts.md`，不写入 standard |
 | B0 推导阶段无法理解架构 | 回到 profile 阶段补充画像，不凭空编写 |
 | `GENERATION_INPUT_PROFILE_MISSING` | 停止管线;要求提供 `selected_batch_summary` 或合法 activation-report |
 | `SELECTED_BATCH_CONTEXT_INVALID` | 停止管线;回到 batch-plan 选择单个有效 batch |
@@ -650,7 +655,7 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 1. 先在 B0 阶段理解 sub_domain 架构，再动笔写文档。
 2. `standard-{sub_domain}.md` 是开发者工作手册，不是规则注册表——每节要有实质内容。
 3. 代码示例（正例+反例）必须内联在主文档，基于真实 evidence，路径脱敏。
-4. 自动运行输出 `draft`，不得直接发布 `active`；`active` 只能由领域负责人确认后手动升级。
+4. 自动运行默认输出 `draft`；只有通过 BR-016/BR-017 高置信自动升级闸时可输出 `auto-active`，`owner-confirmed-active` 只能由领域负责人手动确认。
 5. ai-rules 和 review-checklist 是 standard 的派生，不得新创内容。
 6. 候选索引产物标记 `candidate`，不得默认发布。
 7. **Sub-step A0 必须先于 A 执行**:输入剖面不合法时整个管线停止。
@@ -666,7 +671,7 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 2. 不得在 Sub-step A 未完成时开始写 standard。
 3. 不得把无 evidence 的内容写成强制规则或 FORBIDDEN 标注。
 4. 不得在 ai-rules.md 里强制执行 pending/conflict/legacy-compatible 规则。
-5. 不得在任何自动运行路径输出 `status: active`。
+5. 不得在任何自动运行路径输出 legacy `active` 或 `owner-confirmed-active`；只有过 BR-016/BR-017 闸的规则可输出 `auto-active`。
 6. 不得默认发布候选索引产物。
 7. 不得凭空编写架构图——从 code_facts 推断，不确定的打「?」标注。
 8. 不得在规则节同时写"AI 生成代码要求"小节和文档末尾另一份 AI 规则汇总段重复内容；汇总段只摘要、不重写。

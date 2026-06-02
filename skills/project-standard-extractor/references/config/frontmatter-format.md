@@ -2,7 +2,7 @@
 
 所有由 `project-standard-extractor` 输出的 Markdown 产物，文件顶部必须包含 YAML Front Matter。该头部用于 AI 快速索引、规则过滤和最小上下文加载。
 
-> 与 `docs/02-技术方案/AI快速索引最终方案.md` 对齐：Front Matter 只解决**文档级**识别和过滤；**规则级**过滤由 `rules-index.json` 负责。规则本身不使用 Rule ID，也不需要 HTML anchor，规则统一由 `source_doc + section_title` 二元组定位。
+> 与 `docs/02-技术方案/AI快速索引最终方案.md` 对齐：Front Matter 只解决**文档级**识别和过滤；**规则级**过滤由 `rules-index.json` 负责。机器可校验枚举以 `references/config/output-artifact-contract.json` 为准，本文件提供人读语义。规则本身不使用 Rule ID，也不需要 HTML anchor，规则统一由 `source_doc + section_title` 二元组定位。
 
 ## 1. 最小格式
 
@@ -79,12 +79,37 @@ rule-state-decision
 
 | 取值 | 含义 |
 | --- | --- |
-| `draft` | 规则进入草案，AI 仅在 `source_kind` 与 `evidence_tier` 满足条件时执行 |
-| `active` | 已升级为团队强制规则 |
+| `auto-active` | 通过 BR-016/BR-017 高置信自动升级闸，进入 AI 默认执行路径；来源限本仓 evidence |
+| `owner-confirmed-active` | 负责人手动确认，进入 AI 默认执行路径 |
+| `draft` | 规则进入草案，可作为阅读/输入参考，不进入 AI 默认强制执行 |
 | `pending-confirmation` | 等待负责人确认；AI 不得执行 |
+| `stale-auto-active` | 曾为 auto-active，但最新复检不再满足闸；已移出 AI 默认执行路径 |
+| `owner-rejected` | 负责人否决过的 auto-active；AI 不得执行，下次运行不得自动恢复 |
 | `conflict` | 与其它规则或事实冲突；AI 不得执行 |
 | `legacy-compatible` | 历史兼容写法；AI 不得复制扩散 |
 | `rejected` | 已驳回；AI 不得执行 |
+
+legacy `active` 仅表示历史文档中的人工确认状态，读取时应规范化为 `owner-confirmed-active`；新生成规则不得再写旧 active 状态。
+
+#### 4.2.1 规则级必填字段
+
+规则标题后第一行 inline 元数据必须包含以下字段；字段全集也写入 `output-artifact-contract.json.rule_required_fields`，两处不得漂移：
+
+| 字段 | 含义 |
+| --- | --- |
+| `level` | P0 / P1 / P2 / FORBIDDEN |
+| `status` | §4.2 规则级状态 |
+| `source_kind` | §4.4 来源类型 |
+| `evidence_tier` | §4.5 evidence 层级 |
+| `risk_tag` | §4.6 风险标记 |
+| `owner` | 当前负责人，未知填 TBD |
+| `last_reviewed` | 最近评审日期 |
+| `recommended_action` | §4.7 建议动作 |
+| `confidence_tier` | high / normal / low；pending-confirmation batch 默认为 low |
+| `authority_scope` | `this-repo` / `cross-project` / `none`；`auto-active` 必填 `this-repo` |
+| `upgrade_mode` | `auto-active` / `owner-confirmed` / `none` |
+| `deterministic_occurrence_count` | auto-active 闸使用的确定性 occurrence 计数；不得由 LLM 自填猜测 |
+| `last_evidence_confirmed_run` | 最近一次 evidence 仍满足当前状态的 run_id |
 
 ### 4.3 `level`
 
@@ -133,10 +158,12 @@ none
 | --- | --- |
 | `keep-draft` | 维持 draft，等待更多 evidence |
 | `keep-draft-low-coverage` | 维持 draft，但标记低覆盖率，等待补充 evidence |
-| `promote-to-active` | 建议升级为 active |
+| `auto-activate` | 通过高置信闸，自动标记为 auto-active |
 | `move-to-pending` | 移入待确认 |
 | `mark-conflict` | 标记为冲突 |
 | `mark-legacy` | 标记为历史兼容 |
+| `mark-stale-auto-active` | 标记 auto-active 复检失效并移出默认执行路径 |
+| `mark-owner-rejected` | 标记 owner 否决并移出默认执行路径 |
 | `reject` | 驳回 |
 | `defer` | 延期处理 |
 

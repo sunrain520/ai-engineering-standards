@@ -11,9 +11,10 @@
 
 ## 必须区分
 
-- `status: active`(P0 / FORBIDDEN):默认必须执行。
-- evidence-backed `status: draft`(`source_kind ∈ {extracted, owner-confirmed}`,`evidence_tier ≠ none`):可临时执行,必须在 AI 输出中提示「未转 active」。
-- `status: pending-confirmation` / `conflict` / `legacy-compatible` / `rejected`:**不得执行**,只能提示。
+- `status: auto-active` / `status: owner-confirmed-active`:默认必须执行。
+- `status: draft`:只能作为参考上下文,不得进入默认强制执行段。
+- `status: pending-confirmation` / `stale-auto-active` / `owner-rejected` / `conflict` / `legacy-compatible` / `rejected`:**不得执行**,只能提示。
+- `auto-active` 必须带 `authority_scope: this-repo`、`upgrade_mode: auto-active` 和 lineage 闸判据快照。
 
 ## 每条 AI 规则必须包含
 

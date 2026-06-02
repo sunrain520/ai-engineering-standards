@@ -54,5 +54,6 @@ selected_batch:
 期望：
 
 - 停止生成。
-- 要求一次选择一个 ready batch。
+- interactive / diagnostic 模式要求一次选择一个 ready 或 pending-confirmation batch。
+- full-auto 模式只能由外层 `ordered_batch_queue` 串行遍历，不得把多个 batch 一次性交给 worker。
 - 跨 batch 共性只能由独立 common batch 或后续人工合并处理。

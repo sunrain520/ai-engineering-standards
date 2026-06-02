@@ -57,8 +57,10 @@ tags:
 
 ## 4. 规则状态合规
 
-- [ ] 是否只按 `status: active` 或 evidence-backed `status: draft` 检查？
+- [ ] 是否只把 `status: auto-active` / `status: owner-confirmed-active` 当作默认强制规则检查？
+- [ ] 是否把 `status: draft` 仅作为参考上下文，而非默认强制规则？
 - [ ] 是否没有把 `pending-confirmation` 当作强制规则执行？
+- [ ] 是否没有把 `stale-auto-active` / `owner-rejected` 当作强制规则执行？
 - [ ] 是否没有扩散 `legacy-compatible` 历史写法到新代码？
 - [ ] 是否没有引用 `conflict` / `rejected` 规则？
 

@@ -1,0 +1,22 @@
+{
+  "index_format": "engineering-standards-rules-index-v1",
+  "generated_from": "20260602-valid-phase1",
+  "candidate": true,
+  "rules": [
+    {
+      "title": "Service layer owns business rules",
+      "domain": "backend",
+      "sub_domain": "api",
+      "level": "P1",
+      "status": "auto-active",
+      "source_doc": "standard-api.md",
+      "section_title": "P1 Service layer owns business rules",
+      "evidence_doc": "evidence/code-facts.md",
+      "authority_scope": "this-repo",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 2,
+      "last_evidence_confirmed_run": "20260602-valid-phase1",
+      "tags": ["backend", "api"]
+    }
+  ]
+}

@@ -2,9 +2,9 @@
 
 ## 角色目标
 
-用最少交互收集可执行输入，确认萃取范围、`extraction_mode`、输出目标、敏感文件策略和用户确认声明。广范围输入必须先转成 `profile-first`，不直接进入规则生成。
+用最少交互收集可执行输入，确认萃取范围、`extraction_mode`、输出目标、敏感文件策略和用户确认声明。广范围输入默认进入 `full-auto`，但 full-auto 内部必须先跑 `profile-first` 并由外层 orchestrator 逐个执行单 batch。
 
-> 上游：用户输入 / 调用方参数。下游：Project Profile 阶段（如果 broad）或 Batch 选择阶段（如果 focused）。
+> 上游：用户输入 / 调用方参数。下游：full-auto profile + ordered queue（如果 broad）或单 batch/focused worker（如果 diagnostic/focused）。
 
 ## 输入
 
@@ -29,7 +29,7 @@ scope_summary:
   run_id: "{YYYYMMDD-HHMMSS-{primary_domain}}"
   run_mode: auto                          # auto | interactive
   project_paths: []                       # 必填，去重后的绝对路径
-  extraction_mode: profile-first          # profile-first | batch-extraction | focused-module | diff | review-only | merge-only | full
+	  extraction_mode: full-auto              # full-auto | profile-first | batch-extraction | focused-module | diff | review-only | merge-only | full(Phase 2 repair-only)
   output_action: append                   # append（默认）| force-rebuild | restore | pin | unpin | list（与 extraction_mode 正交）
   maintainer_context: false               # 内部调用上下文标记；公开 skill 路径不得置 true
   domain: ""                              # output_action ≠ append 时必填,例:01-app-client(强制边界 #9)
@@ -72,7 +72,7 @@ scope_summary:
 4. 用户文字明示 "完整项目 / 全仓 / 多服务 / 整个 repo / 整个项目"。
 5. 用户未指定研发域、子领域或业务模块。
 
-`broad_input = true` 时，强制 `extraction_mode = profile-first`，并写入 `inferred_decisions`，理由为命中的判定条件。
+`broad_input = true` 时，公开稳定路径强制 `extraction_mode = full-auto`，并写入 `inferred_decisions`，理由为命中的判定条件。full-auto 的第一步仍是 profile-first；不得绕过画像直接生成规则。
 
 ### Step 3 — 研发域推断
 
@@ -88,18 +88,20 @@ scope_summary:
 
 多个信号同时命中：分别记录候选 domain 与置信度，让用户选择，不静默择一。
 
+**auto 模式降级策略（run_mode: auto）**：多信号命中时按置信度最高的候选 domain 直接采用，其余候选写入 `inferred_decisions.domain_candidates[]`，并在 review-summary 末尾标注 `DOMAIN_AMBIGUITY_AUTO_RESOLVED: <候选列表>`。interactive 模式仍保持原有询问行为。
+
 ### Step 4 — `extraction_mode` 决策
 
 按优先级套用：
 
 1. 用户明示模式 → 采用，但仍执行 Step 2 的广范围判定；冲突进入 `scope_conflicts`，等待用户确认。
-2. 用户明示 `--mode=diff` 或 `extraction_mode: diff` 或显式提供 `diff_baseline.ref` → `diff`，移交 `diff-scoper` 解析受影响维度集合。`diff-scoper` 返回 `fallback_to_full_scan=true` 时降级为 `profile-first`，并把 `limitations` 透传到 `inferred_decisions`。
-3. `broad_input = true` → `profile-first`。
+2. 用户明示 `--mode=diff` 或 `extraction_mode: diff` 或显式提供 `diff_baseline.ref` → `diff`，移交 `diff-scoper` 解析受影响 batch / sub_domain。`diff-scoper` 返回 `fallback_to_full_scan=true` 时降级为 `full-auto`，并把 `limitations` 透传到 `inferred_decisions`。
+3. `broad_input = true` → `full-auto`。
 4. 用户提供 `selected_batch.batch_id` → `batch-extraction`，校验该 batch 是否存在于上一次 `batch-plan`，否则进入 `BATCH_NOT_SELECTED`。
 5. 用户给出模块级窄范围（单个模块路径或 ≤ 5 个文件路径）→ `focused-module`。
 6. 用户传入"已存在产物想评审" → `review-only`。
 7. 用户传入"已确认候选想合并" → `merge-only`。
-8. 否则保守降级到 `profile-first`。
+8. 否则保守降级到 `full-auto`。
 
 `diff` 模式专属约束：
 
@@ -201,9 +203,9 @@ rules:
 - [ ] `extraction_mode` 与 `broad_input` 一致；冲突已记入 `scope_conflicts`
 - [ ] 敏感文件命中清单已写入 `excluded_paths`
 - [ ] `run_id` 已生成且符合 `references/config/output-targets.md §3` 命名
-- [ ] `selected_batch` 字段在 `batch-extraction` 模式下非空
+- [ ] `selected_batch` 字段在 `batch-extraction` 模式下非空；`full-auto` 模式下可为空
 - [ ] `scope_summary` 通过 YAML 校验
-- [ ] 用户已对所有推断项给出 `confirmation = true`，否则保留 `open_questions` 并停止
+- [ ] interactive 模式下用户已对所有推断项给出 `confirmation = true`；auto/full-auto 模式下 low 置信 open_questions 已转入 review-summary，不阻断执行
 - [ ] **maintainer context gate**:`output_action ≠ append` 时 `maintainer_context = true`，且来源为 repair-only / force-rebuild orchestrator
 - [ ] **R91 / R92 互斥校验**:`output_action ≠ append` 与 `extraction_mode = diff` / 多 projects 互斥已校验
 - [ ] **强制边界 #9**:`output_action ∈ {force-rebuild, restore, pin, unpin, list}` 已校验 `domain` 非空
@@ -218,10 +220,10 @@ rules:
 | --- | --- | --- |
 | 路径全部不可读或为空 | `NO_VALID_PROJECT_PATHS` | 停止，要求重新提供 |
 | 命中敏感文件且必须读取才能继续 | `SENSITIVE_FILE_BLOCKED` | 停止，仅记录存在事实 |
-| broad_input 但用户要求直接出规则 | `BROAD_INPUT_REQUIRES_PROFILE` | 强制降级为 `profile-first` |
+| broad_input 但用户要求跳过 profile 直接出规则 | `BROAD_INPUT_REQUIRES_PROFILE` | 强制走 `full-auto` 的内部 profile-first，不允许 whole-repo generation |
 | `batch-extraction` 但 `selected_batch` 为空 | `BATCH_NOT_SELECTED` | 停止，要求选 batch 或回到 profile-first |
 | `diff` 模式但 baseline 不可解析 | `BASELINE_UNRESOLVABLE` | 停止，要求用户改 mode 或提供有效 ref |
-| `diff` 模式但工作树非 git / shallow 不足 / 维度映射覆盖率 < 20% / changed_files > 2000 | `DIFF_FALLBACK_TO_FULL_SCAN` | 不停止，diff-scoper 自动降级 `profile-first` 并写 `limitations` |
+| `diff` 模式但工作树非 git / shallow 不足 / 映射覆盖率 < 20% / changed_files > 2000 | `DIFF_FALLBACK_TO_FULL_SCAN` | 不停止，diff-scoper 自动降级 `full-auto` 并写 `limitations` |
 | 父级多仓 workspace 用 `diff` 模式且未指定 `target_repo` | `DIFF_REQUIRES_TARGET_REPO` | 停止，要求显式 scope 到子仓 |
 | `output_action ≠ append` 但缺少 maintainer / repair-only 调用上下文 | `MAINTAINER_CONTEXT_REQUIRED` | 停止，提示改用 maintainer 工具或显式 repair-only workflow |
 | `output_action ≠ append` && `extraction_mode = diff` / 多 projects | `INCOMPATIBLE_OUTPUT_ACTION` | 停止,提示互斥规则 R91 / R92 |
@@ -234,7 +236,7 @@ rules:
 
 1. 先推断 → 写入 `inferred_decisions`（含置信度和推断依据）；interactive 模式让用户逐项确认，auto 模式将 low 置信度推断额外写入 `open_questions` 供 review-summary 事后审查；两种模式都不静默择一，推断依据必须留痕。
 2. 敏感文件只允许记录脱敏存在事实。
-3. broad scope 强制 `profile-first`。
+3. broad scope 强制 `full-auto`，且 full-auto 内部必须先 profile-first。
 4. 推断与用户输入冲突写入 `scope_conflicts`，interactive 模式由用户裁定，auto 模式记入 review-summary 事后裁定。
 5. `run_id` 在本阶段一次性生成，贯穿后续所有 artifact 命名。
 

@@ -19,7 +19,7 @@ activated_end_standards:
   rules:
     - id: EA-Client-01
       rule: "KMP shared 层禁止引入 Android/iOS 平台 SDK"
-      status: active
+      status: owner-confirmed-active
     - id: EA-Client-05
       rule: "ViewModel 只能通过 UseCase 访问业务逻辑"
       status: draft

@@ -1,0 +1,253 @@
+{
+  "schema": "project-standard-extractor-output-artifact-contract.v1",
+  "index_formats": {
+    "markdown": "engineering-standards-md-v1",
+    "rules_index": "engineering-standards-rules-index-v1"
+  },
+  "markdown_doc_types": [
+    "overview",
+    "standard",
+    "ai-rules",
+    "review-checklist",
+    "evidence-code-facts",
+    "evidence-positive",
+    "evidence-forbidden",
+    "evidence-legacy",
+    "pending-confirmation",
+    "merge-suggestions",
+    "conflicts",
+    "project-profile",
+    "extraction-map",
+    "batch-plan",
+    "ai-context-pack",
+    "review-report",
+    "rule-state-decision"
+  ],
+  "document_statuses": [
+    "draft",
+    "active",
+    "pending",
+    "archived"
+  ],
+  "rule_statuses": [
+    "auto-active",
+    "owner-confirmed-active",
+    "draft",
+    "pending-confirmation",
+    "stale-auto-active",
+    "owner-rejected",
+    "conflict",
+    "legacy-compatible",
+    "rejected"
+  ],
+  "rule_required_fields": [
+    "level",
+    "status",
+    "source_kind",
+    "evidence_tier",
+    "risk_tag",
+    "owner",
+    "last_reviewed",
+    "recommended_action",
+    "confidence_tier",
+    "authority_scope",
+    "upgrade_mode",
+    "deterministic_occurrence_count",
+    "last_evidence_confirmed_run"
+  ],
+  "executable_rule_statuses": [
+    "auto-active",
+    "owner-confirmed-active"
+  ],
+  "non_executable_rule_statuses": [
+    "draft",
+    "pending-confirmation",
+    "stale-auto-active",
+    "owner-rejected",
+    "conflict",
+    "legacy-compatible",
+    "rejected"
+  ],
+  "recommended_actions": [
+    "keep-draft",
+    "keep-draft-low-coverage",
+    "auto-activate",
+    "move-to-pending",
+    "mark-conflict",
+    "mark-legacy",
+    "mark-stale-auto-active",
+    "mark-owner-rejected",
+    "reject",
+    "defer"
+  ],
+  "owner_queue_actions": [
+    "review-auto-active",
+    "confirm-or-reject",
+    "resolve-conflict",
+    "review-stale-auto-active",
+    "no-action-terminal",
+    "security-review"
+  ],
+  "owner_queue_action_by_status": {
+    "auto-active": [
+      "review-auto-active",
+      "security-review"
+    ],
+    "pending-confirmation": [
+      "confirm-or-reject",
+      "security-review"
+    ],
+    "conflict": [
+      "resolve-conflict"
+    ],
+    "stale-auto-active": [
+      "review-stale-auto-active"
+    ],
+    "owner-rejected": [
+      "no-action-terminal"
+    ]
+  },
+  "rules_index_candidate_required_fields": [
+    "title",
+    "domain",
+    "sub_domain",
+    "level",
+    "status",
+    "source_doc",
+    "section_title",
+    "evidence_doc",
+    "authority_scope",
+    "upgrade_mode",
+    "deterministic_occurrence_count",
+    "last_evidence_confirmed_run",
+    "tags"
+  ],
+  "required_artifacts": [
+    {
+      "path": "overview.md",
+      "artifact_type": "markdown",
+      "doc_type": "overview",
+      "indexable": true,
+      "publish_state": "formal"
+    },
+    {
+      "path": "standard-{sub_domain}.md",
+      "artifact_type": "markdown",
+      "doc_type": "standard",
+      "indexable": true,
+      "publish_state": "formal"
+    },
+    {
+      "path": "ai-rules.md",
+      "artifact_type": "markdown",
+      "doc_type": "ai-rules",
+      "indexable": true,
+      "publish_state": "formal"
+    },
+    {
+      "path": "review-checklist.md",
+      "artifact_type": "markdown",
+      "doc_type": "review-checklist",
+      "indexable": true,
+      "publish_state": "formal"
+    },
+    {
+      "path": "pending-confirmation.md",
+      "artifact_type": "markdown",
+      "doc_type": "pending-confirmation",
+      "indexable": true,
+      "publish_state": "formal-non-executable"
+    },
+    {
+      "path": "merge-suggestions.md",
+      "artifact_type": "markdown",
+      "doc_type": "merge-suggestions",
+      "indexable": true,
+      "publish_state": "formal-non-executable"
+    },
+    {
+      "path": "conflicts.md",
+      "artifact_type": "markdown",
+      "doc_type": "conflicts",
+      "indexable": true,
+      "publish_state": "formal-non-executable"
+    },
+    {
+      "path": "lineage-ledger.json",
+      "artifact_type": "json",
+      "publish_state": "audit",
+      "required_fields": [
+        "evidence_id",
+        "source_doc",
+        "section_title",
+        "derived_view_type",
+        "gate_result",
+        "upgrade_mode",
+        "deterministic_occurrence_count",
+        "authority_scope",
+        "last_evidence_confirmed_run"
+      ]
+    },
+    {
+      "path": "owner-decision-queue.json",
+      "artifact_type": "json",
+      "publish_state": "owner-handoff",
+      "required_fields": [
+        "locator",
+        "current_status",
+        "owner_queue_action",
+        "evidence_ids",
+        "risk_tags",
+        "blocking_reason",
+        "requires_security_review"
+      ]
+    },
+    {
+      "path": "temp/{run_id}-rules-index-candidate.json",
+      "artifact_type": "json",
+      "publish_state": "candidate",
+      "must_not_overwrite": [
+        ".index/rules-index.json"
+      ]
+    },
+    {
+      "path": "temp/{run_id}-llms-candidate.txt",
+      "artifact_type": "text",
+      "publish_state": "candidate",
+      "must_not_overwrite": [
+        "llms.txt"
+      ]
+    },
+    {
+      "path": "temp/{run_id}-ai-context-pack.md",
+      "artifact_type": "markdown",
+      "doc_type": "ai-context-pack",
+      "indexable": false,
+      "publish_state": "candidate"
+    }
+  ],
+  "locator_contract": {
+    "rule_locator": [
+      "source_doc",
+      "section_title"
+    ],
+    "section_title_regex": "^(P0|P1|P2|FORBIDDEN) .+",
+    "forbidden_fields": [
+      "rule_id",
+      "anchor"
+    ]
+  },
+  "phase1_invariants": {
+    "activation_report_required": false,
+    "activation_report_must_not_exist": true,
+    "routing_field": "target_state",
+    "required_artifacts": [
+      "lineage-ledger.json",
+      "owner-decision-queue.json"
+    ]
+  },
+  "phase2_invariants": {
+    "activation_report_required": true,
+    "routing_field": "dimension_state"
+  }
+}

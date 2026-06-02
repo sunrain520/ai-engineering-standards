@@ -50,7 +50,7 @@ tags:
 
 ### P1 Facade 方法首行必须记录关键入参日志
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 
@@ -109,7 +109,7 @@ public ModelResult<Long> apply(StockDepositApplyDto applyDto, ...) {
 
 ### P1 写操作 Facade 必须加 @Transactional 并在外部调用失败时显式回滚
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 
@@ -182,7 +182,7 @@ public ModelResult<Long> apply(...) {
 
 ### P1 MQ 发送必须注册 afterCommit 回调，不得在事务内同步发送
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 
@@ -247,7 +247,7 @@ public ModelResult<Long> apply(...) {
 
 ### P1 Service 接口按读写分离命名，WriteService 方法加 @Transactional
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 
@@ -325,7 +325,7 @@ public interface MemberStockDepositService {
 
 ### P1 DO 不出 server 模块边界，Domain 不含 DB 注解
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 
@@ -411,7 +411,7 @@ public class MemberStockDeposit {
 
 ### P1 @DubboReference 必须加 check=false，调用结果必须判空
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 
@@ -477,7 +477,7 @@ TaskTransferInfo task = taskResult.getData();  // NPE 风险
 
 ### P1 统一用 result.withError(code, msg) 返回错误，不抛受检异常
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 
@@ -639,7 +639,7 @@ AI 生成 Java Spring 后端代码时必须遵守：
 
 ### P1 Controller 只做参数绑定和 Facade 调用，不写业务逻辑
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 
@@ -738,7 +738,7 @@ public class DepositTaskController {
 
 ### P2 Mapper 复杂查询用 @Select 注解或 XML，不在 Service 内拼 SQL
 
-> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 
@@ -811,7 +811,7 @@ List<MemberStockDepositDO> selectByCondition(
 
 ### P1 @DubboReference 指定 group 时必须与服务端 @DubboService(group=...) 一致
 
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft
+> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: 2026-05-23 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
 
 ### 说明
 

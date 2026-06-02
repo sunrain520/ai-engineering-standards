@@ -1,0 +1,18 @@
+{
+  "schema": "activation-report.v1",
+  "run_id": "20260602-valid-phase2",
+  "summary": {
+    "baseline_count": 0,
+    "activated_count": 1,
+    "pending_confirmation_count": 0,
+    "shallow_count": 0,
+    "candidate_count": 0
+  },
+  "dimensions": [
+    {
+      "dimension_id": "EA-BACKEND-API",
+      "state": "activated",
+      "depth_score": 1.0
+    }
+  ]
+}

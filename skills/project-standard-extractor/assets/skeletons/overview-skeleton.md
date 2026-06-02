@@ -80,12 +80,12 @@ tags:
 
 AI 与人工生成 {{end_type}} 代码时默认必须执行:
 
-- 规则 `status: active` 的 `level: P0` / `FORBIDDEN`
-- 或 `status: draft`,且 `source_kind ∈ {extracted, owner-confirmed}`、`evidence_tier ≠ none`
+- 规则 `status: auto-active`
+- 规则 `status: owner-confirmed-active`
 
 不得执行:
 
-- `status: pending-confirmation` / `conflict` / `legacy-compatible` / `rejected`
+- `status: draft` / `pending-confirmation` / `stale-auto-active` / `owner-rejected` / `conflict` / `legacy-compatible` / `rejected`
 - `source_kind: template-placeholder` 或 `evidence_tier: none`
 
 ## 8. 规则等级定义

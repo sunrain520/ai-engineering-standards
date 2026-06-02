@@ -1,0 +1,29 @@
+{
+  "schema": "project-standard-extractor-owner-decision-queue.v1",
+  "run_id": "{run_id}",
+  "domain": "{domain}",
+  "generated_at": "{ISO8601}",
+  "items": [
+    {
+      "locator": "standard-{sub_domain}.md「P0 {规则标题}」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": ["EV-{DOMAIN}-{NUMBER}"],
+      "risk_tags": ["medium"],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    }
+  ]
+}

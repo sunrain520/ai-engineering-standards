@@ -102,7 +102,7 @@ AI 处理 APP 需求时，必须先判断逻辑是否可跨端复用；可复用
 - `status: draft`
 - `source_kind: owner-confirmed`
 - `evidence_tier: cross-project`
-- 需要 APP 负责人补真实代码 evidence 后,由负责人手工改 `status: active`
+- 需要 APP 负责人补真实代码 evidence 后,由负责人手工改为 `status: owner-confirmed-active`
 
 ## 6. Review Checklist Entry
 

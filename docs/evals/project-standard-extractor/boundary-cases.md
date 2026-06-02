@@ -52,8 +52,9 @@ dev_domain: Backend
 
 期望：
 
-- 单项目事实可进入 `draft` 或 `pending-confirmation`，但不得自动升级为 P0 / FORBIDDEN。
-- 必须标注推导边界和负责人确认项。
+- 单项目事实默认进入 `draft` 或 `pending-confirmation`。
+- 只有满足 BR-016/BR-017（确定性 occurrence≥2、confidence high、多文件/多角色覆盖、结构完整、未命中黑名单、非高风险域）时才能标 `auto-active`。
+- 所有 auto-active 必须标注 `authority_scope: this-repo` 和 owner 事后裁定队列。
 
 ## BC-005 完整仓库请求直接出规则
 
@@ -67,8 +68,9 @@ dev_domain: unknown
 期望：
 
 - 强制进入 `profile-first`。
-- 只输出 `project-profile`、`extraction-map`、`batch-plan` 和代表性文件候选。
-- 不生成 `standard.md`、`ai-rules.md` 或正式 rules-index。
+- `profile-first` 输出 `project-profile`、`extraction-map`、`batch-plan`、`ordered_batch_queue`、`coverage_report` 和代表性文件候选。
+- full-auto 外层按 queue 逐 batch 执行；不得把完整仓库一次性交给 generation。
+- 不发布正式 rules-index；只输出 candidate index 和 artifact validator 结果。
 
 ## BC-006 同时选择多个 batch
 

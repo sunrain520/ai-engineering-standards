@@ -2,9 +2,9 @@
 
 ## 角色目标
 
-从 profile / batch-plan / doc-source-scanner 的输入中产出可验证 `signal_hits[]`、`doc_facts[]` 与事实候选，供 `dimension-activator` 统一计算激活态。此阶段不消费 activation-report，也不决定维度状态。
+从 profile / batch-plan / doc-source-scanner 的输入中产出可验证 `signal_hits[]`、`doc_facts[]` 与事实候选。Phase 1 full-auto 中，本阶段服务单个 selected batch worker；Phase 2 repair-only 中，signal/fact evidence 可继续交给 `dimension-activator`。此阶段不消费 activation-report，也不决定维度状态。
 
-> 上游：`profile-and-batch-planner` + `doc-source-scanner`。下游：`dimension-activator`（消费 signal_hits / doc_facts），随后由 `generation` 消费 activation-report 和本阶段已锁定的事实候选。
+> 上游：`profile-and-batch-planner` + `doc-source-scanner`。下游：Phase 1 `generation(phase1-selected-batch)` 直接消费本阶段已锁定的事实候选；Phase 2 repair-only 才由 `dimension-activator` 消费 signal_hits / doc_facts。
 
 ## 输入
 
@@ -13,8 +13,10 @@ inputs:
   scope_summary:
   profile_doc:
   extraction_map:
-  batch_plan:
-  selected_batch_id:
+	  batch_plan:
+	  selected_batch_id:
+	  selected_batch_status: "ready | pending-confirmation"
+	  confidence_tier: "normal | low"
   doc_inventory: "evidence/knowledge/doc-inventory.json" # 可选，来自 doc-source-scanner
   existing_standards:
   domain_taxonomy:
@@ -80,7 +82,7 @@ signal_scan:
 ### Step 1 — 选定 batch 验证
 
 1. 在 `batch_plan` 中定位 `selected_batch_id`；若不存在，抛出 `BATCH_NOT_SELECTED`。
-2. 确认 batch `status == ready`；若为 `pending-confirmation / skipped / blocked`，停止并说明原因。
+2. 确认 batch `status` 为 `ready` 或 `pending-confirmation`；若为 `skipped / blocked`，停止并说明原因。`pending-confirmation` 仅允许在 full-auto low-confidence worker 或明确诊断重跑中执行，输出必须标 `confidence_tier: low`。
 3. 读取 batch 的 `candidate_files`、`excluded_paths`、`evidence_limit`、`rule_limit`、`stop_conditions`。
 
 ### Step 2 — 维度候选域锁定
@@ -122,8 +124,9 @@ classification_candidates:
   recommended: []
   forbidden: []
   legacy_compatible: []
-  pending_confirmation: []
-  conflict: []
+	  pending_confirmation: []
+	  conflict: []
+	  rejected: []
 ```
 
 维度状态由下游 `dimension-activator` 消费 `signal_hits[]` 后统一裁决；本阶段不得写 `dimension_state`。
@@ -142,7 +145,9 @@ classification_candidates:
 
 | 命中条件 | 处理 |
 | --- | --- |
-| `selected_batch_id` 不存在或状态非 ready | `BATCH_NOT_SELECTED`；停止，要求选择有效 batch |
+| `selected_batch_id` 不存在 | `BATCH_NOT_SELECTED`；停止，要求选择有效 batch |
+| batch 状态为 `skipped` / `blocked` | `BATCH_NOT_EXECUTABLE`；停止，进入 coverage report |
+| batch 状态为 `pending-confirmation` 且不是 full-auto low-confidence worker 或明确诊断重跑 | `BATCH_NOT_SELECTED`；停止，要求确认执行意图 |
 | 候选维度为空 | `NO_CANDIDATE_DIMENSIONS_FOR_BATCH`；回 planner 修复 batch-plan |
 | signal library 超时 | 记录 `SIGNAL_LIBRARY_TIMEOUT`，保留已完成 signal，交由 activator 判断 limitations |
 | GitNexus readiness 不可用 | 降级 fallback source，写 limitations，不阻塞 |

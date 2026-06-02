@@ -4,7 +4,7 @@
 
 Phase 2 Dimension Framework 当前为 `blocked / repair-in-progress`。本文件描述目标数据流和修复中的机器契约；在 N-01/N-02/N-03、force-rebuild safety 和最终 eval 全部通过前，不得把 Phase 2 default append/full、cross-project、EA-Doc、证券 PoC 或 force-rebuild 系列作为可用 runtime 发布。
 
-稳定路径仍是 Phase 1：`profile-first` 生成 project profile / extraction map / batch plan，用户确认 batch 后再执行受控 `batch-extraction`。
+稳定路径仍是 Phase 1，但默认体验已升级为 full-auto：`profile-first` 生成 project profile / extraction map / batch plan / ordered queue 后，由外层 orchestrator 按 queue 串行执行单 batch worker。人工选择单 batch 仍保留为诊断/重跑路径，不再是 broad input 的默认停点。
 
 ## Stable Public Workflow
 
@@ -13,14 +13,17 @@ Phase 2 Dimension Framework 当前为 `blocked / repair-in-progress`。本文件
 ```
 intake-and-scope
   -> profile-and-batch-planner
-  -> stop-for-batch-selection
-  -> facts-and-classification(selected batch only)
-  -> generation(generation_profile: phase1-selected-batch)
-  -> review-and-quality-gate
-  -> merge-coordinator(draft-only append)
+  -> ordered_batch_queue
+  -> loop(each ready or pending-confirmation batch)
+       -> facts-and-classification(selected batch only)
+       -> generation(generation_profile: phase1-selected-batch)
+       -> review-and-quality-gate(phase1 content gate only)
+       -> merge-coordinator(target_state append-only)
+  -> artifact-contract validation
+  -> review-summary coverage report
 ```
 
-稳定路径不读取 `dimension-activator`，不要求 `activation-report`，不启动 `extraction_mode=full`，也不接收 `output_action`。Generation 在该路径只消费单个 batch 的 `code_facts` / `classification` / `selected_batch_summary`，所有可执行规则必须追溯到本 batch evidence。
+稳定路径不读取 `dimension-activator`，不要求也不生成 `activation-report`，不启动 Phase 2 `extraction_mode=full`，也不接收 `output_action`。每个 worker call 只消费单个 batch 的 `code_facts` / `classification` / `selected_batch_summary`，所有可执行规则必须追溯到本 batch evidence。若 phase1 run 的 `temp/` 中出现 `activation-report.json`，视为 validator BLOCK，因为 generation 会把该 run 误判为 Phase 2。
 
 ## Maintainer / Repair-Only
 
@@ -37,10 +40,52 @@ tools/maintainer/project-standard-extractor/force-rebuild-validate.sh
 
 | run_mode | 说明 | 适用场景 |
 | --- | --- | --- |
-| `auto` | 自动调度阶段；Phase 2 blocked 期间只用于 fixture / repair validation | 修复验证 |
+| `auto` | Phase 1 full-auto 默认值（自动执行 ordered queue 中 ready / pending-confirmation batch）；Phase 2 blocked 期间额外可用于 fixture / repair validation | Phase 1 full-auto 默认；Phase 2 修复验证 |
 | `interactive` | 关键决策点暂停等待用户确认 | 高风险或 force-rebuild 设计验证 |
 
-## 2. Phase 2 目标数据流
+Phase 1 full-auto 中 `run_mode: auto` 是稳定公开默认值：它自动执行 ordered queue 中的 `ready` 与 `pending-confirmation` batch，但每次调用仍遵守单 batch 上下文边界。`interactive` 可用于逐 batch 诊断或高风险 owner 确认。
+
+## 2. Phase 1 full-auto 数据流
+
+```
+project_paths
+    │
+    ▼
+[Agent 1] intake-and-scope
+    输出: scope_summary, run_id
+    │
+    ▼
+[Agent 2] profile-and-batch-planner
+    输出: project-profile, extraction-map, batch-plan, ordered_batch_queue, coverage_report
+    │
+    ▼
+[Orchestrator] for each queue item where status in {ready, pending-confirmation}
+    │
+    ├─ ready → normal-confidence selected-batch worker
+    └─ pending-confirmation → low-confidence selected-batch worker
+          │
+          ▼
+      facts-and-classification
+          │
+          ▼
+      generation(phase1-selected-batch; no activation-report)
+          │
+          ▼
+      review-and-quality-gate(Gate A + structure/runtime policy; no Gate B)
+          │
+          ▼
+      merge-coordinator(target_state routing; append-only)
+    │
+    ▼
+artifact-contract-validate + public-surface-validate
+    │
+    ▼
+review-summary(coverage, owner queue, usable_now, blind-spots)
+```
+
+skipped/blocked batch 不执行 worker，不生成规则，只进入 coverage report。profile 漏识别风险必须以 blind-spots 形式列出未解析/跳过的顶层路径，不能报告无边界的 100% 覆盖。
+
+## 3. Phase 2 目标数据流（repair-only）
 
 ```
 project_paths / doc_paths
@@ -100,7 +145,21 @@ project_paths / doc_paths
 - EA-Doc 必须在 activator 前产生 sanitized doc facts，并写入 activation-report `dimensions[]`。
 - cross-project aggregator 只消费 `schema == "activation-report.v1"` 的 per-project reports。
 
-## 3. 状态机
+## 4. 状态机
+
+### 4.1 Phase 1 rule lifecycle
+
+| status | AI 默认执行路径 | 来源 | 退出/降级 |
+| --- | --- | --- | --- |
+| `auto-active` | 进入 | 过 BR-016 闸且未命中 BR-017 / 黑名单 | U10 自动复检可降 `stale-auto-active`;owner 可标 `owner-rejected` |
+| `owner-confirmed-active` | 进入 | owner 手动确认 | 退出需 owner |
+| `draft` | 不进入默认执行，可作为输入参考 | 有 evidence 但未过闸 | 可在后续 run 升 auto-active 或 owner-confirmed-active |
+| `pending-confirmation` | 不进入 | low-confidence / 高风险 / 黑名单 / 证据不足 | owner 裁定或补 evidence 后重跑 |
+| `stale-auto-active` | 不进入 | 复检发现不再满足闸 | owner queue 待裁定 |
+| `owner-rejected` | 不进入 | owner 否决 | 终态 |
+| `conflict` / `legacy-compatible` / `rejected` | 不进入 | review/merge 判定 | 见对应队列 |
+
+### 4.2 Phase 2 dimension lifecycle（repair-only）
 
 | state | 生成路径 | AI 默认执行路径 |
 | --- | --- | --- |
@@ -110,7 +169,7 @@ project_paths / doc_paths
 | `shallow` | standard + low-coverage 标记，review 强制 `keep-draft-low-coverage` | 限制进入 |
 | `candidate` | overview §9 未激活地图 | 不进入 |
 
-## 4. Activation Report Contract
+## 5. Activation Report Contract
 
 - 文件：`references/config/dimension-framework/activation-report-schema.json`
 - 主字段：`schema: "activation-report.v1"`
@@ -118,7 +177,7 @@ project_paths / doc_paths
 - 禁止：旧数组别名、`schema_version`、空 `dimensions[]` 继续进入 generation
 - 持久化：merge-coordinator 必须写入 `engineering-standards/<domain>/evidence/dimension-activation-report.json`，失败时 run 标记 failed/incomplete
 
-## 5. GitNexus Readiness
+## 6. GitNexus Readiness
 
 GitNexus 是 advisory evidence。readiness 可用必须同时满足：
 
@@ -130,22 +189,25 @@ GitNexus 是 advisory evidence。readiness 可用必须同时满足：
 
 不满足时降级 fallback，不阻塞流程；fallback evidence 的 `source` 必须写真实来源，不能写 `gitnexus`。
 
-## 6. Force Rebuild Boundary
+## 7. Force Rebuild Boundary
 
 `force-rebuild` / `restore` / `pin` / `unpin` / `list` 当前是 blocked/design-only。发布前必须通过 lock、path traversal、manifest schema、atomic rollback、CHANGELOG helper 和 temp fixture 验证。真实破坏性 IO 不得在 repair validation 之前执行。
 
-## 7. Final Review Summary
+## 8. Final Review Summary
 
 最终 `review-summary.md` 必须包含：
 
 - activation summary（baseline / activated / pending / shallow / candidate）
+- full-auto summary（ready / pending-confirmation / skipped / blocked / usable_now / auto-active count）
+- coverage report（profile matrix coverage + skipped/blocked + blind-spots）
+- owner decision queue（auto-active review / conflicts / stale-active / stale-auto-active）
 - blocked capabilities
 - validation command / fixture evidence
 - pending-confirmation 列表
 - conflicts 列表
 - NOT_RUN / BLOCKED / NOT_MEASURED 场景，不得写结构性全通过结论
 
-## 8. 激活态铁律
+## 9. 激活态铁律
 
 - candidate 不得进入 standard / ai-rules / review-checklist；出现即抛 `CANDIDATE_LEAKED_TO_STANDARD`。
 - pending-confirmation 不得变成强制规则；出现即抛 `PENDING_FORCED_TO_ACTIVE`。

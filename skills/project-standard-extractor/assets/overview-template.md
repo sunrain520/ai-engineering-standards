@@ -52,13 +52,14 @@ tags:
 
 AI 默认必须执行：
 
-- 规则 `status: active` 的 `level: P0` / `FORBIDDEN`。
-- 或 `status: draft`，且 `source_kind ∈ {extracted, owner-confirmed}`、`evidence_tier ≠ none`。
+- `status: auto-active` 的规则：由本仓高置信闸自动升级，带 `authority_scope: this-repo`。
+- `status: owner-confirmed-active` 的规则：由负责人手工确认。
 
 AI 不得执行：
 
-- `status: pending-confirmation` / `conflict` / `legacy-compatible` / `rejected`。
+- `status: draft` / `pending-confirmation` / `stale-auto-active` / `owner-rejected` / `conflict` / `legacy-compatible` / `rejected`。
 - `source_kind: template-placeholder` 或 `evidence_tier: none`。
+- 候选索引、`ai-context-pack.md` 和 pending/conflict 产物中的规则。
 
 跨文档引用规则统一使用 `{source_doc}「{section_title}」` 二元组，**不使用 Rule ID**。
 
@@ -68,3 +69,5 @@ AI 不得执行：
 - 规则状态决策：`rule-state-decision/*.md`（`indexable: false`）
 - project-profile / extraction-map / batch-plan：`{domain}/temp/{run_id}-*.md`（`indexable: false`）
 - fast-index candidates：`{domain}/temp/{run_id}-rules-index-candidate.json`、`{domain}/temp/{run_id}-llms-candidate.txt`、`{domain}/temp/{run_id}-ai-context-pack.md`
+- lineage ledger：`{domain}/lineage-ledger.json`
+- owner decision queue：`{domain}/owner-decision-queue.json`

@@ -2,9 +2,9 @@
 
 ## 角色目标
 
-对选定项目路径做轻量画像，输出 `project-profile.md`；再把画像分解为可执行的 `extraction-map.md` 和 `batch-plan.md`。这是所有正式萃取的上游依赖——**画像越准，batch 划得越好，后续 evidence 质量才能有保障**。
+对选定项目路径做轻量画像，输出 `project-profile.md`；再把画像分解为可执行的 `extraction-map.md`、`batch-plan.md`、`ordered_batch_queue` 和 coverage report。它不直接生成规则，而是把完整输入压缩成可由 full-auto 外层循环逐个执行的单 batch 队列。
 
-> 上游：`intake-and-scope`（scope_summary）。下游：`dimension-activator`（消费 project-profile + batch-plan + scope 算激活态）→ `facts-and-classification`（需选定 batch）。
+> 上游：`intake-and-scope`（scope_summary）。下游：Phase 1 full-auto orchestrator → `facts-and-classification`（每次只传一个 selected batch）；Phase 2 repair-only 时才把 signal/fact 结果交给 `dimension-activator`。
 >
 > **多项目模式**：当 `len(scope_summary.project_paths) > 1` 时，本 agent 对每个 project 独立产出 `temp/{run_id}-project-{N}-profile.md` / `extraction-map.md` / `batch-plan.md`，N 为 1-based 项目序号。多项目模式下 dimension-activator 也按项目独立产出 `evidence/per-project/dimension-activation-report-project-{N}.json`，最后由 `cross-project-aggregator` 合并为 `temp/{run_id}-unified-activation-map.json`。单项目模式（`len == 1`）走原路径，向后兼容不变。
 
@@ -33,7 +33,7 @@ inputs:
 
 ## 输出（Handoff Schema）
 
-### 2a. `ordered_batch_queue`（auto 模式附加输出）
+### 2a. `ordered_batch_queue`（full-auto 必填输出）
 
 ```yaml
 ordered_batch_queue:
@@ -41,7 +41,12 @@ ordered_batch_queue:
     priority: high        # high / medium / low
     estimated_doc: "standard-{sub_domain}.md"
     sub_domain: ""
-    status: ready         # 只有 ready 的 batch 进入队列
+    status: ready         # ready | pending-confirmation；skipped/blocked 不执行
+    confidence_tier: normal # normal | low
+    selection_provenance:
+      - source: direct-scan # direct-scan | gitnexus-pointer | manifest | readme
+        path: ""
+        verified_by_direct_scan: true
     skip_reason: null
 ```
 
@@ -50,9 +55,30 @@ ordered_batch_queue:
 2. `medium`：单模块局部 batch，候选文件集中
 3. `low`：行业高风险 batch（仍执行，review-summary 特别标注）
 
-`pending-confirmation` 和 `skipped` 的 batch **不进入 ordered_batch_queue**，单独记录在 batch-plan.md。
+`ready` 和 `pending-confirmation` 均进入 `ordered_batch_queue`：ready 走 normal-confidence worker；pending-confirmation 走 low-confidence worker，产出必须隔离到 pending surfaces，不能进入 AI 默认执行。`skipped` / `blocked` 不进入队列，只进入 coverage report。
 
-interactive 模式：不生成此字段，等待用户选择。
+interactive 诊断模式可等待用户选择；broad input 默认 full-auto 必须生成此字段。
+
+### 2a.1 `coverage_report`（full-auto 必填输出）
+
+```yaml
+coverage_report:
+  matrix_total: 0
+  ready_count: 0
+  pending_confirmation_count: 0
+  skipped_count: 0
+  blocked_count: 0
+  blind_spots:
+    - path: ""
+      reason: "scan_budget_exceeded | unreadable | sensitive | unsupported_manifest"
+      impact: "potentially missing sub_domain/task_type"
+  suspicious_gaps:
+    - domain: ""
+      sub_domain: ""
+      reason: ""
+```
+
+coverage 只能声称 profile 识别范围内的覆盖；blind_spots 必须列出未解析/跳过的顶层路径，防止把 profile 盲区误报为 100% 完成。
 
 ### 2b. `temp/{run_id}-project-profile.md`
 
@@ -108,7 +134,7 @@ indexable: false
 ---
 ```
 
-每个 batch 按 `references/config/extraction-batch-policy.md` §1 字段写入：`batch_id`、`domain`、`sub_domain`、`module`、`task_type`、`candidate_files`、`excluded_paths`、`evidence_limit`、`rule_limit`、`stop_conditions`、`status`、`candidate_dimension_ids`（U1 维度池中可能涉及的维度 ID 集合，作为 dimension-activator 的搜索域提示）、`expected_skeleton_section`（U4 assets/skeletons/ 中预测要使用的 skeleton 文件路径）。
+每个 batch 按 `references/config/extraction-batch-policy.md` §1 字段写入：`batch_id`、`domain`、`sub_domain`、`module`、`task_type`、`candidate_files`、`excluded_paths`、`evidence_limit`、`rule_limit`、`stop_conditions`、`status`、`confidence_tier`、`selection_provenance`、`candidate_dimension_ids`（仅 Phase 2 repair 搜索提示）、`expected_skeleton_section`（U4 assets/skeletons/ 中预测要使用的 skeleton 文件路径）。
 
 ## 执行步骤
 
@@ -217,7 +243,7 @@ extraction_map:
 batch 默认限制（来自 context-governance §3）：
 
 ```yaml
-evidence_limit: 8
+evidence_limit: 25
 rule_limit: 10
 stop_conditions:
   - no representative files
@@ -255,13 +281,26 @@ stop_conditions:
 3. 没有明确 owner / 联系人的 industry-risk 模块。
 4. batch 状态为 `pending-confirmation` 的原因。
 
-### Step 7 — Self-check（移交前）
+### Step 7 — Queue / Coverage 输出
+
+1. `ready` batch 进入 `ordered_batch_queue`，`confidence_tier: normal`。
+2. `pending-confirmation` batch 也进入 `ordered_batch_queue`，`confidence_tier: low`，并写明 `low_confidence_reason`。
+3. `skipped` / `blocked` batch 不进入 queue，只写入 `coverage_report`。
+4. 每个 candidate file 必须带 `selection_provenance`；若来源为 stale GitNexus 指针，必须通过 direct-scan 验证路径存在和代表性后才能进入 facts extraction。
+5. 输出 `coverage_report`，包含 profile 识别矩阵内覆盖率和 blind_spots。
+
+### Step 8 — Self-check（移交前）
 
 - [ ] `project-profile.md` Front Matter 已写入且通过 schema 校验
 - [ ] `extraction-map.md` 每行均有 `domain/sub_domain/task_type/candidate_signals`
 - [ ] `batch-plan.md` 每个 batch 有完整 9 字段（batch_id、domain、sub_domain、module、candidate_files、evidence_limit、rule_limit、candidate_dimension_ids、expected_skeleton_section）
 - [ ] 所有 `status: ready` 的 batch 至少有 1 个可验证的 candidate_file 路径
-- [ ] 所有 `status: ready` 的 batch 至少有 1 个 `candidate_dimension_ids`（baseline 维度永远列入,所以只要 baseline 加载成功就不会为空）
+- [ ] 所有 `status: ready` 的 batch 至少有 1 个 `candidate_dimension_ids`（Phase 2 repair hint；Phase 1 full-auto 不依赖其 state）
+- [ ] broad input 产生 `ordered_batch_queue` 与 `coverage_report`
+- [ ] `pending-confirmation` batch 没有被丢弃，而是进入 low-confidence queue
+- [ ] `skipped` / `blocked` batch 只进入 coverage report
+- [ ] 每个 queue item 都有 `selection_provenance`
+- [ ] coverage 结论限定为 profile 识别范围内，不声称无边界“全仓 100%”
 - [ ] 没有任何 batch 包含敏感文件（excluded_paths 已过滤）
 - [ ] 没有读取完整源码文件（只读了 manifest 和 README 顶部）
 - [ ] 所有推断项写入了 `inferred_domain_matrix` 及置信度
@@ -286,14 +325,14 @@ stop_conditions:
 2. 每个推断项都有置信度和推断依据。
 3. 每个 batch 都有 `evidence_limit` 和 `rule_limit`。
 4. 输出的 3 个 artifact 均有 Front Matter 且 `indexable: false`。
-5. 用户必须选择一个 `status: ready` 的 batch 后，下游才能执行。
+5. Broad input 默认生成 full-auto queue；诊断模式下用户可选择一个 `ready` 或 `pending-confirmation` batch 重跑。
 
 ## 禁止做
 
 1. 不得输出正式规范规则（`standard.md` / `ai-rules.md`）。
 2. 不得读取密钥、token、生产凭据。
 3. 不得把画像推断直接升级为 P0 / FORBIDDEN 规则。
-4. 不得把全部候选 batch 一次性传给 `facts-and-classification` 同时执行——一次只能选 1 个。
+4. 不得把全部候选 batch 一次性传给 `facts-and-classification` 同时执行——full-auto 必须由外层 orchestrator 逐个传入单 batch。
 5. 不得读取超过预算（≤ 15 文件 / ≤ 3 层）。
 6. **不得对维度判定 `state`**——本 agent 仅输出 `candidate_dimension_ids`（搜索域提示），实际 `state` 由 dimension-activator 唯一判定。
 7. **不得跳过 Step 5.5**——下游 dimension-activator 与 facts-and-classification 都依赖 `candidate_dimension_ids` 做 batch ↔ 维度对齐。

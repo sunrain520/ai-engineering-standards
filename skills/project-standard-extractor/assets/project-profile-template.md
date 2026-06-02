@@ -20,7 +20,7 @@ tags:
 ## 1. 本次输入
 
 - run_id: `{run_id}`
-- extraction_mode: `profile-first`
+- extraction_mode: `{full-auto|profile-first|focused-module}`
 - project_paths:
   - `{project_path}`
 - output_target:
@@ -56,7 +56,7 @@ tags:
 ## 6. 需要用户确认
 
 - [ ] 研发域是否正确？
-- [ ] 是否允许进入 batch plan？
+- [ ] 是否允许 full-auto 外层按 ordered queue 执行？
 - [ ] 是否有必须排除的路径？
 - [ ] 是否有负责人确认材料？
 
@@ -64,4 +64,4 @@ tags:
 
 - 本文件不是团队规范规则。
 - 不得把本文件的推断直接升级为 `standard.md` 规则。
-- 后续正式萃取必须选择一个 batch。
+- full-auto 后续由外层 orchestrator 逐个传入单 batch；诊断/重跑时才需要用户选择一个 batch。

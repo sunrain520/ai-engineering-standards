@@ -1,0 +1,29 @@
+{
+  "schema": "project-standard-extractor-lineage-ledger.v1",
+  "run_id": "{run_id}",
+  "domain": "{domain}",
+  "generated_at": "{ISO8601}",
+  "edges": [
+    {
+      "batch_id": "{batch_id}",
+      "evidence_id": "EV-{DOMAIN}-{NUMBER}",
+      "source_doc": "standard-{sub_domain}.md",
+      "section_title": "P0 {规则标题}",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-{sub_domain}.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 2,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "{run_id}",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": ["{path-pattern}"],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    }
+  ]
+}
