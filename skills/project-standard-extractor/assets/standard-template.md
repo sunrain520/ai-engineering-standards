@@ -19,10 +19,11 @@ tags:
 
 <!-- 写作说明（生成时删除此注释）
 目标：让新同事第一天接手就能看懂、能用。
-结构：技术栈 → 分层图 → 各角色规则（强制/推荐/禁止 + 代码示例）→ AI 规则 → Review 检查项 → Evidence 参考
-风格：开发者工作手册（Guide），不是规则注册表（Catalog）
+结构：技术栈 → 分层图 → 各角色规则（说明/适用范围/强制/推荐/禁止 + 代码示例）→ AI 规则 → Review 检查项 → Evidence 参考
+风格：开发者工作手册（Guide），不是规则注册表（Catalog）；对齐阿里《Java开发手册》：约束分级 + 说明(why) + 正例/反例 + 可二值检查
   - 每条规则 H2 后跟一行 inline 元数据 blockquote，**禁止**整块 yaml
-  - 代码示例内联，正例 + 反例
+  - 每条规则有「说明」段讲 why（对齐阿里「说明:」），不只讲 what
+  - 代码示例内联，正例（脱敏泛化的通用示例，用 OrderService/UserRepository 等通用名，**不含项目路径**，守 BR-008）+ 反例（FORBIDDEN 必配）
   - 强制规则用 numbered list，禁止用 bullet
   - 节数由 evidence 决定，不够不要凑
 自动运行下文档与规则均默认 status: draft；active 由领域负责人手工升级
@@ -58,6 +59,10 @@ tags:
 ### P1 {规则标题}
 
 > level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: {YYYY-MM-DD} · recommended_action: keep-draft
+
+**说明**
+
+- {为什么需要这条规则：背后的原理、动机或它要防止的具体问题。对齐阿里手册「说明:」——讲清 why，让读者和 AI 不只知道做什么，还知道为什么，减少误用。基于 evidence 观察，不空泛。}
 
 **适用范围**
 
@@ -105,6 +110,10 @@ tags:
 > level: FORBIDDEN · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: high · owner: TBD · last_reviewed: {YYYY-MM-DD} · recommended_action: keep-draft
 
 > ⛔ **FORBIDDEN**：{具体禁止写法，一句话}。负例见 `evidence/forbidden-examples.md「NEG-{DOMAIN}-{N}」`
+
+**说明**
+
+- {为什么禁止：这个反范式会导致什么具体后果/风险。基于 evidence，讲清危害。}
 
 **适用范围**
 

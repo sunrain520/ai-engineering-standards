@@ -307,15 +307,16 @@ source_batch: "{batch_id}"
 
    `status` 自动运行默认 `draft`，**禁止**输出 `active`。**禁止**整块 yaml。
 
-2. **适用范围**（粗体标题 + bullet）
-3. **强制规则**（numbered list）：对应 classification.recommended，confidence: high + occurrences ≥ 2
-4. **推荐规则**（numbered list）：confidence: medium 或 occurrences = 1 的正向 evidence
-5. **禁止事项**（bullet list）：对应 classification.forbidden；FORBIDDEN 条目用 `⛔ FORBIDDEN` 标注
-6. **正例**（fenced code block）：从 POS-* evidence 提取，路径脱敏，注释说明正确原因
-7. **反例**（fenced code block）：从 NEG-* evidence 提取，路径脱敏，注释说明错误原因和改法
-8. **AI 生成代码要求**（粗体标题 + numbered list，正向约束句式）
-9. **Code Review 检查项**（粗体标题 + 复选框 bullet，可二值判断）
-10. **Evidence**（粗体标题 + bullet，引用 `evidence/{kind}.md「{条目编号}」`）
+2. **说明**（粗体标题 + bullet）：讲清这条规则的 why——背后原理/动机/要防止的具体问题（对齐阿里《Java开发手册》「说明:」）。基于 evidence 观察，不空泛。让读者和 AI 不只知道做什么，还知道为什么。
+3. **适用范围**（粗体标题 + bullet）
+4. **强制规则**（numbered list）：对应 classification.recommended，confidence: high + occurrences ≥ 2
+5. **推荐规则**（numbered list）：confidence: medium 或 occurrences = 1 的正向 evidence
+6. **禁止事项**（bullet list）：对应 classification.forbidden；FORBIDDEN 条目用 `⛔ FORBIDDEN` 标注
+7. **正例**（fenced code block）：基于 POS-* evidence **泛化为通用示例**——用 `OrderService` / `UserRepository` 等通用名,去除项目特征与路径(守 BR-008),展示「模式」而非照搬项目代码;注释说明正确原因。evidence/ 仍保留带溯源的原始片段供审计。
+8. **反例**（fenced code block）：基于 NEG-* evidence 泛化,注释说明错误原因和改法
+9. **AI 生成代码要求**（粗体标题 + numbered list，正向约束句式）
+10. **Code Review 检查项**（粗体标题 + 复选框 bullet，可二值判断）
+11. **Evidence**（粗体标题 + bullet，引用 `evidence/{kind}.md「{条目编号}」`）
 
 **FORBIDDEN 标注格式**（内联在元数据行下方或禁止事项节内）：
 
@@ -374,7 +375,7 @@ source_batch: "{batch_id}"
 **(b) `activated` 章节**
 
 - 综合 `code_facts`(本维度对应 fact)+ `classification.recommended/forbidden/legacy_compatible`(本维度的桶)编写实质内容
-- 必须满足 R51 章节 6 个子段要求(适用范围 / 强制规则 / 推荐规则 / 禁止事项 / 正例 / 反例 / Evidence)
+- 必须满足 R51 章节子段要求(说明 / 适用范围 / 强制规则 / 推荐规则 / 禁止事项 / 正例 / 反例 / Evidence)
 - 章节首行加引导 blockquote: `> 本节由本次萃取激活,基于 {N} 条 code_fact 综合生成。`
 - 至少 1 条强制规则 + 1 条禁止事项;否则降级为 `pending`
 
@@ -588,8 +589,9 @@ Batch: {batch_id} | 模式: Developer Guide | 章节数: {N} | Evidence: {N} 条
 
 - [ ] `standard-{sub_domain}.md` 包含 §技术栈、§分层职责、≥1 个角色/层级规范节、§AI 规则、§Review 检查项、§Evidence 参考
 - [ ] 每个角色/层级节有强制规则 + 禁止事项（至少各 1 条）
-- [ ] 有至少 1 个正例代码块（来自 POS-* evidence）
-- [ ] 有至少 1 个反例代码块（来自 NEG-* evidence）
+- [ ] 每条规则有「说明」段，讲清 why（对齐阿里「说明:」），非空泛套话
+- [ ] 有至少 1 个正例代码块（基于 POS-* evidence 泛化为通用示例，无项目路径）
+- [ ] 有至少 1 个反例代码块（基于 NEG-* evidence 泛化）
 - [ ] FORBIDDEN 规则已用 `⛔ FORBIDDEN` 标注，并引用 NEG-* evidence
 - [ ] Evidence 参考表格已填写（无空行）
 - [ ] `status: draft`（自动运行不得直接发布 active）
