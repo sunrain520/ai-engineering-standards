@@ -2,7 +2,8 @@
 spec_id: 2026-06-01-001-project-standard-extractor-code-standard-extraction
 artifact_kind: prd-requirements
 target_surface: cli
-status: ready-for-planning
+status: superseded
+superseded_by: docs/brainstorms/2026-06-01-002-project-standard-extractor-output-artifact-contract-requirements.md
 evidence_grade: mixed
 author: leokuang
 created: 2026-06-01
@@ -11,6 +12,8 @@ related:
   - docs/brainstorms/2026-05-21-001-project-standard-extractor-requirements.md
   - docs/brainstorms/2026-05-26-002-project-standard-extractor-full-auto-draft-pipeline-requirements.md
 ---
+
+> **⚠️ 已被取代（superseded）**：本需求的 full-auto 主线已并入统一 PRD [`docs/brainstorms/2026-06-01-002-project-standard-extractor-output-artifact-contract-requirements.md`](2026-06-01-002-project-standard-extractor-output-artifact-contract-requirements.md)。后续规划以 002 为准。本文保留为历史需求来源与决策记录（含产品前提裁定）。R-18（pending 纳入执行）与 R-19（覆盖完整性报告）已迁移为 002 的 R-18 与 R-33。
 
 # project-standard-extractor 一步生成可使用规范文档需求
 
@@ -82,6 +85,8 @@ related:
 | R-15 | P1 | GitNexus 可用或不可用 | pipeline | 可用时只能作为 advisory evidence 或定位线索；陈旧、dirty、impact-unavailable 时必须降级并记录限制。 | 规则不会只凭陈旧图谱事实成立。 |
 | R-16 | P1 | 运行完成 | pipeline | 应输出 review summary，汇总 batch 执行结果、draft/pending/conflict/rejected 分布、降级原因和 owner 待处理动作。 | 用户知道哪些规则可立即使用，哪些需要确认。 |
 | R-17 | P2 | 聚焦模块输入而非完整仓库 | pipeline | 可支持 focused-module 一步生成，但仍必须遵守 evidence、敏感信息、draft-only 和 append-only 规则。 | 小范围模块也能直接产出可使用规范文档。 |
+| R-18 | P0 | profile-first 完成后存在 `pending-confirmation` batch（有方向但证据不足/单样本） | pipeline | 应将 `pending-confirmation` batch 纳入执行（不再仅进 summary），产出标记为 `low-confidence draft`，写入 `pending-confirmation.md` 隔离分区；**不得进入 `ai-rules.md` 默认执行清单**。`skipped`（无代表性候选）和 `blocked`（权限/敏感）batch 仍不产出规范，只进覆盖缺口报告。 | 用户在一次运行中拿到「证据充分（高置信）+ 有方向（低置信隔离）」两档覆盖，证据缺失项不被伪造为规则。 |
+| R-19 | P0 | 运行完成 | pipeline | 应输出**覆盖完整性报告**（coverage report），列出：profile 识别到的全部 `domain × sub_domain × task_type` 矩阵项、每项的 batch 归属与状态（ready/pending/skipped/blocked）、未识别或低置信归因的疑似遗漏点、以及「本次全部覆盖 vs 缺口」的明确清单。 | 用户能判断「自动跑出的全部」到底覆盖了多少、漏了什么、为什么漏，而不是误以为已穷尽。 |
 
 ## Business Rules
 
@@ -126,9 +131,9 @@ related:
 
 - 从现有代码路径一步生成可使用团队级开发编码规范文档。
 - 支持完整单仓库输入自动画像、batch queue、逐 batch 萃取和聚合。
-- 支持 ready batch 自动执行；pending、skipped、blocked batch 写入 summary。
-- 支持 high-confidence draft、pending、legacy、conflict、rejected 的质量分层。
-- 支持生成 `standard-*`、`ai-rules.md`、`review-checklist.md`、evidence、candidate index 和 review summary。
+- 支持**两档自动执行**：`ready` batch 产出高置信 draft；`pending-confirmation` batch 产出 `low-confidence draft` 并隔离到 `pending-confirmation.md`（不进 ai-rules 默认执行）。`skipped` / `blocked` batch 不产出规范，进覆盖缺口报告。
+- 支持 high-confidence draft、low-confidence draft、pending、legacy、conflict、rejected 的质量分层。
+- 支持生成 `standard-*`、`ai-rules.md`、`review-checklist.md`、evidence、candidate index、review summary 和**覆盖完整性报告**。
 - 支持 GitNexus 作为 advisory pointer，并在不可用或陈旧时降级。
 
 ### 本期不做
@@ -189,6 +194,19 @@ related:
 - [Affects R-08, R-13][Technical] 跨 batch 去重、合并建议和冲突归并的具体规则如何设计。
 - [Affects R-14, R-16][Technical] review summary 是否升级为 owner action queue，或先扩展现有模板。
 - [Affects R-06, R-12][Technical] high-confidence draft 与 pending/rejected 的阈值如何由 evidence tier、coverage 和 reviewer findings 组合。
+
+### Product Premises（doc-review 2026-06-01, product-lens）
+
+**用户裁定（2026-06-01）：** 产品方向确认为「直接从代码萃取开发规范文档，一步进入可用」。据此：
+
+- [PP-2 已否决] 「默认全选 ready batch + 保留 profile 后可取消 checkpoint」的中间方案**不采纳**。完整仓库场景不保留人工 checkpoint，full-auto 一步到位即默认体验。
+- [PP-1 已确认] 「high-confidence evidence-backed draft 可直接作为 AI 编码与 Review 的工作输入」是**预期产品行为**，不是临时妥协。
+
+**仍需 owner 决策（裁定后的剩余风险）：**
+
+- [PP-1 剩余][Affects R-09, BR-005, BR-006] 既然 draft 直接可用，而 A4 AI 编码使用者消费 `ai-rules.md` 时通常不读 `status: draft` 标识、会把规则当权威执行：draft 规则与 active 规则在 agent 行为层面是否应有区别（例如拆出独立 `ai-rules.draft.md`，让 `ai-rules.md` 仅含 owner 确认项），以及团队基于未确认 draft 编码时的误用后果归属。注：用户确认「直接可用」**放大**了 plan P0-2 的结构质量底线要求——若产物退化为无结构规则堆，「可用」名不副实，故 P0-2（high-confidence draft 须含结构完整性判据）必须在 plan 层解决，不能延后。
+- [PP-3][Affects Goals/Success Metrics] 现有 6 个 Success Metric 多为功能存在性的同义反复（如「降低 owner 成本」口径=「owner 从审查 draft 开始」，只描述新流程形态、不度量成本是否真降；产物即使被 owner 全部拒绝，所有 metric 仍可判 PASS）。须为核心 goal 补一个可证伪的结果口径（如 draft 采纳率、owner 自评省时），无法度量时诚实标注为「过程指标，非结果指标」。
+- [PP-trajectory][身份迁移] 本变更使 skill 从「owner in-the-loop 主导」迁向「owner on-the-loop 事后审批」。这是真实的产品定位迁移而非纯体验顺滑；须在用户手册（plan U8）显式表述，并维持 owner 对「团队强制规范」这一严肃产物的 ownership 与信任。
 
 ## Readiness
 
