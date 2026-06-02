@@ -415,7 +415,12 @@ flowchart TB
 **Approach:**
 - Add a `phase1-full-auto` quality profile: evidence/content review, structure completeness, runtime policy, conflicts, low-confidence isolation and owner actions。**phase1 分流(P0-A 方案 A)**:review 入口按 `activation_report` 存在性分流——缺失 + 有 batch_id → **只跑 Gate A**(P1-P8 content gate),`final_gate_decision` 取 Gate A 决议,不跑 Gate B、不做 activation-report 收口校验;失败模式 `:334` 相应改写。Gate A 本就不依赖 activation-report,phase1 复用天然成立。
 - Use skeleton-required sections when a domain/sub-domain skeleton exists; otherwise use the generic minimum set: technology stack, core layering/roles, at least three rule sections covering multiple roles, positive evidence for AI-executable rules, forbidden evidence for forbidden rules, and binary-reviewable checks.
-- **高置信自动升级闸（PRD BR-016/R-36,定位转向 2026-06-02:萃取即权威）**:满足 `occurrences ≥ 2` + `confidence: high` + 多角色/多文件覆盖 + evidence 充分 + 无未裁定 conflict + 通过结构完整性 gate 的规则,**自动升为「可直接使用」**(写入 standard/ai-rules/review-checklist 默认执行路径,状态用 `auto-active` 或等价值,需在 frontmatter-format.md §4.2 新增该枚举),**不再逐条等 owner 手动确认**。未过闸者降级 draft/pending。单样本 / `single-project` 孤证 / 有 conflict / 结构不足者一律不得自动升级。owner decision queue 仍列出全部 `auto-active` 规则,供 owner 事后否决或降级(on-the-loop 保留否决权,不阻塞默认产出)。
+- **高置信自动升级闸（PRD BR-016/R-36,定位转向 2026-06-02:萃取即权威）**:满足 `occurrences ≥ 2` + `confidence: high` + 多角色/多文件覆盖 + evidence 充分 + 无未裁定 conflict + 通过结构完整性 gate 的规则,**自动升为「可直接使用」**(写入 standard/ai-rules/review-checklist 默认执行路径,状态用 `auto-active`,需在 frontmatter-format.md §4.2 新增该枚举),**不再逐条等 owner 手动确认**。未过闸者降级 draft/pending。单样本 / `single-project` 孤证 / 有 conflict / 结构不足者一律不得自动升级。owner decision queue 列出全部 `auto-active` 规则供事后否决。
+- **闸护栏(doc-review 2026-06-02 四 persona 一致命中,必须实现,否则闸是空头护栏)**:
+  - **反范式黑名单(P0-1)**:命中语言/框架级已知反范式(吞异常、裸 SQL 拼接、调试输出、`==null` 误用等)的规则,无论频率一律降级 pending。需建 `references/config/anti-pattern-blocklist.yaml`(按 domain/语言)。闸的 occurrences 衡量代表性非正确性——review summary 对每条 auto-active 标注「仅验证代表性,未验证最佳实践性」。
+  - **高风险域豁免(P0-3,BR-017)**:sub_domain 命中 security/auth/cryptography/permission/compliance/行业高风险 → 无论是否过闸一律不得 auto-active,降 pending + owner queue 标 `requires_security_review: true`。
+  - **occurrences 确定性核验(P0-4)**:闸读 lineage 的 `deterministic_occurrence_count`(由 grep/AST 确定性扫描写入),不凭 LLM 自填值;缺该字段 validator BLOCK(见 U7)。
+  - **single-project 边界(P1)**:auto-active 规则强制打 `evidence_tier: single-project` + `authority_scope: this-repo`,ai-rules.md 顶部声明来源于单项目现状、非团队/行业共识。
 - Define low-confidence draft as structured and traceable but non-executable by default; write to pending surfaces only.
 - Add `usable_now: yes/no`, reason, blocking items and owner action queue in review summary.
 - Map quality buckets to merge `target_state`: recommended -> draft, forbidden -> draft with `FORBIDDEN`, pending_confirmation/low-confidence -> pending-confirmation, legacy_compatible -> legacy-compatible, conflict -> conflict, rejected -> rejected.
@@ -441,7 +446,7 @@ flowchart TB
 
 **Goal:** Merge per-batch outputs into coherent standard, AI rules, review checklist, lineage and owner artifacts without duplication, silent conflict resolution or active overwrite.
 
-**Requirements:** R-08, R-10, R-11, R-23, R-24, R-27, R-31, BR-006
+**Requirements:** R-08, R-10, R-11, R-23, R-24, R-27, R-31, R-37, BR-006
 
 **Dependencies:** U4
 
@@ -465,6 +470,7 @@ flowchart TB
 - Aggregate by domain, sub_domain, stable section title, `(source_doc, section_title)`, evidence IDs and normalized title fingerprint.
 - Add section title normalization for same sub_domain and repeated runs; compare with existing index before append.
 - Record lineage edges from evidence to standard section to AI rule/review check/index entry.
+- **auto-active provenance + 撤销链(R-37,doc-review P0-2 缓解)**:每条 auto-active 规则的 lineage 必含 `upgrade_mode: auto-active`、闸判据快照(`deterministic_occurrence_count`/confidence/coverage_files/conflict_status/structure_result)、命中 evidence——owner queue 内联展示供有效否决(否则否决=盲审)。owner 标记 rejected/downgraded 后,**下次运行**检测该状态并:standard 补 `status: owner-rejected`、从 ai-rules/review-checklist/rules-index **移出执行路径**(移出≠改写正文,不违反 R-35)。**残余风险(Risks 表记录)**:已按错规则生成并合并的代码无法由否决回收。
 - Record owner queue entries with locator, evidence, risk, recommended action, `usable_now` and blocking reason.
 - Preserve cross-project/dimension-aware sections in merge coordinator as deferred Phase 2 / follow-up logic; do not delete them while adding Phase1 branches.
 
@@ -561,6 +567,8 @@ flowchart TB
 - Extend `public-surface-validate.sh` for token-level checks: full-auto wording, no manual batch default, no Phase1 activation-report requirement, no destructive public inputs, smoke eval pointers.
 - Use `artifact-contract-validate.sh` for structural/generated artifact checks, while external evals cover semantic quality that shell grep cannot prove.
 - Add drift checks for old paths, `Rule ID`, HTML anchors, candidate overwrite language, auto active, schema naming drift and Phase1 `activation-report` leakage。**P0-A 不变量守护**:phase1 run 的 `temp/` 不得含 `activation-report.json`(否则 generation 会把 phase1 误判进 phase2);并校验 review/merge 的 phase1 分支存在(缺失 report 时 review 只跑 Gate A、merge 走 target_state 二级路由)。
+- **自动升级闸护栏校验(doc-review P0-4)**:validator 检查每条 `auto-active` 规则的 lineage 必含 `deterministic_occurrence_count` 字段,缺失则 BLOCK(防止凭 LLM 自填 occurrences 升级);校验 auto-active 规则未命中反范式黑名单、未落在高风险域(BR-017)。
+- **闸假阳性 eval(BR-016 护栏3)**:新增 eval 用例把已知坏规则(高频反范式样本)喂进闸,断言**不会被判过闸 auto-active**——验证黑名单与正确性护栏真的生效,而非摆设。
 
 **Patterns to follow:**
 - `tools/maintainer/project-standard-extractor/public-surface-validate.sh`
@@ -692,6 +700,7 @@ flowchart TB
 - **增量(R-34)**:重复运行同一仓库时,merge 先用已落盘 `existing_index` 做 `(source_doc, section_title)` 对齐——已存在且内容等价→只追加 evidence/不重写;已存在但 evidence 变更→记 `evidence-changed`;首次出现→`added`。配合 U5 的 section title 归一化(R-31),避免措辞漂移导致近义堆积。
 - **跨运行置信升级(P1-1)**:某规则上次是 low-confidence(pending-confirmation.md)、本次升 high-confidence(进 standard)时,在 pending 条目标 `superseded_by: standard-{sub_domain}.md「...」`,coverage 去重。
 - **存量刷新检测(R-35,只检测+提示)**:已有 `active`/`draft` 规范与当次新 evidence 语义不一致时,写入 `conflicts.md`(冲突)或 `merge-suggestions.md`(可合并),并进 owner decision queue 标 `stale-active-needs-owner-review`。**绝不自动改写 active**(沿用 merge-coordinator.md:5/250 的「写入即固化、不可隐性覆盖」铁律)。
+- **auto-active 自动失效出口(doc-review P1,对称阀门)**:auto-active 是自动进的,须配自动复检出口——记录 `last_evidence_confirmed_run`,下次运行检测某 auto-active 规则的 evidence 已不满足 BR-016 闸条件(occurrences 掉破阈值 / 出现裁定级 conflict / 命中新增黑名单)时,**自动降级 `stale-auto-active` 并移出 AI 默认执行路径** + 进 owner queue。降级状态/移出执行 ≠ 改写正文,不违反 R-35。区分 `owner-confirmed-active`(退出需 owner)与 `auto-active`(可被自动复检降级)。避免「自动进、只能手动清」的产能不匹配累积过时强制规则。
 - **降级**:无 baseline(首次运行)→ `evolution.previous_report_path = null`,只记当次快照,提示 `LIMITATIONS_NO_BASELINE`(沿用现有语义)。
 
 **Patterns to follow:**
@@ -734,6 +743,10 @@ flowchart TB
 | Contract drift across layers | U7/U9 extend evals, validators and prompt/example sweeps. |
 | Phase2 activation contracts leak into Phase1（doc-review P0-A：generation 已分叉但 review/merge 未分叉） | **已选定方案 A(见 Must Resolve P0-A)**:review/merge 复用 generation 同一个「activation_report 是否存在」信号——phase1 缺失 report 时 review 只跑 Gate A、merge 直接走 target_state 二级路由,不合成 report、不加新字段;U7 validator 守护「phase1 不产出 activation_report.json」不变量。 |
 | GitNexus stale facts over-influence rules | U2/U6 require selection provenance and direct-source confirmation. |
+| 高频坏味道被自动升为团队强制规范(doc-review P0-1) | U4 反范式黑名单(命中即降级不论频率)+ 闸假阳性 eval(U7);闸标注「仅验证代表性」。 |
+| 错误安全规范被自动权威化放大全团队(doc-review P0-3) | U4/BR-017 高风险域(security/auth/crypto/permission/compliance)强制人工确认,不自动升。 |
+| LLM 自评 occurrences/confidence 当裁判(doc-review P0-4) | occurrences 确定性扫描核验 + validator 缺字段 BLOCK(U7);闸假阳性 eval。 |
+| **残余风险**:auto-active 错误规则在 owner 否决前已生成并合并的代码无法回收(doc-review P0-2) | 转向接受的不可消除残余风险。缓解:provenance+撤销链(R-37)使否决后停止扩散;自动失效出口(U10)缩短过时规则存活;但**已合并代码需团队自行处理**。owner 手册须告知此边界。 |
 
 ---
 

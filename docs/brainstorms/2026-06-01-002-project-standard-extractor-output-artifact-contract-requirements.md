@@ -85,7 +85,13 @@ related:
 - **【产品定位转向 2026-06-02：萃取即权威】** 用户明确终极目标是「萃取直接输出一套可直接使用的代码开发规范」（开箱即用,像阿里手册可直接发团队/喂 AI）。据此转向:**通过高置信自动升级闸（BR-016）的规则自动标记为「可直接使用」,不再逐条等 owner 手动确认**。这取代了原 001/002 及历史版本中「active 仅由 owner 手动确认」的核心定位。
   - **保留的护栏**:自动升级**必须**过高置信闸（occurrences≥2 + confidence:high + 多角色覆盖 + evidence 充分 + 无 conflict + 结构完整）——防止单样本/�avbe味道代码被升为团队强制规范。达不到的仍降级 draft/pending。
   - **owner 角色**:从「逐条确认才生效」变为「事后可否决/降级任何自动升级规则」(on-the-loop 保留最终 ownership,但不阻塞默认产出)。
-  - **已知风险(用户知情接受)**:(1) AI 从单项目现状自封团队标准,坏味道可能被固化;(2) single-project 证据升权威的代表性风险;(3) 团队若发现自动规范有错可能损失信任。高置信闸是对这三者的缓解,非消除。
+  - **已知风险与护栏(doc-review 2026-06-02 四 persona 一致命中,用户选择保留转向+补护栏)**:
+    - (1) 高频坏味道被自动升权威 → 护栏:反范式黑名单(BR-016 护栏1),命中即降级不论频率。
+    - (2) 高风险域(security/auth)错误规范放大 → 护栏:BR-017 高风险域一律强制人工确认,不自动升。
+    - (3) LLM 自评当裁判 → 护栏:occurrences 确定性核验(BR-016 护栏2)+ 闸假阳性 eval(护栏3)。
+    - (4) 事后否决拦不住已扩散代码 → 护栏:provenance + 撤销链(R-37);**残余风险**:已按错规则生成并合并的代码无法由否决回收(这是转向接受的不可消除残余风险,非已缓解)。
+    - (5) single-project 不代表团队共识 → auto-active 规则强制打 `evidence_tier: single-project` + `authority_scope: this-repo`,ai-rules.md 顶部声明来源于单项目现状、非经验证的团队/行业共识。
+    - **诚实定位**:本工具自动产出的是**项目现状规范(descriptive)**,不是**行业最佳实践(normative,如阿里手册)**;「可直接使用」指「立即可作为本项目一致性基线」,owner 手册须如实校准此预期。
   - **默认体验**:用户跑一次 full-auto,「打开就有一批可直接使用的规范」,而非「打开全是待确认 draft」。
 - 「自动跑出全部规范」的边界：ready + pending-confirmation 两档都自动执行（前者进 ai-rules，后者隔离为 low-confidence draft）；skipped/blocked 与 profile 漏识别项不伪造规则，而是在覆盖完整性报告里诚实列出缺口。「全部」= 能产出的全部产出 + 不能产出的全部列明，绝不为追求覆盖率违反 BR-001 证据治理。
 
@@ -146,13 +152,18 @@ related:
 | R-31 | P1 | 同一 sub_domain 被多个 batch 或重复运行命中 | merge | 应使用稳定 section title 归一化和 existing index 对齐，避免近义规则因标题漂移无限追加。 | full-auto 不会把 append-only 变成规则污染放大器。 |
 | R-32 | P2 | 聚焦模块输入而非完整仓库 | orchestrator | 可支持 focused-module 一步生成；若只是 full-repo 路径自然子集，不应新增独立路由复杂度，仍必须遵守 evidence、敏感信息、draft-only、结构 gate 和 append-only 规则。 | 小范围模块也能直接产出可使用规范文档。 |
 | R-33 | P0 | 运行完成 | orchestrator | 应输出**覆盖完整性报告**（coverage report），列出 profile 识别到的全部 `domain × sub_domain × task_type` 矩阵项、每项 batch 归属与状态（ready/pending/skipped/blocked）、未识别或低置信归因的疑似遗漏点，以及「本次全部覆盖 vs 缺口」清单。 | 用户能判断「自动跑出的全部」覆盖了多少、漏了什么、为什么漏，而不是误以为已穷尽。 |
-| R-36 | P0 | 规则通过质量门禁(定位转向 2026-06-02:萃取即权威) | quality gate | 应运行**高置信自动升级闸**(BR-016):满足 occurrences≥2 + confidence:high + 多角色/多文件覆盖 + evidence 充分 + 无未裁定 conflict + 通过结构完整性 gate 的规则,**自动标记为可直接使用**(进 ai-rules/review-checklist 默认执行路径),无需逐条 owner 确认;不满足者降级 draft/pending。owner queue 仍列出全部自动升级规则供事后否决/降级。 | 用户一次运行即得到一批可直接使用的规范,而非全是待确认 draft;同时单样本/坏味道不被自动升权威。 |
+| R-36 | P0 | 规则通过质量门禁(定位转向 2026-06-02:萃取即权威) | quality gate | 应运行**高置信自动升级闸**(BR-016):满足 occurrences≥2 + confidence:high + 多角色/多文件覆盖 + evidence 充分 + 无未裁定 conflict + 通过结构完整性 gate,且**不命中反范式黑名单、不属高风险域(BR-017)**的规则,自动标记为可直接使用(进 ai-rules/review-checklist),无需逐条 owner 确认;不满足者降级 draft/pending。owner queue 列出全部自动升级规则供事后否决。 | 用户一次运行即得到一批可直接使用的规范;同时单样本/坏味道/高风险域不被自动升权威。 |
+| R-37 | P0 | owner 在 decision queue 否决/降级某条 auto-active 规则 | merge / 下次运行 | 须提供 **provenance + 撤销链**:(a) 每条 auto-active 规则的 lineage 记录 `upgrade_mode: auto-active`、闸各判据快照(`deterministic_occurrence_count`/confidence/coverage/conflict/structure 逐项)、命中的 evidence,owner queue 内联展示供有效否决;(b) owner 标记 rejected/downgraded 后,下次运行检测该状态并在 standard 补 `status: owner-rejected`、从 ai-rules/review-checklist/rules-index **移出执行路径**(移出 ≠ 改写正文,不违反 R-35 不隐性覆盖)。 | owner 的事后否决权可被有效行使,否决后规则停止强制执行。 |
 
 ## Business Rules
 
 - BR-001：没有代码 evidence 的内容，不得写成 AI 默认强制执行规则。（定位转向 2026-06-02：evidence 充分性是硬门槛；owner 确认不再是「可直接使用」的前置，但仍是高置信自动升级闸的组成判据之一——见 BR-016。）
 - BR-002：通过**高置信自动升级闸**（BR-016）的 evidence-backed 规则**自动标记为可直接使用**（`auto-active` 或等价状态），无需逐条等 owner 确认；未通过闸的规则仍降级 draft/pending，不进 AI 默认执行。（取代原「active 仅由 owner 手动确认」——见 Decision Notes 定位转向。）
 - BR-016：**高置信自动升级闸**。规则自动升为「可直接使用」必须同时满足：`occurrences ≥ 2`、`confidence: high`、多角色/多文件覆盖、evidence 充分、无未裁定 conflict、通过结构完整性 gate。单样本（`occurrences = 1` / `single-sample`）、`single-project` 孤证、有 conflict、结构不足者**一律不得自动升级**,仍走 draft/pending。owner 仍可事后降级或裁定任何自动升级的规则（on-the-loop 保留否决权,但不再是 in-the-loop 前置）。
+  - **【护栏 1：反范式黑名单】(doc-review P0-1)** 闸的 occurrences/coverage 衡量的是**代表性,不是正确性**——存量代码里高频一致的写法常是技术债。命中语言/框架级已知反范式黑名单(如吞异常 `catch(e){log}`、裸字符串拼 SQL、`System.out`/`print` 调试输出、`== null` 误用等)的规则,**无论频率多高一律不得 auto-active**,强制降级 pending 等 owner 裁定。每条 auto-active 规则在 review summary 标注「本闸仅验证代表性,未验证最佳实践性」。
+  - **【护栏 2:occurrences 确定性核验】(doc-review P0-4)** `occurrences` 必须由 pipeline 通过确定性扫描(grep/AST 计数)记录实际命中数并写入 lineage 的 `deterministic_occurrence_count` 字段;quality gate 做自动升级决策时读该确定性值,**不得仅凭 LLM 在 generation 阶段自填的 occurrences**。validator 检查 auto-active 规则 lineage 必含该字段,缺失则 BLOCK。
+  - **【护栏 3:闸假阳性 eval】** 必须有专门 eval 压测闸的假阳性率(把已知坏规则喂进去,验证不会被判过闸),否则本护栏从未被验证。
+- BR-017：**高风险域强制人工确认豁免**(doc-review P0-3,security-lens)。sub_domain 命中 security / auth / cryptography / permission / compliance / 行业高风险等标签的规则,**无论是否过 BR-016 闸,一律不得自动升 auto-active**,强制降级 pending,在 owner decision queue 标 `requires_security_review: true` 高优先级,须具备相应背景的 owner 手动确认后方可 active。理由:一条错误的安全规范被自动权威化会规模化放大成全团队的安全实践错误(如错误鉴权规范→AI 据此生成全部含漏洞鉴权代码→review 用同一规范漏检)。
 - BR-003：完整仓库输入必须先内部 profile-first，再自动执行 ready batch queue；不得把完整仓库作为一个无边界上下文直接交给 generation。
 - BR-004：full-auto 应通过外层 orchestrator 逐 batch 调用单-batch pipeline；单次 facts/generation 调用仍只处理一个 batch。
 - BR-005：敏感文件只记录脱敏存在事实；如果继续萃取必须读取敏感原文，pipeline 必须停止对应 batch。
