@@ -1,0 +1,400 @@
+{
+  "schema": "project-standard-extractor-owner-decision-queue.v1",
+  "run_id": "20260602-193408-app-client",
+  "domain": "app-client",
+  "generated_at": "2026-06-02T19:34:08+08:00",
+  "items": [
+    {
+      "locator": "standard-build-governance.md「P1 依赖版本和强制依赖必须通过 hszq-version 集中治理」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-1",
+        "EV-APP-2",
+        "EV-APP-3"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-build-governance.md「P1 本地模块激活必须只改 settings.gradle 的 include 边界」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-4",
+        "EV-APP-5"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-build-governance.md「P2 应用级插件、渠道、签名和埋点只放在主应用模块」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-6",
+        "EV-APP-7",
+        "EV-APP-8"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-build-governance.md「P1 发布签名和生产配置只能通过变量注入，不能写入规范或源码正文」",
+      "current_status": "pending-confirmation",
+      "owner_queue_action": "security-review",
+      "evidence_ids": [
+        "EV-APP-9"
+      ],
+      "risk_tags": [
+        "high"
+      ],
+      "blocking_reason": "涉及发布签名和生产配置，仅有脱敏存在事实，需发布/CI owner 确认。",
+      "requires_security_review": true,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "keep-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-module-boundary.md「P1 交易共享能力必须先沉淀到 trade-core，再由交易子模块复用」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-10",
+        "EV-APP-11",
+        "EV-APP-12"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-module-boundary.md「P1 跨模块页面创建必须通过 Provider 接口和强类型 Request」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-13",
+        "EV-APP-14"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-module-boundary.md「P1 账户子页面导航必须分阶段消费并记录 requestId」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-15",
+        "EV-APP-16"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-module-boundary.md「P2 core-ui-kit 只收纳跨业务 UI 基础能力」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-17"
+      ],
+      "risk_tags": [
+        "low"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-android.md「P1 新增类必须使用 Kotlin，存量 Java 只做兼容维护」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-18",
+        "EV-APP-19"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-android.md「P1 Fragment ViewBinding 必须使用 nullable backing field 并在 onDestroyView 清理」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-20",
+        "EV-APP-21"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-android.md「P1 Flow 订阅必须绑定 viewModelScope 或 viewLifecycleOwner 生命周期」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-22",
+        "EV-APP-23",
+        "LEG-APP-1"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-android.md「P2 EventBus 注册注销必须成对，并声明 threadMode」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-24",
+        "EV-APP-25"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-kmp-shared.md「P1 Android ViewModel 获取 KMP Presenter 必须注入生命周期 Scope」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-26",
+        "EV-APP-27"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-kmp-shared.md「P1 KMP Flow 到 Android UI 的订阅必须由 Fragment 生命周期收口」",
+      "current_status": "auto-active",
+      "owner_queue_action": "review-auto-active",
+      "evidence_ids": [
+        "EV-APP-28",
+        "EV-APP-29"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "move-to-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    },
+    {
+      "locator": "standard-kmp-shared.md「P2 KMP Service 全局包装属于历史兼容，不作为新增模板」",
+      "current_status": "pending-confirmation",
+      "owner_queue_action": "confirm-or-reject",
+      "evidence_ids": [
+        "EV-APP-30",
+        "LEG-APP-2"
+      ],
+      "risk_tags": [
+        "medium"
+      ],
+      "blocking_reason": "涉及 KMP Service 全局 Scope 历史兼容，缺少 shared 源码和 owner 生命周期确认。",
+      "requires_security_review": false,
+      "owner_decision": {
+        "status": "pending",
+        "allowed_values": [
+          "owner-confirmed-active",
+          "owner-rejected",
+          "downgrade-to-draft",
+          "keep-pending"
+        ],
+        "decided_by": null,
+        "decided_at": null,
+        "rationale": null
+      }
+    }
+  ]
+}

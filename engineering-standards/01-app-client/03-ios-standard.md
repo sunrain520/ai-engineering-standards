@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-ios-standard-archived"
+title: "iOS 客户端开发规范（待 evidence 归档）"
+domain: "app-client"
+sub_domain: "ios"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+run_id: "20260602-193408-app-client"
+coverage_state: "not-extracted-in-current-run"
+tags:
+  - "app-client"
+  - "ios"
+  - "archived"
+---
+
+> 本次 `hszq-app` run 未读取 iOS 源码 evidence，本文件仅保留历史规范草案。AI 不得把本文内容作为默认执行规则。
+
 # iOS 客户端开发规范
 
 ## 1. 技术栈

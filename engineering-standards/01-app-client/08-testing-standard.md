@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-testing-standard-archived"
+title: "APP 客户端测试规范（待 evidence 归档）"
+domain: "app-client"
+sub_domain: "testing"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+run_id: "20260602-193408-app-client"
+coverage_state: "not-extracted-in-current-run"
+tags:
+  - "app-client"
+  - "testing"
+  - "archived"
+---
+
+> 本次 `hszq-app` run 未抽样测试目录或 CI 测试约束，本文件仅保留历史规范草案。AI 不得把本文内容作为默认执行规则。
+
 # APP 客户端测试规范
 
 ## 1. 测试目标

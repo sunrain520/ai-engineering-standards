@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-ui-component-standard-archived"
+title: "APP UI 组件规范（待 evidence 归档）"
+domain: "app-client"
+sub_domain: "ui-component"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+run_id: "20260602-193408-app-client"
+coverage_state: "partial-module-boundary-only"
+tags:
+  - "app-client"
+  - "ui-component"
+  - "archived"
+---
+
+> 本次 `hszq-app` run 只确认了 `core-ui-kit` 的跨业务 UI 边界，现行规则见 `standard-module-boundary.md`。本文其余 UI 规范仅作历史草案。
+
 # APP UI 组件规范
 
 ## 1. 规范定位

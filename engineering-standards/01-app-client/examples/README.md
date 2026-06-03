@@ -8,7 +8,7 @@ version: "v0.1.0"
 status: "draft"
 owner: "TBD"
 index_format: "engineering-standards-md-v1"
-indexable: false
+indexable: true
 run_id: "20260522-100947-app-client"
 tags:
   - "app-client"

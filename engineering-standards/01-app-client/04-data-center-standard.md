@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-data-center-standard-archived"
+title: "HSDataCenterKit 数据中台规范（待 evidence 归档）"
+domain: "app-client"
+sub_domain: "data-center"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+run_id: "20260602-193408-app-client"
+coverage_state: "not-extracted-in-current-run"
+tags:
+  - "app-client"
+  - "data-center"
+  - "archived"
+---
+
+> 本次 `hszq-app` run 未形成数据中台维度的高置信规则，本文件仅保留历史规范草案。AI 不得把本文内容作为默认执行规则。
+
 # HSDataCenterKit 数据中台规范
 
 ## 1. 数据中台定位

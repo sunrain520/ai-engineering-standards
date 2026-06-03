@@ -1,23 +1,28 @@
 ---
 doc_id: "app-client-conflicts"
-title: "APP 冲突规则"
+title: "APP 客户端冲突记录"
 domain: "app-client"
 sub_domain: "common"
 doc_type: "conflicts"
 version: "v0.1.0"
-status: "draft"
+status: "active"
 owner: "TBD"
 index_format: "engineering-standards-md-v1"
-indexable: false
-run_id: "20260522-100947-app-client"
+indexable: true
+run_id: "20260602-193408-app-client"
 tags:
   - "app-client"
-  - "common"
   - "conflicts"
 ---
 
-# APP 冲突规则
+# APP 客户端冲突记录
 
-本文件用于记录 APP 端多项目事实、规则等级或既有规范冲突。
+本次覆盖重写未发现需要阻断写入的规则冲突。
 
-当前暂无冲突规则。
+## 当前冲突
+
+- 暂无。
+
+## 覆盖重写说明
+
+用户明确要求直接覆盖重写当前存在的规范文档，因此本次未按 append-only 生成 `conflict` 项来保护旧正文。旧正文若需恢复，应通过 git 历史对比或 owner 决策重新纳入。

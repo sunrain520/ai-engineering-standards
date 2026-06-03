@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-module-standard-archived"
+title: "APP 模块化开发规范（已归档）"
+domain: "app-client"
+sub_domain: "module-boundary"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+superseded_by: "standard-module-boundary.md"
+run_id: "20260602-193408-app-client"
+tags:
+  - "app-client"
+  - "module-boundary"
+  - "archived"
+---
+
+> 本文件已归档。模块边界现行规则见 `standard-module-boundary.md`；AI 默认执行规则见 `ai-rules.md`。
+
 # APP 模块化开发规范
 
 ## 1. 模块化目标

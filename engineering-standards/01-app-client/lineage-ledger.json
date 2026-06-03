@@ -1,0 +1,1653 @@
+{
+  "schema": "project-standard-extractor-lineage-ledger.v1",
+  "run_id": "20260602-193408-app-client",
+  "domain": "app-client",
+  "generated_at": "2026-06-02T19:34:08+08:00",
+  "edges": [
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-1",
+      "evidence_ids": [
+        "EV-APP-1",
+        "EV-APP-2",
+        "EV-APP-3"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 依赖版本和强制依赖必须通过 hszq-version 集中治理",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-build-governance.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-1",
+          "EV-APP-2",
+          "EV-APP-3"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-1",
+      "evidence_ids": [
+        "EV-APP-1",
+        "EV-APP-2",
+        "EV-APP-3"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 依赖版本和强制依赖必须通过 hszq-version 集中治理",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-1",
+          "EV-APP-2",
+          "EV-APP-3"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-1",
+      "evidence_ids": [
+        "EV-APP-1",
+        "EV-APP-2",
+        "EV-APP-3"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 依赖版本和强制依赖必须通过 hszq-version 集中治理",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-1",
+          "EV-APP-2",
+          "EV-APP-3"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-1",
+      "evidence_ids": [
+        "EV-APP-1",
+        "EV-APP-2",
+        "EV-APP-3"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 依赖版本和强制依赖必须通过 hszq-version 集中治理",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-1",
+          "EV-APP-2",
+          "EV-APP-3"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-4",
+      "evidence_ids": [
+        "EV-APP-4",
+        "EV-APP-5"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 本地模块激活必须只改 settings.gradle 的 include 边界",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-build-governance.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 4,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-4",
+          "EV-APP-5"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-4",
+      "evidence_ids": [
+        "EV-APP-4",
+        "EV-APP-5"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 本地模块激活必须只改 settings.gradle 的 include 边界",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 4,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-4",
+          "EV-APP-5"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-4",
+      "evidence_ids": [
+        "EV-APP-4",
+        "EV-APP-5"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 本地模块激活必须只改 settings.gradle 的 include 边界",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 4,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-4",
+          "EV-APP-5"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-4",
+      "evidence_ids": [
+        "EV-APP-4",
+        "EV-APP-5"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 本地模块激活必须只改 settings.gradle 的 include 边界",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 4,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-4",
+          "EV-APP-5"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-6",
+      "evidence_ids": [
+        "EV-APP-6",
+        "EV-APP-7",
+        "EV-APP-8"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P2 应用级插件、渠道、签名和埋点只放在主应用模块",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-build-governance.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 5,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-6",
+          "EV-APP-7",
+          "EV-APP-8"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-6",
+      "evidence_ids": [
+        "EV-APP-6",
+        "EV-APP-7",
+        "EV-APP-8"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P2 应用级插件、渠道、签名和埋点只放在主应用模块",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 5,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-6",
+          "EV-APP-7",
+          "EV-APP-8"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-6",
+      "evidence_ids": [
+        "EV-APP-6",
+        "EV-APP-7",
+        "EV-APP-8"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P2 应用级插件、渠道、签名和埋点只放在主应用模块",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 5,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-6",
+          "EV-APP-7",
+          "EV-APP-8"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-6",
+      "evidence_ids": [
+        "EV-APP-6",
+        "EV-APP-7",
+        "EV-APP-8"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P2 应用级插件、渠道、签名和埋点只放在主应用模块",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 5,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-6",
+          "EV-APP-7",
+          "EV-APP-8"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-9",
+      "evidence_ids": [
+        "EV-APP-9"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 发布签名和生产配置只能通过变量注入，不能写入规范或源码正文",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-build-governance.md",
+      "gate_result": "pending-confirmation",
+      "upgrade_mode": "none",
+      "deterministic_occurrence_count": 1,
+      "authority_scope": "none",
+      "last_evidence_confirmed_run": "20260602-193408-app-client"
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-9",
+      "evidence_ids": [
+        "EV-APP-9"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 发布签名和生产配置只能通过变量注入，不能写入规范或源码正文",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "pending-confirmation",
+      "upgrade_mode": "none",
+      "deterministic_occurrence_count": 1,
+      "authority_scope": "none",
+      "last_evidence_confirmed_run": "20260602-193408-app-client"
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-9",
+      "evidence_ids": [
+        "EV-APP-9"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 发布签名和生产配置只能通过变量注入，不能写入规范或源码正文",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "pending-confirmation",
+      "upgrade_mode": "none",
+      "deterministic_occurrence_count": 1,
+      "authority_scope": "none",
+      "last_evidence_confirmed_run": "20260602-193408-app-client"
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-9",
+      "evidence_ids": [
+        "EV-APP-9"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 发布签名和生产配置只能通过变量注入，不能写入规范或源码正文",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "pending-confirmation",
+      "upgrade_mode": "none",
+      "deterministic_occurrence_count": 1,
+      "authority_scope": "none",
+      "last_evidence_confirmed_run": "20260602-193408-app-client"
+    },
+    {
+      "batch_id": "batch-build-governance",
+      "evidence_id": "EV-APP-9",
+      "evidence_ids": [
+        "EV-APP-9"
+      ],
+      "source_doc": "standard-build-governance.md",
+      "section_title": "P1 发布签名和生产配置只能通过变量注入，不能写入规范或源码正文",
+      "derived_view_type": "pending",
+      "derived_artifact": "pending-confirmation.md",
+      "gate_result": "pending-confirmation",
+      "upgrade_mode": "none",
+      "deterministic_occurrence_count": 1,
+      "authority_scope": "none",
+      "last_evidence_confirmed_run": "20260602-193408-app-client"
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-10",
+      "evidence_ids": [
+        "EV-APP-10",
+        "EV-APP-11",
+        "EV-APP-12"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 交易共享能力必须先沉淀到 trade-core，再由交易子模块复用",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-module-boundary.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 5,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-10",
+          "EV-APP-11",
+          "EV-APP-12"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-10",
+      "evidence_ids": [
+        "EV-APP-10",
+        "EV-APP-11",
+        "EV-APP-12"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 交易共享能力必须先沉淀到 trade-core，再由交易子模块复用",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 5,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-10",
+          "EV-APP-11",
+          "EV-APP-12"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-10",
+      "evidence_ids": [
+        "EV-APP-10",
+        "EV-APP-11",
+        "EV-APP-12"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 交易共享能力必须先沉淀到 trade-core，再由交易子模块复用",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 5,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-10",
+          "EV-APP-11",
+          "EV-APP-12"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-10",
+      "evidence_ids": [
+        "EV-APP-10",
+        "EV-APP-11",
+        "EV-APP-12"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 交易共享能力必须先沉淀到 trade-core，再由交易子模块复用",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 5,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-10",
+          "EV-APP-11",
+          "EV-APP-12"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-13",
+      "evidence_ids": [
+        "EV-APP-13",
+        "EV-APP-14"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 跨模块页面创建必须通过 Provider 接口和强类型 Request",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-module-boundary.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-13",
+          "EV-APP-14"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-13",
+      "evidence_ids": [
+        "EV-APP-13",
+        "EV-APP-14"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 跨模块页面创建必须通过 Provider 接口和强类型 Request",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-13",
+          "EV-APP-14"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-13",
+      "evidence_ids": [
+        "EV-APP-13",
+        "EV-APP-14"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 跨模块页面创建必须通过 Provider 接口和强类型 Request",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-13",
+          "EV-APP-14"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-13",
+      "evidence_ids": [
+        "EV-APP-13",
+        "EV-APP-14"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 跨模块页面创建必须通过 Provider 接口和强类型 Request",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-13",
+          "EV-APP-14"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-15",
+      "evidence_ids": [
+        "EV-APP-15",
+        "EV-APP-16"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 账户子页面导航必须分阶段消费并记录 requestId",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-module-boundary.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 4,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-15",
+          "EV-APP-16"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-15",
+      "evidence_ids": [
+        "EV-APP-15",
+        "EV-APP-16"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 账户子页面导航必须分阶段消费并记录 requestId",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 4,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-15",
+          "EV-APP-16"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-15",
+      "evidence_ids": [
+        "EV-APP-15",
+        "EV-APP-16"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 账户子页面导航必须分阶段消费并记录 requestId",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 4,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-15",
+          "EV-APP-16"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-15",
+      "evidence_ids": [
+        "EV-APP-15",
+        "EV-APP-16"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P1 账户子页面导航必须分阶段消费并记录 requestId",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 4,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-15",
+          "EV-APP-16"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-17",
+      "evidence_ids": [
+        "EV-APP-17"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P2 core-ui-kit 只收纳跨业务 UI 基础能力",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-module-boundary.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-17"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-17",
+      "evidence_ids": [
+        "EV-APP-17"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P2 core-ui-kit 只收纳跨业务 UI 基础能力",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-17"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-17",
+      "evidence_ids": [
+        "EV-APP-17"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P2 core-ui-kit 只收纳跨业务 UI 基础能力",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-17"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-module-boundary",
+      "evidence_id": "EV-APP-17",
+      "evidence_ids": [
+        "EV-APP-17"
+      ],
+      "source_doc": "standard-module-boundary.md",
+      "section_title": "P2 core-ui-kit 只收纳跨业务 UI 基础能力",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-17"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-18",
+      "evidence_ids": [
+        "EV-APP-18",
+        "EV-APP-19"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 新增类必须使用 Kotlin，存量 Java 只做兼容维护",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-android.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-18",
+          "EV-APP-19"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-18",
+      "evidence_ids": [
+        "EV-APP-18",
+        "EV-APP-19"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 新增类必须使用 Kotlin，存量 Java 只做兼容维护",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-18",
+          "EV-APP-19"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-18",
+      "evidence_ids": [
+        "EV-APP-18",
+        "EV-APP-19"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 新增类必须使用 Kotlin，存量 Java 只做兼容维护",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-18",
+          "EV-APP-19"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-18",
+      "evidence_ids": [
+        "EV-APP-18",
+        "EV-APP-19"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 新增类必须使用 Kotlin，存量 Java 只做兼容维护",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-18",
+          "EV-APP-19"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-20",
+      "evidence_ids": [
+        "EV-APP-20",
+        "EV-APP-21"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 Fragment ViewBinding 必须使用 nullable backing field 并在 onDestroyView 清理",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-android.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-20",
+          "EV-APP-21"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-20",
+      "evidence_ids": [
+        "EV-APP-20",
+        "EV-APP-21"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 Fragment ViewBinding 必须使用 nullable backing field 并在 onDestroyView 清理",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-20",
+          "EV-APP-21"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-20",
+      "evidence_ids": [
+        "EV-APP-20",
+        "EV-APP-21"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 Fragment ViewBinding 必须使用 nullable backing field 并在 onDestroyView 清理",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-20",
+          "EV-APP-21"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-20",
+      "evidence_ids": [
+        "EV-APP-20",
+        "EV-APP-21"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 Fragment ViewBinding 必须使用 nullable backing field 并在 onDestroyView 清理",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-20",
+          "EV-APP-21"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-22",
+      "evidence_ids": [
+        "EV-APP-22",
+        "EV-APP-23",
+        "LEG-APP-1"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 Flow 订阅必须绑定 viewModelScope 或 viewLifecycleOwner 生命周期",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-android.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-22",
+          "EV-APP-23",
+          "LEG-APP-1"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-22",
+      "evidence_ids": [
+        "EV-APP-22",
+        "EV-APP-23",
+        "LEG-APP-1"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 Flow 订阅必须绑定 viewModelScope 或 viewLifecycleOwner 生命周期",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-22",
+          "EV-APP-23",
+          "LEG-APP-1"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-22",
+      "evidence_ids": [
+        "EV-APP-22",
+        "EV-APP-23",
+        "LEG-APP-1"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 Flow 订阅必须绑定 viewModelScope 或 viewLifecycleOwner 生命周期",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-22",
+          "EV-APP-23",
+          "LEG-APP-1"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-22",
+      "evidence_ids": [
+        "EV-APP-22",
+        "EV-APP-23",
+        "LEG-APP-1"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P1 Flow 订阅必须绑定 viewModelScope 或 viewLifecycleOwner 生命周期",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-22",
+          "EV-APP-23",
+          "LEG-APP-1"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-24",
+      "evidence_ids": [
+        "EV-APP-24",
+        "EV-APP-25"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P2 EventBus 注册注销必须成对，并声明 threadMode",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-android.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 8,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-24",
+          "EV-APP-25"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-24",
+      "evidence_ids": [
+        "EV-APP-24",
+        "EV-APP-25"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P2 EventBus 注册注销必须成对，并声明 threadMode",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 8,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-24",
+          "EV-APP-25"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-24",
+      "evidence_ids": [
+        "EV-APP-24",
+        "EV-APP-25"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P2 EventBus 注册注销必须成对，并声明 threadMode",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 8,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-24",
+          "EV-APP-25"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-android",
+      "evidence_id": "EV-APP-24",
+      "evidence_ids": [
+        "EV-APP-24",
+        "EV-APP-25"
+      ],
+      "source_doc": "standard-android.md",
+      "section_title": "P2 EventBus 注册注销必须成对，并声明 threadMode",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 8,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-24",
+          "EV-APP-25"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-26",
+      "evidence_ids": [
+        "EV-APP-26",
+        "EV-APP-27"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P1 Android ViewModel 获取 KMP Presenter 必须注入生命周期 Scope",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-kmp-shared.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-26",
+          "EV-APP-27"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-26",
+      "evidence_ids": [
+        "EV-APP-26",
+        "EV-APP-27"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P1 Android ViewModel 获取 KMP Presenter 必须注入生命周期 Scope",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-26",
+          "EV-APP-27"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-26",
+      "evidence_ids": [
+        "EV-APP-26",
+        "EV-APP-27"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P1 Android ViewModel 获取 KMP Presenter 必须注入生命周期 Scope",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-26",
+          "EV-APP-27"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-26",
+      "evidence_ids": [
+        "EV-APP-26",
+        "EV-APP-27"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P1 Android ViewModel 获取 KMP Presenter 必须注入生命周期 Scope",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 3,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-26",
+          "EV-APP-27"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-28",
+      "evidence_ids": [
+        "EV-APP-28",
+        "EV-APP-29"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P1 KMP Flow 到 Android UI 的订阅必须由 Fragment 生命周期收口",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-kmp-shared.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-28",
+          "EV-APP-29"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-28",
+      "evidence_ids": [
+        "EV-APP-28",
+        "EV-APP-29"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P1 KMP Flow 到 Android UI 的订阅必须由 Fragment 生命周期收口",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-28",
+          "EV-APP-29"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-28",
+      "evidence_ids": [
+        "EV-APP-28",
+        "EV-APP-29"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P1 KMP Flow 到 Android UI 的订阅必须由 Fragment 生命周期收口",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-28",
+          "EV-APP-29"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-28",
+      "evidence_ids": [
+        "EV-APP-28",
+        "EV-APP-29"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P1 KMP Flow 到 Android UI 的订阅必须由 Fragment 生命周期收口",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "auto-active",
+      "upgrade_mode": "auto-active",
+      "deterministic_occurrence_count": 6,
+      "authority_scope": "this-repo",
+      "last_evidence_confirmed_run": "20260602-193408-app-client",
+      "criteria_snapshot": {
+        "confidence": "high",
+        "coverage_files": [
+          "EV-APP-28",
+          "EV-APP-29"
+        ],
+        "conflict_status": "none",
+        "structure_result": "pass",
+        "anti_pattern_blocklist": "not-hit",
+        "high_risk_domain": false
+      }
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-30",
+      "evidence_ids": [
+        "EV-APP-30",
+        "LEG-APP-2"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P2 KMP Service 全局包装属于历史兼容，不作为新增模板",
+      "derived_view_type": "standard",
+      "derived_artifact": "standard-kmp-shared.md",
+      "gate_result": "pending-confirmation",
+      "upgrade_mode": "none",
+      "deterministic_occurrence_count": 1,
+      "authority_scope": "none",
+      "last_evidence_confirmed_run": "20260602-193408-app-client"
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-30",
+      "evidence_ids": [
+        "EV-APP-30",
+        "LEG-APP-2"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P2 KMP Service 全局包装属于历史兼容，不作为新增模板",
+      "derived_view_type": "ai-rules",
+      "derived_artifact": "ai-rules.md",
+      "gate_result": "pending-confirmation",
+      "upgrade_mode": "none",
+      "deterministic_occurrence_count": 1,
+      "authority_scope": "none",
+      "last_evidence_confirmed_run": "20260602-193408-app-client"
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-30",
+      "evidence_ids": [
+        "EV-APP-30",
+        "LEG-APP-2"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P2 KMP Service 全局包装属于历史兼容，不作为新增模板",
+      "derived_view_type": "review-checklist",
+      "derived_artifact": "review-checklist.md",
+      "gate_result": "pending-confirmation",
+      "upgrade_mode": "none",
+      "deterministic_occurrence_count": 1,
+      "authority_scope": "none",
+      "last_evidence_confirmed_run": "20260602-193408-app-client"
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-30",
+      "evidence_ids": [
+        "EV-APP-30",
+        "LEG-APP-2"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P2 KMP Service 全局包装属于历史兼容，不作为新增模板",
+      "derived_view_type": "rules-index",
+      "derived_artifact": "temp/20260602-193408-app-client-rules-index-candidate.json",
+      "gate_result": "pending-confirmation",
+      "upgrade_mode": "none",
+      "deterministic_occurrence_count": 1,
+      "authority_scope": "none",
+      "last_evidence_confirmed_run": "20260602-193408-app-client"
+    },
+    {
+      "batch_id": "batch-kmp-shared",
+      "evidence_id": "EV-APP-30",
+      "evidence_ids": [
+        "EV-APP-30",
+        "LEG-APP-2"
+      ],
+      "source_doc": "standard-kmp-shared.md",
+      "section_title": "P2 KMP Service 全局包装属于历史兼容，不作为新增模板",
+      "derived_view_type": "pending",
+      "derived_artifact": "pending-confirmation.md",
+      "gate_result": "pending-confirmation",
+      "upgrade_mode": "none",
+      "deterministic_occurrence_count": 1,
+      "authority_scope": "none",
+      "last_evidence_confirmed_run": "20260602-193408-app-client"
+    }
+  ]
+}

@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-numbered-overview-archived"
+title: "APP 客户端统一开发规范 V1（编号入口，已归档）"
+domain: "app-client"
+sub_domain: "common"
+doc_type: "overview"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+superseded_by: "overview.md"
+run_id: "20260602-193408-app-client"
+tags:
+  - "app-client"
+  - "overview"
+  - "archived"
+---
+
+> 本编号入口已归档。现行 evidence-backed 总览使用 `overview.md`；AI 默认执行规则只来自 `ai-rules.md` 中的 auto-active 条目。
+
 # APP 客户端统一开发规范 V1
 
 ## 1. 适用范围

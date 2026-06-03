@@ -21,7 +21,7 @@ tags:
 
 > run_id: 20260526-212711-app-client
 > 执行模式: Phase 1 Stable Path（仅 Gate A 内容门禁）
-> Gate B 状态: N/A（Phase 2 blocked，无 activation-report）
+> Gate B 状态: N/A（Phase 2 blocked，无 activation report JSON）
 
 ## Gate A 总览
 

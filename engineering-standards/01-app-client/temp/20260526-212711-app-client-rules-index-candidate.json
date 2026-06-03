@@ -1,58 +1,11 @@
 {
-  "schema": "rules-index-candidate.v1",
+  "schema": "engineering-standards-rules-index.v1",
+  "index_format": "engineering-standards-rules-index-v1",
+  "candidate": true,
+  "domain": "app-client",
   "run_id": "20260526-212711-app-client",
-  "batch_id": "batch-001-trade-architecture",
-  "generated_at": "2026-05-26T21:27:11+08:00",
-  "rules": [
-    {
-      "title": "APP Android 架构规范（trade batch 萃取）",
-      "domain": "app-client",
-      "sub_domain": "android",
-      "level": "P1",
-      "source_doc": "temp/20260526-212711-app-client-standard-trade-architecture.md",
-      "section_title": "P1 新增业务功能必须使用 Clean Architecture 三层分离",
-      "evidence_doc": "evidence/code-facts-batch-001.md",
-      "tags": ["architecture", "clean-architecture", "mvvm", "trade"]
-    },
-    {
-      "title": "APP Android 架构规范（trade batch 萃取）",
-      "domain": "app-client",
-      "sub_domain": "android",
-      "level": "P1",
-      "source_doc": "temp/20260526-212711-app-client-standard-trade-architecture.md",
-      "section_title": "P1 ViewModel 必须按职责分类使用，不得混合多种关注点",
-      "evidence_doc": "evidence/code-facts-batch-001.md",
-      "tags": ["viewmodel", "separation-of-concerns", "trade"]
-    },
-    {
-      "title": "APP Android 架构规范（trade batch 萃取）",
-      "domain": "app-client",
-      "sub_domain": "android",
-      "level": "FORBIDDEN",
-      "source_doc": "temp/20260526-212711-app-client-standard-trade-architecture.md",
-      "section_title": "FORBIDDEN 新代码不得引入 MVP Presenter 模式",
-      "evidence_doc": "evidence/code-facts-batch-001.md",
-      "tags": ["mvp", "forbidden", "presenter", "trade"]
-    },
-    {
-      "title": "APP Android 架构规范（trade batch 萃取）",
-      "domain": "app-client",
-      "sub_domain": "android",
-      "level": "P2",
-      "source_doc": "temp/20260526-212711-app-client-standard-trade-architecture.md",
-      "section_title": "P2 ViewModel 不得直接持有 DAO 或 Database 引用",
-      "evidence_doc": "evidence/code-facts-batch-001.md",
-      "tags": ["viewmodel", "dao", "data-layer", "trade"]
-    },
-    {
-      "title": "APP Android 架构规范（trade batch 萃取）",
-      "domain": "app-client",
-      "sub_domain": "android",
-      "level": "P2",
-      "source_doc": "temp/20260526-212711-app-client-standard-trade-architecture.md",
-      "section_title": "P2 非标 ViewModel 封装（BaseVMDataHelper 模式）不得扩散",
-      "evidence_doc": "evidence/code-facts-batch-001.md",
-      "tags": ["viewmodel", "basevmdatahelper", "non-standard", "trade"]
-    }
-  ]
+  "generated_at": "2025-05-26T21:27:11+08:00",
+  "superseded_by": "20260602-193408-app-client-rules-index-candidate.json",
+  "superseded_reason": "Older candidate used a pre-contract shape and is no longer a valid derived locator source.",
+  "rules": []
 }

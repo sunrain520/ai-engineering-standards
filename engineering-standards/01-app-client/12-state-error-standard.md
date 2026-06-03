@@ -1,3 +1,22 @@
+---
+doc_id: "app-client-state-error-standard-archived"
+title: "APP 状态与错误处理规范（待 evidence 归档）"
+domain: "app-client"
+sub_domain: "state-error"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+run_id: "20260602-193408-app-client"
+coverage_state: "partial-android-flow-only"
+tags:
+  - "app-client"
+  - "state-error"
+  - "archived"
+---
+
 # APP 状态与错误处理规范
 
 > 当前文档是 APP 状态与错误处理的萃取维度说明，状态为 structure-ready。具体强制规则必须由后续真实 evidence 或负责人确认补齐。

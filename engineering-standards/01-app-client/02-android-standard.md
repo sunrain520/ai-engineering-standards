@@ -8,7 +8,7 @@ version: "v0.1.0"
 status: "archived"
 owner: "TBD"
 index_format: "engineering-standards-md-v1"
-indexable: false
+indexable: true
 superseded_by: "standard-android.md"
 tags:
   - "app-client"

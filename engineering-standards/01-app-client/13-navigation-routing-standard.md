@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-navigation-routing-standard-archived"
+title: "APP 路由与页面协作规范（已归档）"
+domain: "app-client"
+sub_domain: "navigation-routing"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+superseded_by: "standard-module-boundary.md"
+run_id: "20260602-193408-app-client"
+tags:
+  - "app-client"
+  - "navigation-routing"
+  - "archived"
+---
+
+> 本文件已归档。跨模块 provider、request 和账户子页导航的现行规则见 `standard-module-boundary.md`。
+
 # APP 路由与页面协作规范
 
 > 当前文档是 APP 路由与页面协作的萃取维度说明，状态为 structure-ready。具体强制规则必须由后续真实 evidence 或负责人确认补齐。

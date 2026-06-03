@@ -8,7 +8,7 @@ x-external-evals-root: docs/evals/project-standard-extractor/
 
 ## Purpose
 
-本 Skill 从存量代码反向萃取团队研发规范，供后续 AI 编码与人工 review 复用。公开入口默认是 full-auto：用户只提供 `project_paths` 时，内部完成 profile-first、两档 batch queue、逐 batch worker、质量门禁、append-only merge、产物契约校验和 review summary。Phase 2 维度框架和 force-rebuild 系列仍是 repair-only。
+本 Skill 从存量代码反向萃取团队研发规范，供后续 AI 编码与人工 review 复用。公开入口默认 full-auto；用户只提供 `project_paths` 时，内部完成 profile-first、两档 batch queue、逐 batch worker、质量门禁、append-only merge、产物契约校验和 review summary。Phase 2 维度框架和 force-rebuild 系列仍是 repair-only。
 
 ## When To Use
 

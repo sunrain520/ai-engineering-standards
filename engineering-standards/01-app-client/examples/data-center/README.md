@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-examples-data-center-readme"
+title: "数据中台示例目录"
+domain: "app-client"
+sub_domain: "data-center"
+doc_type: "overview"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+run_id: "20260602-193408-app-client"
+coverage_state: "not-extracted-in-current-run"
+tags:
+  - "app-client"
+  - "examples"
+  - "data-center"
+---
+
+> 本次 run 未形成数据中台示例集，本目录仅保留历史占位说明。
+
 # 数据中台示例目录
 
 用于沉淀 HSDataCenterKit 数据访问、缓存策略和错误转换正例。

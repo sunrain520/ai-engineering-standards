@@ -1,56 +1,41 @@
 ---
-doc_id: "app-client-evidence-legacy"
-title: "APP Legacy Compatible Examples"
+doc_id: "app-client-legacy-compatible"
+title: "APP 客户端历史兼容证据"
 domain: "app-client"
-sub_domains:
-  - "android"
+sub_domain: "common"
 doc_type: "evidence-legacy"
 version: "v0.1.0"
-status: "draft"
+status: "active"
 owner: "TBD"
 index_format: "engineering-standards-md-v1"
 indexable: true
-run_id: "20260522-100947-app-client"
-source_batches:
-  - "app-client-android-core-ui-state"
-  - "app-client-android-trade-route-provider"
-  - "app-client-android-trade-account-page-composition"
+run_id: "20260602-193408-app-client"
 tags:
   - "app-client"
-  - "evidence"
   - "legacy-compatible"
+  - "evidence"
 ---
 
-# APP Legacy Compatible Examples
+# APP 客户端历史兼容证据
 
-下列条目记录跨多个 batch 的历史兼容写法，AI 不应复制扩散，但兼容期内允许保留。
+## LEG-APP-1 WatchListKmp 使用 globalScope 包装 KMP Service
 
-## LEG-APP-1: core-ui-kit 直接依赖聚合 KMP 入口
+- 路径：`watchlist-core/src/main/java/com/hstong/stock/core/WatchListKmp.kt:6-22`
+- 对应规则：`standard-android.md「P1 Flow 订阅必须绑定 viewModelScope 或 viewLifecycleOwner 生命周期」`
+- 观察：`WatchListKmp` object 中存在 `WatchlistService(globalScope)`。
+- 兼容边界：这是集中桥接层，不作为 Fragment / ViewModel 新增 UI Flow 订阅模板。
+- 建议：保留兼容，新增 KMP 能力优先使用 owner scope 或 ViewModel scope。
 
-- source_facts:
-  - `evidence/code-facts.md「EV-APP-11」`
-- path: `core/core-ui-kit/build.gradle`
-- observed_legacy_pattern: `core-ui-kit` 当前仍 `implementation Deps.Lib.biz_kaz_app`，并有注释说明不应直接依赖整个 KMP 入口，应改为直接依赖所需 KMP core utils 模块。
-- compatible_reason: 当前构建仍依赖该配置，不能在规范萃取阶段自动删除。
-- suggested_rule_candidate: `standard-android.md「P1 页面基类选择必须匹配页面状态复杂度」` 的 Review 风险项。
-- evidence_tier: `single-project`
+## LEG-APP-2 WatchListKmp 集中封装 KMP Service 访问
 
-## LEG-APP-2: deprecated TradeRouter 历史 H5 跳转入口
+- 路径：`watchlist-core/src/main/java/com/hstong/stock/core/WatchListKmp.kt:6-22`
+- 对应规则：`standard-kmp-shared.md「P2 KMP Service 全局包装属于历史兼容，不作为新增模板」`
+- 观察：调用方可通过 `WatchListKmp.getService()` 取得服务，避免到处直接构造 Service。
+- 兼容边界：全局 Scope 生命周期未在当前授权路径下完整确认，因此本条保持 pending。
 
-- source_facts:
-  - `evidence/code-facts.md「EV-APP-13」`
-- path: `feature/trade/trade-core/src/main/java/com/hstong/trade/core/router/TradeRouter.kt`
-- observed_legacy_pattern: `TradeRouter` 被标记 `@Deprecated("")`，但仍以单例方式拼接 H5 URL 并通过 PageRouter 跳转。
-- compatible_reason: 旧业务入口仍可能被调用，新增代码不应复制该模式。
-- suggested_rule_candidate: `standard-android.md「P2 交易共享能力应收敛到 trade-core 等 feature-core 模块」`
-- evidence_tier: `single-project`
+## LEG-APP-3 trade-account 仍临时依赖旧 trade 模块
 
-## LEG-APP-3: 账户容器直接注入 KMP UseCase
-
-- source_facts:
-  - `evidence/code-facts.md「EV-APP-15」`
-- path: `feature/trade/trade-account/src/main/java/com/hstong/trade/account/security/SecurityAccountFragment.kt`
-- observed_legacy_pattern: 账户容器 Fragment 直接注入 `TabSortConfigUseCase`，源码注释标明“待优化，直接调用了 usecase”。
-- compatible_reason: 现有账户页 tab 排序依赖该调用，需负责人确认迁移边界后再收敛。
-- suggested_rule_candidate: `standard-android.md「P2 账户容器页应只编排页面结构和导航消费」`
-- evidence_tier: `single-project`
+- 路径：`trade2/trade-account/build.gradle:31-34`
+- 对应规则：`standard-module-boundary.md「P1 交易共享能力必须先沉淀到 trade-core，再由交易子模块复用」`
+- 观察：`trade-account` 依赖 `trade2:trade-core`，同时有注释说明“暂时依赖老的交易模块，后续逐步重构去掉依赖”。
+- 兼容边界：旧模块依赖是迁移期兼容，不应作为新增交易共享能力的落点。

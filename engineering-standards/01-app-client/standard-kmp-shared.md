@@ -5,11 +5,11 @@ domain: "app-client"
 sub_domain: "kmp-shared"
 doc_type: "standard"
 version: "v0.1.0"
-status: "draft"
+status: "active"
 owner: "TBD"
 index_format: "engineering-standards-md-v1"
 indexable: true
-run_id: "20260522-100947-app-client"
+run_id: "20260602-193408-app-client"
 tags:
   - "app-client"
   - "kmp-shared"
@@ -19,233 +19,129 @@ tags:
 
 # APP KMP Shared 团队规范
 
-本文件从 `kaz-mvp` 的 `trade-order` KMP batch 萃取，当前为单项目 evidence-backed `draft`。跨项目推广或升级为 `active` 前，需要 APP/KMP 负责人确认。
+本文件从 `hszq-app` Android 侧使用 KMP Presenter / Service / StateFlow 的桥接代码萃取。由于当前授权路径未包含 `submodules/biz-common` 源码，本文只约束 Android 侧 KMP 消费方式，不对 KMP shared 源码内部架构作强制结论。
 
-## 技术栈
+## P1 Android ViewModel 获取 KMP Presenter 必须注入生命周期 Scope
 
-- Kotlin Multiplatform 子项目，使用 `settings.gradle.kts` 显式拆分 `modules:core:*`、`modules:trade:*`、`modules:platform:*`、`apps:*`。
-- Domain 层通过 UseCase 与 Repository 接口表达业务语义，网络结果统一使用 `Result<*, HsNetworkException>`。
-- Presentation 层通过 Presenter、`StateFlow`、分页工具和 RequestGate 输出页面状态。
-
-## 分层图
-
-```text
-apps:kaz-app / 原生宿主
-  -> presentation Presenter / UiState / Mapper
-  -> domain UseCase
-  -> domain Repository interface
-  -> data / network implementation
-  -> modules:core:* shared types and utilities
-```
-
-## P1 KMP 业务能力必须保持 UseCase -> Repository 的依赖方向
-
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
+> level: P1 · status: auto-active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-06-02 · recommended_action: auto-activate · confidence_tier: high · authority_scope: this-repo · upgrade_mode: auto-active · deterministic_occurrence_count: 3 · last_evidence_confirmed_run: 20260602-193408-app-client
 
 ### 说明
 
-- KMP 共享层会同时被 Android 与 iOS 宿主消费，一旦 UseCase 反向依赖 Repository 的网络实现或 DTO，平台细节就会沿 expect/actual 边界扩散，导致一份业务逻辑难以在两端复用。固定 UseCase -> Repository 接口的单向依赖，能让 domain 语义独立于具体数据源，替换网络栈或做平台特化时只改实现、不动业务契约。此外 KMP 编译为 iOS framework 时所有 public 声明都会进入 ObjC ABI，内部 UseCase 不加 refinement 注解隐藏，就会污染 iOS 头文件并带来后续删改即破坏 ABI 的兼容包袱。
+交易账户总览 ViewModel 通过 Koin 获取 `OverallAccountOverviewPresenter`，并把 `viewModelScope` 作为参数注入 Presenter。页面通过 Presenter 暴露的 Flow 更新 UI，ViewModel 负责触发刷新和监听请求状态。这个模式说明 Android 侧不应直接 new KMP Presenter 或 Service，而应把生命周期 Scope 显式交给依赖注入或工厂边界，让 KMP 侧协程和 Android ViewModel 生命周期对齐。
 
 ### 适用范围
 
-- KMP trade/order/account 等共享业务模块。
+- Android ViewModel 调用 KMP Presenter、Koin 注入、Presenter 生命周期、KMP Flow 消费。
 
 ### 推荐做法
 
-1. UseCase 表达单一业务动作，依赖 domain Repository 接口和必要上下文。
-2. Repository 接口按业务语义声明数据访问能力，不把网络实现细节暴露给 Presentation。
-3. UseCase 返回统一的结果类型，调用方通过成功 / 失败分支处理页面状态。
-4. 不直接暴露给 iOS 的内部 UseCase 可使用 ObjC refinement 注解隐藏 ABI。
+1. Android ViewModel 获取 KMP Presenter 时，应通过 Koin、Module 或工厂方法注入。
+2. Presenter 构造需要协程作用域时，应传入 `viewModelScope` 或明确的业务 Scope。
+3. Fragment 不直接创建 Presenter，不绕过 ViewModel 持有业务状态。
 
-### AI 生成代码要求
+### 禁止做法
 
-1. AI 新增 KMP 业务能力时，必须先定义 domain 语义，再补 Repository 接口和实现。
-2. AI 不得让 Presenter 直接依赖网络实现或 DTO 细节。
-3. AI 修改 ObjC 暴露边界时必须显式说明是否影响 iOS ABI。
-
-### Code Review 检查项
-
-- [ ] UseCase 依赖 Repository 接口而非具体实现。
-- [ ] Repository 方法名和参数按业务语义命名。
-- [ ] iOS 暴露边界变更有明确说明。
-
-### Evidence
-
-- `evidence/code-facts.md「EV-APP-16」`
-- `evidence/code-facts.md「EV-APP-17」`
-
-## P1 KMP Presenter 应以状态流驱动页面而不是直接操作原生 UI
-
-> level: P1 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
-
-### 说明
-
-- Presenter 处在共享层，无法引用 Android View、Fragment 这类平台专有类型，否则代码根本无法编译进 iOS target；以不可变 `StateFlow<UiState>` 对外输出，正是为了让两端宿主用各自的 UI 框架订阅同一份状态。分页若不显式维护首屏、刷新、加载更多、空态、失败和下一页游标，跨平台两端就会各写一套不一致的边界处理，且把游标散落到 UI 层会让任一平台的列表在并发翻页时错乱。并发请求经 RequestGate 防重、成功结果先映射为 UI model 再合并进 UiState，能保证状态可重放、两端表现一致。
-
-### 适用范围
-
-- KMP Presentation、分页列表、筛选状态、请求去重。
-
-### 推荐做法
-
-1. Presenter 输出不可变 `StateFlow<UiState>`，内部通过 `MutableStateFlow` 更新状态。
-2. 分页列表应显式维护首屏、刷新、加载更多、空态、失败和下一页游标。
-3. 并发请求需要通过 RequestGate 或等价机制防重。
-4. 成功结果应先映射为 UI model，再合并到 UiState。
-
-### AI 生成代码要求
-
-1. AI 新增 KMP Presenter 时，应输出状态流，不直接引用 Android View。
-2. AI 新增分页能力时，必须处理首屏、刷新、加载更多和失败重置。
-3. AI 不得把接口分页游标散落在 UI 层。
-
-### Code Review 检查项
-
-- [ ] Presenter 不直接操作 Android View 或 Fragment。
-- [ ] 分页状态、筛选状态和请求防重逻辑集中在 Presenter。
-- [ ] DTO 到 UI model 的转换在进入 UiState 前完成。
-
-### Evidence
-
-- `evidence/code-facts.md「EV-APP-18」`
-
-## P2 KMP 模块矩阵应按 core / business / app 分层维护
-
-> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
-
-### 说明
-
-- KMP 通过 `settings.gradle.kts` 显式拆分模块，归属层级一旦混乱，跨平台编译会因循环依赖直接失败，且 `apps` 层沉淀的公共逻辑无法被其他业务域复用。把共享能力归到 `modules:core` 或对应业务域、业务域之间靠稳定类型与 contract 协作，可避免 app 层反向沉淀造成的依赖倒置。settings 变更同步说明新增模块的业务域和依赖方向，是因为模块图是 KMP 多 target 构建的事实来源,缺少这层说明,后续接手者难以判断哪些模块会被打进 iOS framework。
-
-### 适用范围
-
-- KMP settings、模块新增、跨域依赖调整。
-
-### 推荐做法
-
-1. 新增共享能力时应先判断归属 `modules:core`、具体业务域还是 `apps`。
-2. 业务模块之间需要通过稳定类型和 contract 协作，避免让 app 层反向沉淀公共逻辑。
-3. settings 变更应同步说明新增模块服务的业务域和依赖方向。
-
-### AI 生成代码要求
-
-1. AI 新增 KMP module include 时，必须说明模块归属层级。
-2. AI 不得把跨业务共享能力直接放入 app 模块。
-
-### Code Review 检查项
-
-- [ ] 新增 KMP 模块归属层级清晰。
-- [ ] settings 变更没有引入跨层反向依赖。
-
-### Evidence
-
-- `evidence/code-facts.md「EV-APP-19」`
-
-## P2 KMP 桥接 object 统一封装 Service 访问，Android 侧不直接持有 Service 实例
-
-> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
-
-### 说明
-
-- KMP Service 自带初始化（`doInitWithCombination()`）和协程作用域等生命周期约束，若 Android 各处 ViewModel、Manager 直接 new Service 实例，会出现重复初始化、作用域泄漏，以及 KMP 内部参数细节（如 group 三元组）散落到调用方。用单一 `object` 桥接，把实例持有、初始化和访问入口收口到一处，Android 侧只面对贴合自身习惯的方法签名,KMP 内部签名调整时只改 object 不波及上层。替换旧实现时注释保留而非删除，是因为跨平台桥接的行为差异往往要等真机联调才暴露，保留旧代码便于快速对比和回滚。
-
-### 适用范围
-
-- Android 侧调用 KMP Service（如 WatchlistService、ApplicationLogic）的所有入口。
-
-### 推荐做法
-
-1. 用 Kotlin `object`（如 `WatchListKmp`）封装 KMP Service 的生命周期和访问入口，Android 侧只调用 object 方法。
-2. object 内部持有 Service 实例，负责初始化（`doInitWithCombination()`）和状态管理。
-3. 旧的直接调用 Service 方法的代码应注释保留（用 `//` 注释掉旧实现），新实现通过 object 桥接，便于回滚和对比。
-4. 桥接 object 的方法签名应与 Android 侧调用习惯对齐，隐藏 KMP 内部参数细节。
+1. 禁止在 Fragment 中直接构造 KMP Presenter 或 Service。
+2. 禁止让 KMP Presenter 使用与页面生命周期无关的临时 Scope。
 
 ### 正例
 
 ```kotlin
-object WatchListKmp {
-    private var watchlistService: WatchlistService = WatchlistService(globalScope)
-    init { watchlistService.doInitWithCombination() }
-
-    suspend fun groupAddStocks(groupId: String?, isSystem: Int?, stocks: List<SecurityItem>?, isManual: String?): HSResult<Boolean> {
-        val groups = groupId?.let { listOf(it to isSystem?.toString()) }
-        return watchlistService.groupAddStocks(groups, stocks, isManual)
-    }
+class AccountOverviewVM(application: Application) : LoadDataVM(application), KoinComponent {
+    val presenter: OverallAccountOverviewPresenter = get { parametersOf(viewModelScope) }
 }
 ```
 
 ### AI 生成代码要求
 
-1. AI 新增 KMP Service 调用时，必须通过桥接 object，不直接在 ViewModel 或 Manager 中持有 Service 实例。
-2. AI 替换旧实现时，应注释保留旧代码，不直接删除。
+1. AI 新增 Android ViewModel 消费 KMP Presenter 时，必须通过注入或工厂边界获取。
+2. AI 必须把协程作用域显式传入 Presenter，而不是让 Presenter 自行创建全局作用域。
 
 ### Code Review 检查项
 
-- [ ] Android 侧没有直接持有 KMP Service 实例。
-- [ ] 桥接 object 负责 Service 初始化和生命周期。
+- [ ] Presenter 获取路径经过 ViewModel 注入或工厂边界。
+- [ ] Presenter 使用的 Scope 与 ViewModel 生命周期对齐。
+- [ ] Fragment 没有直接构造 KMP 业务对象。
 
----
+### Evidence
 
-## P2 KMP Presenter 的 EffectFlow 用于一次性副作用，不用于持久状态
+- `evidence/code-facts.md「EV-APP-26」`
+- `evidence/code-facts.md「EV-APP-27」`
 
-> level: P2 · status: draft · source_kind: extracted · evidence_tier: single-project · risk_tag: low · owner: TBD · last_reviewed: 2026-05-22 · recommended_action: keep-draft · confidence_tier: normal · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: null · last_evidence_confirmed_run: null
+## P1 KMP Flow 到 Android UI 的订阅必须由 Fragment 生命周期收口
+
+> level: P1 · status: auto-active · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-06-02 · recommended_action: auto-activate · confidence_tier: high · authority_scope: this-repo · upgrade_mode: auto-active · deterministic_occurrence_count: 6 · last_evidence_confirmed_run: 20260602-193408-app-client
 
 ### 说明
 
-- `stateFlow` 语义是可重放的最新状态，新订阅者会立刻收到当前值；若把 Toast、导航、弹窗这类一次性副作用塞进 `stateFlow`，旋转屏幕或重新收集时就会重复弹窗、重复跳转。改用消费一次的 `effectFlow` 承载副作用，能让 Android 与 iOS 两端都基于同一份共享 Presenter 各自映射为平台事件，而不必在 UI 层各写一套去重逻辑。在 `init` 中用 `viewModelScope.launch` 收集而非 `onResume`，是为避免生命周期回调多次执行造成的重复订阅，否则一个 effect 会被消费多次。
+账户总览 Fragment 在 `repeatOnLifecycle(STARTED)` 中并行收集 `requestState`、`assetCardFlow`、`accountListFlow`、`isDesensitized` 和 `selectedCurrencyFlow`。这些 Flow 都来自 KMP Presenter 或其相关管理器。把订阅收口到 `viewLifecycleOwner` 能保证 View 销毁后订阅停止，避免 Presenter 后续状态继续写入已经释放的 binding。
 
 ### 适用范围
 
-- 所有使用 KMP Presenter 的 ViewModel，特别是有弹窗、导航、Toast 等副作用的场景。
+- KMP StateFlow / SharedFlow、Android Fragment UI 渲染、Presenter 状态订阅。
 
 ### 推荐做法
 
-1. 一次性副作用（Toast、导航跳转、弹窗触发）通过 `effectFlow` 发送，不写入 `stateFlow`。
-2. Android ViewModel 在 `init` 中用 `viewModelScope.launch` 收集 `effectFlow`，映射为 Android 侧 LiveData 事件。
-3. `stateFlow` 只承载可重放的页面状态，`effectFlow` 只承载消费一次的事件。
+1. Fragment 只在 View 生命周期内收集 KMP Flow。
+2. 多路 Flow 可在同一个 `repeatOnLifecycle` block 内通过子 `launch` 并行收集。
+3. UI 更新使用当前 View 的 binding 或 `bindingOrNull`，避免销毁后写 UI。
 
-### 正例
+### 禁止做法
 
-```kotlin
-init {
-    viewModelScope.launch {
-        presenter.effectFlow.collect(::handlePresenterEffect)
-    }
-}
-
-private fun handlePresenterEffect(effect: AccountCondOrderEffect) {
-    when (effect) {
-        is AccountCondOrderEffect.ShowToast -> showToast(effect.message)
-        is AccountCondOrderEffect.OpenModify -> mutableUiEvent.postValue(AccountCondOrderUiEvent.ModifyOrder(effect.preparation))
-        AccountCondOrderEffect.RefreshCurrentList -> onActionSuccessRefresh()
-    }
-}
-```
+1. 禁止在 Fragment 字段初始化或 `onCreate` 中长期收集 UI Flow。
+2. 禁止用全局 Scope 直接 collect KMP UI 状态。
 
 ### AI 生成代码要求
 
-1. AI 新增 KMP Presenter 副作用时，必须通过 `effectFlow` 而非 `stateFlow`。
-2. AI 在 ViewModel 中收集 `effectFlow` 时，必须在 `init` 中启动，不在 `onResume` 等生命周期方法中重复订阅。
+1. AI 新增 KMP Flow UI 订阅时，必须绑定 `viewLifecycleOwner`。
+2. AI 不得在 UI 层使用 `GlobalScope` 收集 KMP Flow。
 
 ### Code Review 检查项
 
-- [ ] 一次性副作用通过 `effectFlow`，不写入 `stateFlow`。
-- [ ] `effectFlow` 在 `init` 中订阅，不重复订阅。
+- [ ] KMP UI Flow 在 `repeatOnLifecycle` 或等价项目封装中收集。
+- [ ] UI 更新没有越过 View 生命周期。
+- [ ] 多路订阅的生命周期边界一致。
 
----
+### Evidence
 
-## AI 规则
+- `evidence/code-facts.md「EV-APP-28」`
+- `evidence/code-facts.md「EV-APP-29」`
 
-- KMP 业务逻辑先写 UseCase 与 Repository 接口，再连接实现。
-- Presenter 只输出状态流，不直接操作 Android View。
-- 新增 KMP 模块必须说明 core / business / app 归属。
-- Android 侧通过桥接 object 访问 KMP Service，不直接持有 Service 实例。
-- 一次性副作用通过 `effectFlow`，持久状态通过 `stateFlow`。
+## P2 KMP Service 全局包装属于历史兼容，不作为新增模板
 
-## Review 检查项
+> level: P2 · status: pending-confirmation · source_kind: extracted · evidence_tier: single-project · risk_tag: medium · owner: TBD · last_reviewed: 2026-06-02 · recommended_action: move-to-pending · confidence_tier: low · authority_scope: none · upgrade_mode: none · deterministic_occurrence_count: 1 · last_evidence_confirmed_run: 20260602-193408-app-client
 
-- [ ] UseCase、Repository、Presenter 依赖方向清晰。
-- [ ] 分页 Presenter 处理请求防重、失败重置和游标更新。
-- [ ] ObjC/iOS 暴露边界变更被显式说明。
-- [ ] Android 侧没有直接持有 KMP Service 实例。
-- [ ] 一次性副作用通过 `effectFlow`，不写入 `stateFlow`。
+### 说明
+
+`watchlist-core` 中存在 `WatchListKmp` object 包装 KMP `WatchlistService(globalScope)` 的历史实现。它把 Service 访问集中到一个 Android 侧 object，避免调用方到处直接构造 Service；但 `globalScope` 与页面生命周期无关，不能作为新页面或新 KMP 能力的默认模板。由于当前未读取 KMP shared 源码和该全局 Scope 的完整生命周期治理，本条只进入待确认。
+
+### 适用范围
+
+- Watchlist KMP bridge、KMP Service 访问、全局 object 兼容层。
+
+### 推荐做法
+
+1. 已有全局 bridge 可保留兼容，但新增能力应优先使用 ViewModel scope / owner scope 注入。
+2. Android 调用方不应绕过 bridge 直接持有 KMP Service。
+3. 如需保留全局 Scope，应由负责人确认生命周期、释放和测试边界。
+
+### 禁止做法
+
+1. 禁止把 `WatchlistService(globalScope)` 模式复制到新 KMP 能力。
+2. 禁止在 Fragment 或 ViewModel 中散落直接构造 KMP Service。
+
+### AI 生成代码要求
+
+1. AI 遇到全局 KMP Service bridge 时，应标记为历史兼容。
+2. AI 新增 KMP Service 调用时，不得默认使用全局 Scope。
+
+### Code Review 检查项
+
+- [ ] 新增 KMP Service 调用没有复制 `globalScope` 模式。
+- [ ] 调用方没有绕过已有 bridge 直接构造 Service。
+- [ ] 继续保留全局 bridge 时有负责人确认或迁移计划。
+
+### Evidence
+
+- `evidence/legacy-compatible.md「LEG-APP-2」`
+- `evidence/code-facts.md「EV-APP-30」`

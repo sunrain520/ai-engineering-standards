@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-security-compliance-standard-archived"
+title: "APP 安全与合规规范（待 evidence 归档）"
+domain: "app-client"
+sub_domain: "security-compliance"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+run_id: "20260602-193408-app-client"
+coverage_state: "sanitized-build-signing-only"
+tags:
+  - "app-client"
+  - "security-compliance"
+  - "archived"
+---
+
+> 本次 `hszq-app` run 只记录发布签名变量的脱敏存在事实，相关待确认项见 `pending-confirmation.md`。本文其余安全合规内容仅作历史草案。
+
 # APP 安全与合规规范
 
 > 当前文档是 APP 安全与合规的萃取维度说明，状态为 structure-ready。具体强制规则必须由后续真实 evidence 或负责人确认补齐。

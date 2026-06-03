@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-observability-standard-archived"
+title: "APP 日志、埋点与可观测性规范（待 evidence 归档）"
+domain: "app-client"
+sub_domain: "observability"
+doc_type: "standard"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+run_id: "20260602-193408-app-client"
+coverage_state: "not-extracted-in-current-run"
+tags:
+  - "app-client"
+  - "observability"
+  - "archived"
+---
+
+> 本次 `hszq-app` run 未形成日志、埋点或可观测性维度的高置信规则，本文件仅保留历史规范草案。AI 不得把本文内容作为默认执行规则。
+
 # APP 日志、埋点与可观测性规范
 
 > 当前文档是 APP 日志、埋点与可观测性的萃取维度说明，状态为 structure-ready。具体强制规则必须由后续真实 evidence 或负责人确认补齐。

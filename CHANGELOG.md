@@ -8,6 +8,7 @@
   - `变更摘要` 使用中文，简明说明本次改动
 - 用户可感知的变更在末尾追加 `(user-visible)`
 
+- v0.1.0 2026-06-02 20:00:13 test: 使用 project-standard-extractor full-auto 从 hszq-app 覆盖重写 APP 客户端规范产物，更新 Android、KMP Android 消费侧、模块边界、构建治理、evidence、AI rules、review checklist、lineage、owner queue、00-17 编号文档治理状态和本次运行 temp 包；同步补齐 SKILL 默认 full-auto 文案以通过 public-surface 校验，并通过产物契约校验 (user-visible)
 - v0.1.0 2026-06-02 17:40:00 reviewer: 逐项修复 project-standard-extractor 产物契约复审问题:统一 Phase2 activation-report temp 输入与正式 evidence 落盘字段,补齐 owner_queue_action 与 rules-index rules[] 机器契约守护,新增 valid/invalid artifact-contract fixtures 与 README 命令,强化 public-surface validator 对 fixture、overview §9、llms candidate 和旧口径回归的检查 (user-visible)
 - v0.1.0 2026-06-02 15:49:21 reviewer: 修复 project-standard-extractor 终审剩余契约守护问题:补齐 skeleton inline 元数据 13 字段,强化 artifact-contract validator 对 generated frontmatter/rules-index/lineage/owner queue/recommended_action/activation-report 不变量的检查,并将 generation.md 旧口径与 AE-01..AE-18 显式映射纳入 public-surface validator (user-visible)
 - v0.1.0 2026-06-02 15:29:57 reviewer: 修复 project-standard-extractor full-auto 终审残留口径:移除 quality-gate/prompts 中旧 `promote-to-active` 与 legacy active 自动发布表述,同步 generation 与 review quality gate 的 13 项 inline 元数据字段全集,并明确 `owner-confirmed-active` 只能由负责人手动确认、`auto-active` 只由 BR-016/BR-017 闸产生 (user-visible)

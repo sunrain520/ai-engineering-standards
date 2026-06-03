@@ -1,3 +1,24 @@
+---
+doc_id: "app-client-examples-kmp-readme"
+title: "KMP 示例目录"
+domain: "app-client"
+sub_domain: "kmp-shared"
+doc_type: "overview"
+version: "v0.1.0"
+status: "archived"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+run_id: "20260602-193408-app-client"
+coverage_state: "example-placeholder"
+tags:
+  - "app-client"
+  - "examples"
+  - "kmp-shared"
+---
+
+> 示例目录尚未按本次 run 更新为正式示例集；现行 KMP Android 消费侧规则见 `../standard-kmp-shared.md`。
+
 # KMP 示例目录
 
 用于沉淀 KMP shared 层正例和反例。

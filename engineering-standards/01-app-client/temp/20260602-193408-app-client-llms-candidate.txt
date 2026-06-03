@@ -1,0 +1,7 @@
+# APP Client LLM Context Candidate
+
+run_id: 20260602-193408-app-client
+candidate: true
+formal_target: llms.txt must not be overwritten by this candidate.
+
+Use ai-rules.md for default executable rules. Use pending-confirmation.md for warnings that require owner confirmation. Do not use archived numbered 00-17 docs as default execution rules.

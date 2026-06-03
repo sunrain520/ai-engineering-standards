@@ -1,3 +1,20 @@
+---
+doc_id: "app-client-standard-extraction-process"
+title: "APP 代码开发规范萃取流程"
+domain: "app-client"
+sub_domain: "common"
+doc_type: "overview"
+version: "v0.1.0"
+status: "active"
+owner: "TBD"
+index_format: "engineering-standards-md-v1"
+indexable: true
+run_id: "20260602-193408-app-client"
+tags:
+  - "app-client"
+  - "extraction-process"
+---
+
 # APP 代码开发规范萃取流程
 
 ## 1. 目标
