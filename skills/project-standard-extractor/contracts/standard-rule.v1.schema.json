@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "standard-rule.v1",
+  "type": "object",
+  "required": ["schema", "run_id", "rules"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "standard-rule.v1" },
+    "run_id": { "type": "string" },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "title", "domain", "sub_domain", "level", "status", "rule_text", "must", "must_not", "positive_evidence", "negative_evidence", "ai_coding_rule", "review_checklist", "authority_scope", "owner_required", "source_patterns", "source_projects", "risk_level"],
+        "additionalProperties": false,
+        "properties": {
+          "rule_id": { "type": "string" },
+          "title": { "type": "string" },
+          "domain": { "type": "string" },
+          "sub_domain": { "type": "string" },
+          "level": { "type": "string" },
+          "status": { "enum": ["candidate", "draft", "auto-active", "pending-confirmation", "conflict", "owner-confirmed-active", "department-active", "owner-rejected"] },
+          "rule_text": { "type": "string" },
+          "must": { "type": "array", "items": { "type": "string" } },
+          "must_not": { "type": "array", "items": { "type": "string" } },
+          "positive_evidence": { "type": "array", "items": { "type": "string" } },
+          "negative_evidence": { "type": "array", "items": { "type": "string" } },
+          "ai_coding_rule": { "type": "string" },
+          "review_checklist": { "type": "array", "items": { "type": "string" } },
+          "authority_scope": { "enum": ["this-repo", "team", "department"] },
+          "owner_required": { "type": "boolean" },
+          "source_patterns": { "type": "array", "items": { "type": "string" } },
+          "source_projects": { "type": "array", "items": { "type": "string" } },
+          "risk_level": { "enum": ["low", "medium", "high"] }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "project-input.v1",
+  "extraction_target": { "domain": "backend", "sub_domain": "java-spring" },
+  "project_paths": ["skills/project-standard-extractor/evals/golden-samples/java-spring/sample-service"],
+  "scope": {
+    "include": ["**/*"],
+    "exclude": ["**/target/**", "**/build/**", "**/generated/**"]
+  },
+  "output": { "base_dir": "engineering-standards/04-backend", "mode": "append-only" }
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "lineage-ledger.v1",
+  "type": "object",
+  "required": ["schema", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "lineage-ledger.v1" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "created_by_run", "source_patterns", "source_facts", "source_projects", "status_history"],
+        "additionalProperties": false,
+        "properties": {
+          "rule_id": { "type": "string" },
+          "created_by_run": { "type": "string" },
+          "source_patterns": { "type": "array", "items": { "type": "string" } },
+          "source_facts": { "type": "array", "items": { "type": "string" } },
+          "source_projects": { "type": "array", "items": { "type": "string" } },
+          "status_history": { "type": "array", "items": { "type": "object" } }
+        }
+      }
+    }
+  }
+}

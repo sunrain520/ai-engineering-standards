@@ -1,0 +1,75 @@
+{
+  "schema": "project-standard-extractor.output-cases.v1",
+  "execution_evidence": "recorded_fixture",
+  "cases": [
+    {
+      "id": "output-java-spring-formal-artifacts",
+      "kind": "file-backed fixture",
+      "input_files": ["evals/golden-samples/java-spring/project-input.json"],
+      "required_outputs": [
+        "engineering-standards/04-backend/standard-java-spring.md",
+        "engineering-standards/04-backend/ai-rules-java-spring.md",
+        "engineering-standards/04-backend/review-checklist-java-spring.md"
+      ],
+      "assertions": [
+        "standard output includes Evidence anchors",
+        "AI rules and checklist cite standard rule ids",
+        "formal outputs contain no local absolute paths"
+      ]
+    },
+    {
+      "id": "output-owner-queue-for-conflict",
+      "kind": "boundary",
+      "input_files": ["evals/golden-samples/java-spring/sample-service"],
+      "required_outputs": ["engineering-standards/04-backend/owner-decision-queue.json", "engineering-standards/04-backend/conflicts.md"],
+      "assertions": [
+        "conflicting rule is not auto-active",
+        "owner queue items include owner_gate and confidence_score",
+        "owner queue has at least one item"
+      ]
+    },
+    {
+      "id": "output-autonomous-confidence-decision",
+      "kind": "file-backed fixture",
+      "input_files": ["evals/golden-samples/java-spring/sample-service", "tests/quality-gates.test.mjs"],
+      "required_outputs": [".runs/{run_id}/rule-decision.v1.json", "engineering-standards/04-backend/rules-index.json"],
+      "assertions": [
+        "auto-active decisions include confidence.score and confidence.tier",
+        "auto-active decisions include autonomy.policy=auto-publish",
+        "rules index exposes confidence_score and autonomy_policy"
+      ]
+    },
+    {
+      "id": "output-non-git-evidence-anchors",
+      "kind": "file-backed fixture",
+      "input_files": ["evals/golden-samples/java-spring/sample-service"],
+      "required_outputs": [".runs/{run_id}/code-facts.v1.json"],
+      "assertions": [
+        "filesystem facts include snapshot_id",
+        "filesystem facts include path_hash and snippet_hash"
+      ]
+    },
+    {
+      "id": "output-mixed-domain-rejection",
+      "kind": "near-neighbor",
+      "input_files": ["evals/golden-samples/java-spring/sample-service", "evals/golden-samples/frontend/package.json"],
+      "required_outputs": [],
+      "assertions": [
+        "mixed backend/frontend input fails before formal writes",
+        "error asks caller to split one run per domain"
+      ]
+    },
+    {
+      "id": "output-warning-state-not-silent-active",
+      "kind": "boundary",
+      "input_files": ["tests/quality-gates.test.mjs"],
+      "required_outputs": [".runs/{run_id}/rule-decision.v1.json"],
+      "assertions": [
+        "evidence warning routes to draft and collect-more-evidence",
+        "abstraction warning routes to draft and refine-rule",
+        "evidence and abstraction warnings remain autonomous rather than owner-gated",
+        "risk warning routes to pending-confirmation and owner-review"
+      ]
+    }
+  ]
+}

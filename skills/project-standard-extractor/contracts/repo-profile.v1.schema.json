@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "repo-profile.v1",
+  "type": "object",
+  "required": ["schema", "run_id", "extraction_target", "source_projects", "detected_stacks", "domain_match", "batch_plan", "blind_spots"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "repo-profile.v1" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "extraction_target": { "$ref": "#/definitions/target" },
+    "source_projects": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/sourceProject" },
+      "minItems": 1
+    },
+    "detected_stacks": { "type": "array", "items": { "type": "string" } },
+    "domain_match": { "enum": ["confirmed", "warning", "mismatch"] },
+    "domain_mismatch_warnings": { "type": "array", "items": { "type": "string" } },
+    "module_candidates": { "type": "array", "items": { "type": "object" } },
+    "batch_plan": { "type": "array", "items": { "$ref": "batch-plan.v1#/definitions/batch" } },
+    "blind_spots": { "type": "array", "items": { "type": "object" } }
+  },
+  "definitions": {
+    "target": {
+      "type": "object",
+      "required": ["domain", "sub_domain"],
+      "additionalProperties": false,
+      "properties": {
+        "domain": { "type": "string" },
+        "sub_domain": { "type": "string" }
+      }
+    },
+    "sourceProject": {
+      "type": "object",
+      "required": ["project_id", "path_hash", "source_type", "is_git_repo", "snapshot_id"],
+      "additionalProperties": false,
+      "properties": {
+        "project_id": { "type": "string" },
+        "path_hash": { "type": "string" },
+        "source_type": { "enum": ["git", "filesystem"] },
+        "is_git_repo": { "type": "boolean" },
+        "git_commit": { "type": ["string", "null"] },
+        "snapshot_id": { "type": "string" },
+        "file_count": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

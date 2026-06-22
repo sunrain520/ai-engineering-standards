@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "code-facts.v1",
+  "type": "object",
+  "required": ["schema", "run_id", "extraction_target", "source_projects", "facts"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "code-facts.v1" },
+    "run_id": { "type": "string" },
+    "extraction_target": { "$ref": "#/definitions/target" },
+    "source_projects": { "type": "array", "items": { "type": "object" } },
+    "facts": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/fact" }
+    }
+  },
+  "definitions": {
+    "target": {
+      "type": "object",
+      "required": ["domain", "sub_domain"],
+      "additionalProperties": false,
+      "properties": {
+        "domain": { "type": "string" },
+        "sub_domain": { "type": "string" }
+      }
+    },
+    "fact": {
+      "type": "object",
+      "required": ["fact_id", "kind", "observation", "source_anchor", "git", "scope", "deterministic_occurrence_count", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": { "type": "string" },
+        "kind": { "type": "string" },
+        "role": { "type": "string" },
+        "observation": { "type": "string" },
+        "source_anchor": { "$ref": "#/definitions/sourceAnchor" },
+        "git": {
+          "type": "object",
+          "required": ["available", "commit"],
+          "additionalProperties": false,
+          "properties": {
+            "available": { "type": "boolean" },
+            "commit": { "type": ["string", "null"] }
+          }
+        },
+        "scope": { "enum": ["main", "test", "unknown"] },
+        "positive_examples": { "type": "array", "items": { "type": "object" } },
+        "negative_examples": { "type": "array", "items": { "type": "object" } },
+        "deterministic_occurrence_count": { "type": "integer", "minimum": 1 },
+        "module": { "type": "string" },
+        "confidence": { "enum": ["low", "medium", "high"] }
+      }
+    },
+    "sourceAnchor": {
+      "type": "object",
+      "required": ["source_type", "snapshot_id", "path_hash", "file", "line_range", "snippet_hash"],
+      "additionalProperties": false,
+      "properties": {
+        "source_type": { "enum": ["git", "filesystem"] },
+        "snapshot_id": { "type": "string", "minLength": 1 },
+        "path_hash": { "type": "string", "minLength": 1 },
+        "file": { "type": "string", "minLength": 1 },
+        "line_range": {
+          "type": "object",
+          "required": ["start", "end"],
+          "additionalProperties": false,
+          "properties": {
+            "start": { "type": "integer", "minimum": 1 },
+            "end": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "snippet_hash": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

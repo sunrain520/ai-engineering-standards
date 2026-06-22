@@ -1,0 +1,19 @@
+{
+  "domain": "backend",
+  "sub_domain": "java-spring",
+  "output_dir": "engineering-standards/04-backend",
+  "collectors": [
+    "collect-java-layer-facts",
+    "collect-spring-api-facts",
+    "collect-transaction-facts",
+    "collect-exception-log-facts",
+    "collect-cache-facts",
+    "collect-mq-job-facts"
+  ],
+  "miners": [
+    "mine-layering-patterns",
+    "mine-api-patterns",
+    "mine-error-handling-patterns",
+    "mine-log-patterns"
+  ]
+}

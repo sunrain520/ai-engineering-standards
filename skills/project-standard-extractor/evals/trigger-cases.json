@@ -1,0 +1,47 @@
+{
+  "schema": "project-standard-extractor.trigger-cases.v1",
+  "cases": [
+    {
+      "id": "trigger-backend-java-spring-full-auto",
+      "kind": "should-trigger",
+      "prompt": "从这个 Java Spring 服务路径萃取团队研发规范、AI Coding Rules 和 Review Checklist。",
+      "expected": "trigger",
+      "reason": "用户提供真实项目路径并要求生成 evidence-backed 规范产物。"
+    },
+    {
+      "id": "trigger-derive-from-source-evidence",
+      "kind": "should-trigger",
+      "prompt": "验证 backend/java-spring 的规范是否可以从源码证据派生，并输出 lineage。",
+      "expected": "trigger",
+      "reason": "目标是源码证据到规范、lineage 的萃取链路。"
+    },
+    {
+      "id": "no-trigger-single-file-explain",
+      "kind": "should-not-trigger",
+      "prompt": "解释这个 Controller 文件在做什么。",
+      "expected": "do_not_trigger",
+      "reason": "单文件解释不是规范萃取，也不需要 run artifacts。"
+    },
+    {
+      "id": "no-trigger-generic-best-practice",
+      "kind": "should-not-trigger",
+      "prompt": "写一份通用 Java 后端开发最佳实践。",
+      "expected": "do_not_trigger",
+      "reason": "无 project_paths 和 code-facts evidence，不能生成通用规范。"
+    },
+    {
+      "id": "near-neighbor-code-review",
+      "kind": "near-neighbor",
+      "prompt": "审查这个 PR 有没有分层问题。",
+      "expected": "do_not_trigger",
+      "reason": "PR review 是相邻任务，但不是从项目路径发布规范产物。"
+    },
+    {
+      "id": "boundary-placeholder-frontend",
+      "kind": "boundary",
+      "prompt": "从 frontend 项目直接生成前端规范。",
+      "expected": "do_not_trigger",
+      "reason": "Phase 0 只有 backend/java-spring 实现，frontend 目录只是占位。"
+    }
+  ]
+}

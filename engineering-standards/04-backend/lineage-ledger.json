@@ -1,0 +1,94 @@
+{
+  "schema": "lineage-ledger.v1",
+  "entries": [
+    {
+      "rule_id": "backend-java-layering-001",
+      "created_by_run": "20260604-020908-backend-java-spring-e76b1da",
+      "source_patterns": [
+        "PAT-BE-JAVA-LAYERING-001"
+      ],
+      "source_facts": [
+        "FACT-BE-JAVA-0074",
+        "FACT-BE-JAVA-0077",
+        "FACT-BE-JAVA-0084",
+        "FACT-BE-JAVA-0095",
+        "FACT-BE-JAVA-0101",
+        "FACT-BE-JAVA-0110",
+        "FACT-BE-JAVA-0113",
+        "FACT-BE-JAVA-0119",
+        "FACT-BE-JAVA-0001",
+        "FACT-BE-JAVA-0002",
+        "FACT-BE-JAVA-0003",
+        "FACT-BE-JAVA-0004",
+        "FACT-BE-JAVA-0005",
+        "FACT-BE-JAVA-0006",
+        "FACT-BE-JAVA-0007",
+        "FACT-BE-JAVA-0008"
+      ],
+      "source_projects": [
+        "sha256:1b2fd521c0f675a650812b0df6f460c578a9131afec31d2f78c65a5633e7f7d3"
+      ],
+      "status_history": [
+        {
+          "status": "auto-active",
+          "time": "2026-06-03T18:09:10.450Z",
+          "reason": "Initial extraction"
+        }
+      ]
+    },
+    {
+      "rule_id": "backend-java-api-002",
+      "created_by_run": "20260604-020908-backend-java-spring-e76b1da",
+      "source_patterns": [
+        "PAT-BE-JAVA-API-001"
+      ],
+      "source_facts": [
+        "FACT-BE-JAVA-0074",
+        "FACT-BE-JAVA-0075",
+        "FACT-BE-JAVA-0076",
+        "FACT-BE-JAVA-0077",
+        "FACT-BE-JAVA-0078",
+        "FACT-BE-JAVA-0079",
+        "FACT-BE-JAVA-0080",
+        "FACT-BE-JAVA-0081",
+        "FACT-BE-JAVA-0082",
+        "FACT-BE-JAVA-0083",
+        "FACT-BE-JAVA-0084",
+        "FACT-BE-JAVA-0085"
+      ],
+      "source_projects": [
+        "sha256:1b2fd521c0f675a650812b0df6f460c578a9131afec31d2f78c65a5633e7f7d3"
+      ],
+      "status_history": [
+        {
+          "status": "pending-confirmation",
+          "time": "2026-06-03T18:09:10.450Z",
+          "reason": "Initial extraction"
+        }
+      ]
+    },
+    {
+      "rule_id": "backend-java-exception-003",
+      "created_by_run": "20260604-020908-backend-java-spring-e76b1da",
+      "source_patterns": [
+        "PAT-BE-JAVA-EXCEPTION-001"
+      ],
+      "source_facts": [
+        "FACT-BE-JAVA-0073",
+        "FACT-BE-JAVA-1170",
+        "FACT-BE-JAVA-1171",
+        "FACT-BE-JAVA-1172"
+      ],
+      "source_projects": [
+        "sha256:1b2fd521c0f675a650812b0df6f460c578a9131afec31d2f78c65a5633e7f7d3"
+      ],
+      "status_history": [
+        {
+          "status": "auto-active",
+          "time": "2026-06-03T18:09:10.450Z",
+          "reason": "Initial extraction"
+        }
+      ]
+    }
+  ]
+}

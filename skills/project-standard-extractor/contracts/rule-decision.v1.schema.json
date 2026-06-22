@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "rule-decision.v1",
+  "type": "object",
+  "required": ["schema", "run_id", "decisions"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "rule-decision.v1" },
+    "run_id": { "type": "string" },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "decision", "gate_results", "reason", "next_action"],
+        "additionalProperties": false,
+        "properties": {
+          "rule_id": { "type": "string" },
+          "decision": { "enum": ["auto-active", "draft", "pending-confirmation", "conflict", "rejected"] },
+          "gate_results": {
+            "type": "object",
+            "required": ["evidence_gate", "actionability_gate", "abstraction_gate", "conflict_gate", "risk_gate", "derivation_gate", "git_001_gate"],
+            "additionalProperties": false,
+            "properties": {
+              "evidence_gate": { "enum": ["pass", "warning", "fail"] },
+              "actionability_gate": { "enum": ["pass", "warning", "fail"] },
+              "abstraction_gate": { "enum": ["pass", "warning", "fail"] },
+              "conflict_gate": { "enum": ["pass", "warning", "fail"] },
+              "risk_gate": { "enum": ["pass", "warning", "fail"] },
+              "derivation_gate": { "enum": ["pass", "warning", "fail"] },
+              "git_001_gate": { "enum": ["pass", "warning", "fail"] }
+            }
+          },
+          "confidence": {
+            "type": "object",
+            "required": ["score", "tier", "threshold", "evidence_count", "distinct_file_count", "signals"],
+            "additionalProperties": false,
+            "properties": {
+              "score": { "type": "number", "minimum": 0, "maximum": 1 },
+              "tier": { "enum": ["low", "medium", "high"] },
+              "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+              "evidence_count": { "type": "integer", "minimum": 0 },
+              "distinct_file_count": { "type": "integer", "minimum": 0 },
+              "signals": {
+                "type": "object",
+                "required": ["evidence_strength", "evidence_distribution", "actionability", "abstraction", "conflict_absence", "risk_clarity", "derivation_integrity", "anchor_integrity"],
+                "additionalProperties": false,
+                "properties": {
+                  "evidence_strength": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "evidence_distribution": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "actionability": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "abstraction": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "conflict_absence": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "risk_clarity": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "derivation_integrity": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "anchor_integrity": { "type": "number", "minimum": 0, "maximum": 1 }
+                }
+              }
+            }
+          },
+          "autonomy": {
+            "type": "object",
+            "required": ["mode", "owner_gate", "policy", "rationale"],
+            "additionalProperties": false,
+            "properties": {
+              "mode": { "enum": ["autonomous", "owner-gated"] },
+              "owner_gate": { "enum": ["none", "conflict", "high-risk"] },
+              "policy": { "enum": ["auto-publish", "owner-review", "collect-more-evidence", "refine-rule", "reject", "keep-draft"] },
+              "rationale": { "type": "string" }
+            }
+          },
+          "decision_trace": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["step", "result", "reason"],
+              "additionalProperties": false,
+              "properties": {
+                "step": { "type": "string" },
+                "result": { "enum": ["pass", "stop"] },
+                "reason": { "type": "string" }
+              }
+            }
+          },
+          "reason": { "type": "string" },
+          "next_action": { "enum": ["publish", "owner-review", "collect-more-evidence", "refine-rule", "keep-draft", "fix-or-drop-rule"] }
+        }
+      }
+    }
+  }
+}

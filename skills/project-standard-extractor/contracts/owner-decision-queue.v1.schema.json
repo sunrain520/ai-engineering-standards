@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "owner-decision-queue.v1",
+  "type": "object",
+  "required": ["schema", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "owner-decision-queue.v1" },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["queue_id", "rule_id", "decision_required", "reason", "suggested_owner_role", "options"],
+        "additionalProperties": false,
+        "properties": {
+          "queue_id": { "type": "string" },
+          "rule_id": { "type": "string" },
+          "decision_required": { "type": "string" },
+          "reason": { "type": "string" },
+          "suggested_owner_role": { "type": "string" },
+          "options": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "confidence_score": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+          "owner_gate": { "enum": ["none", "conflict", "high-risk"] }
+        }
+      }
+    }
+  }
+}

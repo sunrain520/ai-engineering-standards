@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "batch-plan.v1",
+  "type": "object",
+  "required": ["schema", "run_id", "batches"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "batch-plan.v1" },
+    "run_id": { "type": "string" },
+    "batches": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/batch" },
+      "minItems": 1
+    }
+  },
+  "definitions": {
+    "batch": {
+      "type": "object",
+      "required": ["batch_id", "domain", "sub_domain", "paths", "purpose", "risk_level", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "batch_id": { "type": "string" },
+        "domain": { "type": "string" },
+        "sub_domain": { "type": "string" },
+        "paths": { "type": "array", "items": { "type": "string" } },
+        "purpose": { "type": "string" },
+        "risk_level": { "enum": ["low", "medium", "high"] },
+        "status": { "enum": ["ready", "skipped", "failed"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "index_format": "engineering-standards-rules-index-v2",
+  "rule_fields": ["rule_id", "status", "confidence_score", "confidence_tier", "autonomy_mode", "autonomy_policy"],
+  "rules": []
+}

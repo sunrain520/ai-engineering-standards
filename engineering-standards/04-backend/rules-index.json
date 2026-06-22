@@ -1,0 +1,39 @@
+{
+  "index_format": "engineering-standards-rules-index-v2",
+  "rules": [
+    {
+      "rule_id": "backend-java-layering-001",
+      "title": "Controller 不得直接访问 Mapper / Repository",
+      "domain": "backend",
+      "sub_domain": "java-spring",
+      "level": "P1",
+      "status": "auto-active",
+      "source_doc": "04-backend/standard-java-spring.md",
+      "authority_scope": "this-repo",
+      "deterministic_occurrence_count": 16,
+      "risk_tag": "medium",
+      "tags": [
+        "backend",
+        "java-spring",
+        "medium"
+      ]
+    },
+    {
+      "rule_id": "backend-java-exception-003",
+      "title": "异常处理应进入统一处理组件",
+      "domain": "backend",
+      "sub_domain": "java-spring",
+      "level": "P1",
+      "status": "auto-active",
+      "source_doc": "04-backend/standard-java-spring.md",
+      "authority_scope": "this-repo",
+      "deterministic_occurrence_count": 4,
+      "risk_tag": "medium",
+      "tags": [
+        "backend",
+        "java-spring",
+        "medium"
+      ]
+    }
+  ]
+}

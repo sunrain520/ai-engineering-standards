@@ -1,0 +1,96 @@
+name: project-standard-extractor
+mode: production
+owner: leokuang
+entrypoint: SKILL.md
+capability:
+  job: 从真实项目代码路径中萃取 evidence-backed 端内研发规范与派生产物，并用置信分驱动自治发布或 Owner gate。
+  supported_targets:
+    - domain: backend
+      sub_domain: java-spring
+      status: implemented
+      output_dir: engineering-standards/04-backend
+  deferred_targets:
+    - frontend
+    - app-client
+    - pc-client
+inputs:
+  required:
+    - schema: project-input.v1
+      fields:
+        - extraction_target.domain
+        - extraction_target.sub_domain
+        - project_paths
+  optional:
+    - scope.include
+    - scope.exclude
+    - output.base_dir
+    - output.mode
+workflow:
+  default: workflows/full-auto.md
+  stages:
+    - agent: agents/01-intake-and-scope.md
+      emits:
+        - manifest.json
+        - repo-profile.v1
+        - batch-plan.v1
+    - agent: agents/02-repo-profiler.md
+      emits:
+        - repo-profile.v1
+    - agent: agents/03-fact-collector.md
+      emits:
+        - code-facts.v1
+    - agent: agents/04-pattern-miner.md
+      emits:
+        - pattern-candidates.v1
+    - agent: agents/05-rule-synthesizer.md
+      emits:
+        - standard-rule.v1
+    - agent: agents/06-quality-gate.md
+      emits:
+        - rule-decision.v1
+    - agent: agents/07-publisher.md
+      emits:
+        - standard-java-spring.md
+        - ai-rules-java-spring.md
+        - review-checklist-java-spring.md
+        - rules-index.json
+        - lineage-ledger.json
+        - owner-decision-queue.json
+outputs:
+  transient:
+    base_dir: .runs/{run_id}
+    contracts:
+      - manifest.json
+      - repo-profile.v1
+      - batch-plan.v1
+      - code-facts.v1
+      - pattern-candidates.v1
+      - standard-rule.v1
+      - rule-decision.v1
+  formal:
+    base_dir: engineering-standards/04-backend
+    files:
+      - standard-java-spring.md
+      - ai-rules-java-spring.md
+      - review-checklist-java-spring.md
+      - pending-confirmation.md
+      - conflicts.md
+      - rules-index.json
+      - lineage-ledger.json
+      - owner-decision-queue.json
+safety:
+  source_projects: read-only
+  formal_write_boundary: active domain output directory only
+  owner_review_policy: conflict, high-risk or explicit owner_required only
+  forbidden:
+    - modify business project source
+    - auto-activate high-risk rules
+    - generate rules without code-facts.v1 evidence
+    - run mixed-domain extraction in one run
+verification:
+  commands:
+    - npm test
+    - npm run pse:full-auto -- --input skills/project-standard-extractor/evals/golden-samples/java-spring/project-input.json
+  reports:
+    - reports/trust_report.md
+    - reports/output_quality_scorecard.md

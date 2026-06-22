@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "pattern-candidates.v1",
+  "type": "object",
+  "required": ["schema", "run_id", "patterns"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "pattern-candidates.v1" },
+    "run_id": { "type": "string" },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["pattern_id", "title", "category", "source_fact_ids", "occurrence_count", "risk_level", "suggested_state"],
+        "additionalProperties": false,
+        "properties": {
+          "pattern_id": { "type": "string" },
+          "title": { "type": "string" },
+          "category": { "type": "string" },
+          "source_fact_ids": { "type": "array", "items": { "type": "string" } },
+          "positive_fact_ids": { "type": "array", "items": { "type": "string" } },
+          "negative_fact_ids": { "type": "array", "items": { "type": "string" } },
+          "occurrence_count": { "type": "integer", "minimum": 0 },
+          "module_diversity": { "type": "integer", "minimum": 0 },
+          "role_diversity": { "type": "array", "items": { "type": "string" } },
+          "risk_level": { "enum": ["low", "medium", "high"] },
+          "suggested_rule_level": { "type": "string" },
+          "suggested_state": { "enum": ["candidate", "draft", "auto-active", "pending-confirmation", "conflict"] },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}

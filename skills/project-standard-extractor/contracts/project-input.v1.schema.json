@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "project-input.v1",
+  "type": "object",
+  "required": ["schema", "extraction_target", "project_paths"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "project-input.v1" },
+    "extraction_target": {
+      "type": "object",
+      "required": ["domain", "sub_domain"],
+      "additionalProperties": false,
+      "properties": {
+        "domain": { "type": "string", "minLength": 1 },
+        "sub_domain": { "type": "string", "minLength": 1 }
+      }
+    },
+    "project_paths": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "include": { "type": "array", "items": { "type": "string" } },
+        "exclude": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "base_dir": { "type": "string", "minLength": 1 },
+        "mode": { "enum": ["append-only"] }
+      }
+    },
+    "constraints": { "type": "object" }
+  }
+}

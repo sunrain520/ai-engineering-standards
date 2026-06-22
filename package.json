@@ -1,0 +1,24 @@
+{
+  "name": "ai-engineering-standards",
+  "version": "1.10.5",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "pse:profile": "node skills/project-standard-extractor/scripts/run-profile.mjs",
+    "pse:facts": "node skills/project-standard-extractor/scripts/run-fact-collection.mjs",
+    "pse:mine": "node skills/project-standard-extractor/scripts/run-pattern-mining.mjs",
+    "pse:gates": "node skills/project-standard-extractor/scripts/run-quality-gates.mjs",
+    "pse:validate": "node skills/project-standard-extractor/scripts/validate-contracts.mjs",
+    "pse:render": "node skills/project-standard-extractor/scripts/render-standards.mjs",
+    "pse:merge": "node skills/project-standard-extractor/scripts/merge-append-only.mjs",
+    "pse:full-auto": "node skills/project-standard-extractor/scripts/run-full-auto.mjs",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "fast-glob": "^3.3.3",
+    "gray-matter": "^4.0.3",
+    "yaml": "^2.7.0"
+  }
+}

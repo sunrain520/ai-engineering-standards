@@ -1,0 +1,18 @@
+{
+  "schema": "owner-decision-queue.v1",
+  "items": [
+    {
+      "queue_id": "ODQ-001",
+      "rule_id": "backend-java-api-002",
+      "decision_required": "confirm-or-reject",
+      "reason": "High-risk or owner-required rule must be confirmed by Owner.",
+      "suggested_owner_role": "backend-architecture-owner",
+      "options": [
+        "owner-confirmed-active",
+        "draft",
+        "legacy-compatible",
+        "owner-rejected"
+      ]
+    }
+  ]
+}

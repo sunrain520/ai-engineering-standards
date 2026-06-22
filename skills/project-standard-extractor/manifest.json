@@ -1,0 +1,65 @@
+{
+  "name": "project-standard-extractor",
+  "version": "1.10.5",
+  "owner": "leokuang",
+  "updated_at": "2026-06-22",
+  "review_cadence": "quarterly",
+  "status": "active",
+  "maturity_tier": "production",
+  "lifecycle_stage": "production",
+  "context_budget_tier": "production",
+  "description": "从真实项目代码路径中萃取 evidence-backed 团队研发规范、AI Coding Rules、Review Checklist 和 Owner 待裁定队列，并用置信分驱动自治发布或 Owner gate。",
+  "input_files": [
+    "SKILL.md",
+    "README.md",
+    "workflows/full-auto.md",
+    "agents/interface.yaml",
+    "contracts/project-input.v1.schema.json",
+    "scripts/lib/autonomy-policy.mjs",
+    "evals/golden-samples/java-spring/project-input.json"
+  ],
+  "output_contract": [
+    ".runs/{run_id}/manifest.json",
+    ".runs/{run_id}/code-facts.v1.json",
+    ".runs/{run_id}/pattern-candidates.v1.json",
+    ".runs/{run_id}/standard-rule.v1.json",
+    ".runs/{run_id}/rule-decision.v1.json",
+    "engineering-standards/04-backend/standard-java-spring.md",
+    "engineering-standards/04-backend/ai-rules-java-spring.md",
+    "engineering-standards/04-backend/review-checklist-java-spring.md",
+    "engineering-standards/04-backend/rules-index.json",
+    "engineering-standards/04-backend/lineage-ledger.json",
+    "engineering-standards/04-backend/owner-decision-queue.json"
+  ],
+  "rollback_boundary": "回滚本 skill 的 source 变更时只需回滚 skills/project-standard-extractor/、package.json、package-lock.json 和 CHANGELOG.md；业务项目源码永远不属于回滚范围。",
+  "supported_targets": [
+    {
+      "domain": "backend",
+      "sub_domain": "java-spring",
+      "status": "implemented",
+      "output_dir": "engineering-standards/04-backend"
+    }
+  ],
+  "deferred_targets": [
+    { "domain": "frontend", "status": "placeholder-only" },
+    { "domain": "app-client", "status": "placeholder-only" },
+    { "domain": "pc-client", "status": "placeholder-only" }
+  ],
+  "factory_components": {
+    "agents": "agents/",
+    "contracts": "contracts/",
+    "evals": "evals/",
+    "reports": "reports/",
+    "scripts": "scripts/",
+    "workflows": "workflows/"
+  },
+  "verification": [
+    "npm test",
+    "npm run pse:full-auto -- --input skills/project-standard-extractor/evals/golden-samples/java-spring/project-input.json"
+  ],
+  "known_missing_evidence": [
+    "provider-backed output eval",
+    "blind A/B human adjudication",
+    "runtime permission probes for packaged adapters"
+  ]
+}
